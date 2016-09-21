@@ -1,2 +1,5 @@
 # Auth
-Authentication  System for Web Application
+Authentication System for Web Application
+
+# LICENSE
+MIT
