@@ -1,7 +1,7 @@
 # -*- coding:utf8 -*-
 
 import requests
-from pub import logger
+from utils import logger
 
 class UserAuth:
 

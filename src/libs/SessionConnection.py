@@ -1,7 +1,7 @@
 #-*- coding:utf8 -*-
 #Conection Redis Module.
 
-from pub import logger
+from utils import logger
 try:
     import redis
     import rediscluster

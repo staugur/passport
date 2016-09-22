@@ -46,7 +46,7 @@ MODULES={
     "Session": os.environ.get("session", {
         "type": "redis_cluster",
         #会话存储集群类型
-        "host": "101.200.125.9",
+        "host": "115.28.147.26",
         #会话存储集群host/ip,
         "port": 10101,
         #会话存储集群port,
