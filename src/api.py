@@ -8,11 +8,11 @@ from flask import Flask, request, g, redirect, jsonify
 from flask_restful import Api, Resource
 from threading import Thread
 
-__author__  = 'SaintIC <staugur@saintic.com>'
-__doc__     = 'Authentication System for SaintIC Team Project.'
-__date__    = '2016-08-04'
-__version__ = 'v0.0.1'
-__process__ = PRODUCT.get('ProcessName', 'Team.Auth')
+__author__  = 'Mr.tao <staugur@saintic.com>'
+__doc__     = 'Authentication System for SaintIC Web Applications.'
+__date__    = '2016-09-22'
+__version__ = '0.0.1'
+__process__ = PRODUCT.get('ProcessName', 'Auth')
 
 app = Flask(__name__)
 api = Api(app)
@@ -26,7 +26,6 @@ def before_request():
 #每次返回数据中，带上响应头，包含API版本和本次请求的requestId，以及允许所有域跨域访问API, 记录访问日志
 @app.after_request
 def add_header(response):
-    response.headers["X-SaintIC-Media-Type"] = "saintic." + __version__
     response.headers["X-SaintIC-Request-Id"] = g.requestId
     response.headers["Access-Control-Allow-Origin"] = "*"
     logger.info(json.dumps({
@@ -68,23 +67,14 @@ class Registry(Resource):
 
     def post(self):
         """Get data frpm requests"""
-        try:
-            RegistryApplicationName     = request.json.get("application_name")
-            RegistryApplicationPort     = request.json.get("application_port")
-            RegistryApplicationLoglevel = request.json.get("application_loglevel")
-            RegistryApplicationWanip    = request.json.get("application_wanip")
-            RegistryApplicationLanip    = request.json.get("application_lanip")
-            RegistryApplicationProtype  = request.json.get("application_protype")
-            RegistryApplicationOther    = request.json.get("application_other")
-        except Exception,e:
-            logger.warn(e)
-            RegistryApplicationName     = request.form.get("application_name", "")
-            RegistryApplicationPort     = request.form.get("application_port")
-            RegistryApplicationLoglevel = request.form.get("application_loglevel")
-            RegistryApplicationWanip    = request.form.get("application_wanip")
-            RegistryApplicationLanip    = request.form.get("application_lanip")
-            RegistryApplicationProtype  = request.form.get("application_protype")
-            RegistryApplicationOther    = request.form.get("application_other")
+
+        RegistryApplicationName     = request.form.get("application_name")
+        RegistryApplicationPort     = request.form.get("application_port")
+        RegistryApplicationLoglevel = request.form.get("application_loglevel")
+        RegistryApplicationWanip    = request.form.get("application_wanip")
+        RegistryApplicationLanip    = request.form.get("application_lanip")
+        RegistryApplicationProtype  = request.form.get("application_protype")
+        RegistryApplicationOther    = request.form.get("application_other")
 
         logger.info("Post Api, register application, open.")
         SessionType = MODULES.get('Session')['type']

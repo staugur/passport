@@ -23,7 +23,7 @@ GLOBAL={
     "ACL": ("Team.Front", "Team.Api"),
     #Access Control List, 访问控制列表, 限定只有ACL定义中的应用可以访问某些资源。
 
-    "AppPrefix": "TeamAuth.Registered.Application",
+    "AppPrefix": "Auth.Registered.Application",
     #应用注册信息写入集群的前缀名
 
 }
@@ -44,13 +44,13 @@ PRODUCT={
 MODULES={
     #指定应用会话存储集群，暂时支持redis、redis_cluster、etcd、memory(StringIO),
     "Session": os.environ.get("session", {
-        "type": "redis_cluster",
+        "type": "redis",
         #会话存储集群类型
-        "host": "115.28.147.26",
+        "host": "101.200.125.9",
         #会话存储集群host/ip,
-        "port": 10101,
+        "port": 1000,
         #会话存储集群port,
-        "pass": None
+        "pass": "SaintIC"
         #验证密码(目前仅支持单实例版redis)
     }),
 
