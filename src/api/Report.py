@@ -38,6 +38,6 @@ class Registry(Resource):
         logger.info("Post Api, register application, result is %s" %res)
         return res
 
-application_registry_blueprint = Blueprint("Registry", __name__)
-api = Api(application_registry_blueprint)
+app_registry_blueprint = Blueprint("Registry", __name__)
+api = Api(app_registry_blueprint)
 api.add_resource(Registry, '/registry', '/registry/', endpoint='registry')
