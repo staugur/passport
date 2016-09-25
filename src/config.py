@@ -25,7 +25,6 @@ GLOBAL={
 
     "AppPrefix": "Auth.Registered.Application",
     #应用注册信息写入集群的前缀名
-
 }
 
 
@@ -43,7 +42,7 @@ PRODUCT={
 #模块配置项
 MODULES={
     #指定应用会话存储集群，暂时支持redis、redis_cluster、etcd、memory(StringIO),
-    "Session": os.environ.get("session", {
+    "Session": {
         "type": "redis",
         #会话存储集群类型
         "host": "101.200.125.9",
@@ -52,19 +51,30 @@ MODULES={
         #会话存储集群port,
         "pass": "SaintIC"
         #验证密码(目前仅支持单实例版redis)
-    }),
+    },
 
-    #本地认证模块
-    "Authentication": os.environ.get("authentication", {
+    #账号认证模块
+    "Authentication": {
         "type": "mysql",
         #认证来源, 支持mysql表、LDAP、
-        "host": "101.200.125.9",
+        "Host": "101.200.125.9",
 
-        "port": 3306,
+        "Port": 3306,
 
-        "pass": None
-    }),
+        "User": "root",
+
+        "Passwd": "123456",
+
+        "Database": "team",
+        #数据库
+
+        "Charset": "utf8",
+        #字符集，默认国际统一标准utf8
+
+        "Timezone": "+8:00",
+        #时区，默认是东八区
+    },
 
     #权限管理模块
-    "Authority": os.environ.get("authority"),
+    "Authority": None,
 }

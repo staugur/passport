@@ -1,17 +1,34 @@
-# -*- coding:utf8 -*-
+# -*- coding: utf8 -*-
 
 import re
 import time
-import hashlib
+import torndb
 import commands
-from log import Syslog
-import binascii, os, uuid
+import hashlib, binascii, os, uuid
+from _log import Syslog
+from config import MODULES
 
+MYSQL = MODULES.get("Authentication")
+
+#公共正则表达式
+mail_check    = re.compile(r'([0-9a-zA-Z\_*\.*\-*]+)@([a-zA-Z0-9\-*\_*\.*]+)\.([a-zA-Z]+$)')
+chinese_check = re.compile(u"[\u4e00-\u9fa5]+")
+ip_pat        = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+
+#公共函数
 md5           = lambda pwd:hashlib.md5(pwd).hexdigest()
 logger        = Syslog.getLogger()
 gen_token     = lambda :binascii.b2a_base64(os.urandom(24))[:32]
 gen_requestId = lambda :str(uuid.uuid4())
-ip_pat        = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+mysql         = torndb.Connection(
+                    host     = "%s:%s" %(MYSQL.get('Host'), MYSQL.get('Port', 3306)),
+                    database = MYSQL.get('Database'),
+                    user     = MYSQL.get('User', None),
+                    password = MYSQL.get('Passwd', None),
+                    time_zone= MYSQL.get('Timezone','+8:00'),
+                    charset  = MYSQL.get('Charset', 'utf8'),
+                    connect_timeout=3,
+                    max_idle_time=3)
 
 def ip_check(ip):
     logger.info("the function ip_check param is %s" %ip)
