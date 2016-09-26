@@ -25,6 +25,8 @@ GLOBAL={
 
     "AppPrefix": "Auth.Registered.Application",
     #应用注册信息写入集群的前缀名
+
+    "UserQueueKeyName": "user_authentication_mq"
 }
 
 
@@ -44,13 +46,16 @@ MODULES={
     #指定应用会话存储集群，暂时支持redis、redis_cluster、etcd、memory(StringIO),
     "Session": {
         "type": "redis",
-        #会话存储集群类型
+
         "host": "101.200.125.9",
-        #会话存储集群host/ip,
+
         "port": 1000,
-        #会话存储集群port,
-        "pass": "SaintIC"
+
+        "pass": "SaintIC",
         #验证密码(目前仅支持单实例版redis)
+
+        "db": 0
+        #单实例版redis连接的库
     },
 
     #账号认证模块
