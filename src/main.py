@@ -101,7 +101,7 @@ def _auth():
     else:
         error = "Login fail, invaild username or password."
         return jsonify(loggedIn=False, error=error)
-
+    
 #register url rule(Blueprint), if get the result, please use app.url_map()
 app.register_blueprint(User_blueprint, url_prefix="/api")
 
