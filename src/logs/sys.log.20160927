@@ -1,0 +1,177 @@
+[ DEBUG ] 2016-09-27 00:34:18 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 00:34:18 main.py:MainThread:39 Start Once Access, this requestId is 58d70d0a-9198-4e4a-8f6d-038adc397a7f, signin:False
+[ INFO ] 2016-09-27 00:34:18 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)", "referer": null, "requestId": "58d70d0a-9198-4e4a-8f6d-038adc397a7f", "ip": "157.55.39.5", "method": "GET"}}
+[ DEBUG ] 2016-09-27 00:43:10 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 00:43:10 main.py:MainThread:39 Start Once Access, this requestId is d29e0854-697a-43b3-9d35-fe3906b277e1, signin:False
+[ INFO ] 2016-09-27 00:43:10 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (iPhone; CPU iPhone OS 6_1_3 like Mac OS X) AppleWebKit/536.26 (KHTML, like Gecko) Version/6.0 Mobile/WK10171 Safari/8536.25", "referer": null, "requestId": "d29e0854-697a-43b3-9d35-fe3906b277e1", "ip": "121.42.0.65", "method": "GET"}}
+[ DEBUG ] 2016-09-27 01:28:34 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 01:28:34 main.py:MainThread:39 Start Once Access, this requestId is aa6e4ce8-6e18-46c8-9fa3-05a005f7f098, signin:False
+[ INFO ] 2016-09-27 01:28:34 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/index.html", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0); 360Spider", "referer": "https://auth.saintic.com/index.html", "requestId": "aa6e4ce8-6e18-46c8-9fa3-05a005f7f098", "ip": "180.153.236.189", "method": "GET"}}
+[ DEBUG ] 2016-09-27 02:03:28 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 02:03:28 main.py:MainThread:39 Start Once Access, this requestId is 20329cdf-36c3-4002-961b-b6d1cad6dcbd, signin:False
+[ INFO ] 2016-09-27 02:03:28 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; AhrefsBot/5.1; +http://ahrefs.com/robot/)", "referer": null, "requestId": "20329cdf-36c3-4002-961b-b6d1cad6dcbd", "ip": "151.80.31.181", "method": "GET"}}
+[ DEBUG ] 2016-09-27 02:55:52 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 02:55:52 main.py:MainThread:39 Start Once Access, this requestId is ccf5f0e1-7153-49a5-9c83-f9f11fe2ed86, signin:False
+[ INFO ] 2016-09-27 02:55:52 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0); 360Spider", "referer": "https://auth.saintic.com/", "requestId": "ccf5f0e1-7153-49a5-9c83-f9f11fe2ed86", "ip": "42.236.10.100", "method": "GET"}}
+[ DEBUG ] 2016-09-27 02:55:52 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 02:55:52 main.py:MainThread:39 Start Once Access, this requestId is 0732e827-c30f-43ad-a756-579831fda056, signin:False
+[ INFO ] 2016-09-27 02:55:52 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0); 360Spider", "referer": "https://auth.saintic.com/", "requestId": "0732e827-c30f-43ad-a756-579831fda056", "ip": "42.236.10.100", "method": "GET"}}
+[ DEBUG ] 2016-09-27 02:55:53 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 02:55:53 main.py:MainThread:39 Start Once Access, this requestId is 0af668c3-ddb0-4a33-b6fb-d891c8434c1d, signin:False
+[ INFO ] 2016-09-27 02:55:53 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0); 360Spider", "referer": "https://auth.saintic.com/", "requestId": "0af668c3-ddb0-4a33-b6fb-d891c8434c1d", "ip": "42.236.10.100", "method": "GET"}}
+[ DEBUG ] 2016-09-27 03:35:54 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 03:35:54 main.py:MainThread:39 Start Once Access, this requestId is 95027dd4-d801-483f-b28a-1979294f15ec, signin:False
+[ INFO ] 2016-09-27 03:35:54 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/addkey.sh", "status_code": 404, "agent": "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)", "referer": null, "requestId": "95027dd4-d801-483f-b28a-1979294f15ec", "ip": "220.181.108.140", "method": "GET"}}
+[ DEBUG ] 2016-09-27 03:52:49 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 03:52:49 main.py:MainThread:39 Start Once Access, this requestId is ae85fb91-e9f5-4710-9d43-7dd00458179b, signin:False
+[ INFO ] 2016-09-27 03:52:49 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)", "referer": null, "requestId": "ae85fb91-e9f5-4710-9d43-7dd00458179b", "ip": "157.55.39.115", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:23:05 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:23:05 main.py:MainThread:39 Start Once Access, this requestId is 03b90eff-e6aa-44e6-8860-568c55230afe, signin:False
+[ INFO ] 2016-09-27 04:23:05 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36", "referer": null, "requestId": "03b90eff-e6aa-44e6-8860-568c55230afe", "ip": "180.153.236.173", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:23:06 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:23:06 main.py:MainThread:39 Start Once Access, this requestId is b0a08153-4e4d-4a6f-a266-78e827d0c002, signin:False
+[ INFO ] 2016-09-27 04:23:06 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36", "referer": null, "requestId": "b0a08153-4e4d-4a6f-a266-78e827d0c002", "ip": "180.153.236.173", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:23:22 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:23:22 main.py:MainThread:39 Start Once Access, this requestId is b683b929-94be-42cf-a184-171556697757, signin:False
+[ INFO ] 2016-09-27 04:23:22 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/42.0.2311.90 Safari/537.36", "referer": null, "requestId": "b683b929-94be-42cf-a184-171556697757", "ip": "42.236.10.100", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:27:33 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:27:33 main.py:MainThread:39 Start Once Access, this requestId is 3f3e3c8b-492f-4eed-9676-178275bb831f, signin:False
+[ INFO ] 2016-09-27 04:27:33 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "3f3e3c8b-492f-4eed-9676-178275bb831f", "ip": "69.30.234.2", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:27:39 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:27:39 main.py:MainThread:39 Start Once Access, this requestId is 442bea66-b4e9-4763-af63-b18c5b3617a6, signin:False
+[ INFO ] 2016-09-27 04:27:39 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "442bea66-b4e9-4763-af63-b18c5b3617a6", "ip": "69.30.234.2", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:27:40 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:27:40 main.py:MainThread:39 Start Once Access, this requestId is 1f5ba117-de02-42c2-b2f1-881fc9e75012, signin:False
+[ INFO ] 2016-09-27 04:27:40 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "1f5ba117-de02-42c2-b2f1-881fc9e75012", "ip": "69.30.234.2", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:27:46 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:27:46 main.py:MainThread:39 Start Once Access, this requestId is b60cecfc-2ba2-4a62-8c16-a00550fac98c, signin:False
+[ INFO ] 2016-09-27 04:27:46 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "b60cecfc-2ba2-4a62-8c16-a00550fac98c", "ip": "69.30.234.2", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:27:49 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:27:49 main.py:MainThread:39 Start Once Access, this requestId is 23d87ad5-1d75-4bac-a039-426f41a350c7, signin:False
+[ INFO ] 2016-09-27 04:27:49 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/addkey.sh", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "23d87ad5-1d75-4bac-a039-426f41a350c7", "ip": "69.30.234.2", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:27:51 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:27:51 main.py:MainThread:39 Start Once Access, this requestId is 8a99cdb4-cb96-45a9-ba85-044e37b45a80, signin:False
+[ INFO ] 2016-09-27 04:27:51 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "8a99cdb4-cb96-45a9-ba85-044e37b45a80", "ip": "69.30.234.2", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:27:56 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:27:56 main.py:MainThread:39 Start Once Access, this requestId is 64c665f3-7270-4aa5-85be-977d7f456bdb, signin:False
+[ INFO ] 2016-09-27 04:27:56 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/canvas.html", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "64c665f3-7270-4aa5-85be-977d7f456bdb", "ip": "69.30.234.2", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:28:00 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:28:00 main.py:MainThread:39 Start Once Access, this requestId is 6154912b-8eae-42d2-983a-3addf4fcf19d, signin:False
+[ INFO ] 2016-09-27 04:28:00 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/leaves/tags/\u6bd5\u4e1a.htm", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "6154912b-8eae-42d2-983a-3addf4fcf19d", "ip": "69.30.234.2", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:28:01 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:28:01 main.py:MainThread:39 Start Once Access, this requestId is 5540782e-9afe-41f2-8412-81e8e9c7c2f7, signin:False
+[ INFO ] 2016-09-27 04:28:01 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "5540782e-9afe-41f2-8412-81e8e9c7c2f7", "ip": "69.30.234.2", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:28:05 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:28:05 main.py:MainThread:39 Start Once Access, this requestId is e0ce5eb5-c2c4-4282-8ce4-a6b719312f12, signin:False
+[ INFO ] 2016-09-27 04:28:05 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "e0ce5eb5-c2c4-4282-8ce4-a6b719312f12", "ip": "69.30.234.2", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:28:07 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:28:07 main.py:MainThread:39 Start Once Access, this requestId is fede8045-71d0-404b-ae26-3fbe9d16beae, signin:False
+[ INFO ] 2016-09-27 04:28:07 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/leaves/tags/\u6bd5\u4e1a.html", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "fede8045-71d0-404b-ae26-3fbe9d16beae", "ip": "69.30.234.2", "method": "GET"}}
+[ DEBUG ] 2016-09-27 04:32:59 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 04:32:59 main.py:MainThread:39 Start Once Access, this requestId is 2c7ee50d-730b-4d47-a3a2-a88bb5b2ecfe, signin:False
+[ INFO ] 2016-09-27 04:32:59 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)", "referer": null, "requestId": "2c7ee50d-730b-4d47-a3a2-a88bb5b2ecfe", "ip": "157.55.39.199", "method": "GET"}}
+[ DEBUG ] 2016-09-27 07:17:18 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 07:17:18 main.py:MainThread:39 Start Once Access, this requestId is 307b247c-87a6-46e8-a9af-fea924bec010, signin:False
+[ INFO ] 2016-09-27 07:17:18 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)", "referer": null, "requestId": "307b247c-87a6-46e8-a9af-fea924bec010", "ip": "157.55.39.5", "method": "GET"}}
+[ DEBUG ] 2016-09-27 07:51:33 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 07:51:33 main.py:MainThread:39 Start Once Access, this requestId is b5d6cb3c-23b1-4e0e-8f9c-b44ecaae44df, signin:False
+[ INFO ] 2016-09-27 07:51:33 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.93 Safari/537.36", "referer": null, "requestId": "b5d6cb3c-23b1-4e0e-8f9c-b44ecaae44df", "ip": "123.125.67.224", "method": "GET"}}
+[ DEBUG ] 2016-09-27 09:46:12 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 09:46:12 main.py:MainThread:39 Start Once Access, this requestId is e9d34aa1-dc91-48f3-bd85-5ad5c6f26460, signin:False
+[ INFO ] 2016-09-27 09:46:12 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/favicon.ico", "status_code": 404, "agent": "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.2; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729)", "referer": null, "requestId": "e9d34aa1-dc91-48f3-bd85-5ad5c6f26460", "ip": "188.166.186.253", "method": "GET"}}
+[ DEBUG ] 2016-09-27 10:18:53 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 10:18:53 main.py:MainThread:39 Start Once Access, this requestId is bcbda7d7-920e-43aa-a36d-7b56da1b4905, signin:False
+[ INFO ] 2016-09-27 10:18:53 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)", "referer": null, "requestId": "bcbda7d7-920e-43aa-a36d-7b56da1b4905", "ip": "157.55.39.5", "method": "GET"}}
+[ DEBUG ] 2016-09-27 11:28:46 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 11:28:46 main.py:MainThread:39 Start Once Access, this requestId is ec58c252-2d5f-4d50-b509-aa35afe6294b, signin:False
+[ INFO ] 2016-09-27 11:28:46 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/favicon.ico", "status_code": 404, "agent": "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.2; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729)", "referer": null, "requestId": "ec58c252-2d5f-4d50-b509-aa35afe6294b", "ip": "188.166.186.253", "method": "GET"}}
+[ DEBUG ] 2016-09-27 12:09:13 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 12:09:13 main.py:MainThread:39 Start Once Access, this requestId is 3c2ffb18-947b-4e9e-a4f9-a0fdc386476e, signin:False
+[ INFO ] 2016-09-27 12:09:13 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)", "referer": null, "requestId": "3c2ffb18-947b-4e9e-a4f9-a0fdc386476e", "ip": "157.55.39.5", "method": "GET"}}
+[ DEBUG ] 2016-09-27 13:35:51 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 13:35:51 main.py:MainThread:39 Start Once Access, this requestId is 07c9a3e8-b3f1-441e-9498-18a87a46f7ee, signin:False
+[ INFO ] 2016-09-27 13:35:51 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/imgs/alipay.jpg", "status_code": 404, "agent": "Baiduspider-image+(+http://www.baidu.com/search/spider.htm)", "referer": null, "requestId": "07c9a3e8-b3f1-441e-9498-18a87a46f7ee", "ip": "123.125.71.48", "method": "GET"}}
+[ DEBUG ] 2016-09-27 14:17:10 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 14:17:10 main.py:MainThread:39 Start Once Access, this requestId is 1c2cf027-36f6-4812-9730-33ddf1689c60, signin:False
+[ INFO ] 2016-09-27 14:17:10 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/favicon.ico", "status_code": 404, "agent": "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.2; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729)", "referer": null, "requestId": "1c2cf027-36f6-4812-9730-33ddf1689c60", "ip": "45.76.110.47", "method": "GET"}}
+[ DEBUG ] 2016-09-27 14:21:55 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 14:21:55 main.py:MainThread:39 Start Once Access, this requestId is f6d1d32c-6827-493c-9d17-da270efad235, signin:False
+[ INFO ] 2016-09-27 14:21:55 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/favicon.ico", "status_code": 404, "agent": "Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 6.2; WOW64; Trident/7.0; .NET4.0C; .NET4.0E; .NET CLR 2.0.50727; .NET CLR 3.0.30729; .NET CLR 3.5.30729)", "referer": null, "requestId": "f6d1d32c-6827-493c-9d17-da270efad235", "ip": "45.76.110.47", "method": "GET"}}
+[ DEBUG ] 2016-09-27 14:54:36 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 14:54:36 main.py:MainThread:39 Start Once Access, this requestId is cf244f10-d8d8-4af1-a7ca-2ac129f3bc7c, signin:False
+[ INFO ] 2016-09-27 14:54:36 main.py:MainThread:54 {"AccessLog": {"url": "http://pid.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)", "referer": null, "requestId": "cf244f10-d8d8-4af1-a7ca-2ac129f3bc7c", "ip": "180.76.15.18", "method": "GET"}}
+[ DEBUG ] 2016-09-27 15:45:06 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 15:45:06 main.py:MainThread:39 Start Once Access, this requestId is b108e6c4-f846-46c9-8dc0-6774493c888c, signin:False
+[ INFO ] 2016-09-27 15:45:07 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/favicon.ico", "status_code": 404, "agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36", "referer": null, "requestId": "b108e6c4-f846-46c9-8dc0-6774493c888c", "ip": "219.150.233.196", "method": "GET"}}
+[ DEBUG ] 2016-09-27 15:45:07 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 15:45:07 main.py:MainThread:39 Start Once Access, this requestId is e0fb0f71-577c-4b67-ba2a-b00f8b9215eb, signin:False
+[ INFO ] 2016-09-27 15:45:07 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/favicon.ico", "status_code": 404, "agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36", "referer": null, "requestId": "e0fb0f71-577c-4b67-ba2a-b00f8b9215eb", "ip": "219.150.233.196", "method": "GET"}}
+[ DEBUG ] 2016-09-27 15:49:23 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 15:49:23 main.py:MainThread:39 Start Once Access, this requestId is 610b3054-b3ad-4808-8cbd-1765b18ef139, signin:False
+[ INFO ] 2016-09-27 15:49:23 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/imgs/alipay.jpg", "status_code": 404, "agent": "Baiduspider-image+(+http://www.baidu.com/search/spider.htm)", "referer": null, "requestId": "610b3054-b3ad-4808-8cbd-1765b18ef139", "ip": "220.181.108.111", "method": "GET"}}
+[ DEBUG ] 2016-09-27 15:58:58 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 15:58:58 main.py:MainThread:39 Start Once Access, this requestId is 8dd1c1e0-44d7-4da6-9d1a-ae754a99b06b, signin:False
+[ INFO ] 2016-09-27 15:58:58 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)", "referer": null, "requestId": "8dd1c1e0-44d7-4da6-9d1a-ae754a99b06b", "ip": "40.77.167.26", "method": "GET"}}
+[ DEBUG ] 2016-09-27 16:13:25 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 16:13:25 main.py:MainThread:39 Start Once Access, this requestId is 4d93e0d7-0601-4c98-8c14-bc952c31c29d, signin:False
+[ INFO ] 2016-09-27 16:13:25 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/favicon.ico", "status_code": 404, "agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36", "referer": null, "requestId": "4d93e0d7-0601-4c98-8c14-bc952c31c29d", "ip": "219.150.233.196", "method": "GET"}}
+[ DEBUG ] 2016-09-27 16:13:25 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 16:13:25 main.py:MainThread:39 Start Once Access, this requestId is 0f48533b-7c40-4f36-aebe-0bcbb59346ad, signin:False
+[ INFO ] 2016-09-27 16:13:25 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/favicon.ico", "status_code": 404, "agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36", "referer": null, "requestId": "0f48533b-7c40-4f36-aebe-0bcbb59346ad", "ip": "219.150.233.196", "method": "GET"}}
+[ DEBUG ] 2016-09-27 17:31:59 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 17:31:59 main.py:MainThread:39 Start Once Access, this requestId is d0a12471-b63d-4e8a-a333-1657ed4bb505, signin:False
+[ INFO ] 2016-09-27 17:31:59 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)", "referer": null, "requestId": "d0a12471-b63d-4e8a-a333-1657ed4bb505", "ip": "40.77.167.26", "method": "GET"}}
+[ DEBUG ] 2016-09-27 17:43:19 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 17:43:19 main.py:MainThread:39 Start Once Access, this requestId is 67d241b5-a777-49e2-b477-3dd856bdd5ab, signin:False
+[ INFO ] 2016-09-27 17:43:19 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/page/37/", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MSIE 9.0; Windows NT 6.1; Trident/5.0); 360Spider(compatible; HaosouSpider; http://www.haosou.com/help/help_3_2.html)", "referer": "http://bbs.saintic.com/page/37/", "requestId": "67d241b5-a777-49e2-b477-3dd856bdd5ab", "ip": "182.118.20.233", "method": "GET"}}
+[ DEBUG ] 2016-09-27 17:45:25 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 17:45:25 main.py:MainThread:39 Start Once Access, this requestId is a2cc1011-a358-4982-9b3f-eebe91bab603, signin:False
+[ INFO ] 2016-09-27 17:45:25 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "a2cc1011-a358-4982-9b3f-eebe91bab603", "ip": "92.238.226.245", "method": "GET"}}
+[ DEBUG ] 2016-09-27 17:45:28 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 17:45:28 main.py:MainThread:39 Start Once Access, this requestId is 4235d913-ffd0-4dea-82c0-ae52584894db, signin:False
+[ INFO ] 2016-09-27 17:45:28 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "4235d913-ffd0-4dea-82c0-ae52584894db", "ip": "92.238.226.245", "method": "GET"}}
+[ DEBUG ] 2016-09-27 17:45:29 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 17:45:29 main.py:MainThread:39 Start Once Access, this requestId is 4b3cf57c-9e6c-47a4-8aa5-d1bf3c722a93, signin:False
+[ INFO ] 2016-09-27 17:45:29 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "4b3cf57c-9e6c-47a4-8aa5-d1bf3c722a93", "ip": "92.238.226.245", "method": "GET"}}
+[ DEBUG ] 2016-09-27 19:09:03 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 19:09:03 main.py:MainThread:39 Start Once Access, this requestId is 9b91b71b-18f3-41bf-a9ab-7f445b686765, signin:False
+[ INFO ] 2016-09-27 19:09:03 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "9b91b71b-18f3-41bf-a9ab-7f445b686765", "ip": "173.234.159.250", "method": "GET"}}
+[ DEBUG ] 2016-09-27 19:09:20 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 19:09:20 main.py:MainThread:39 Start Once Access, this requestId is 7ca11c41-5910-4eea-946d-96c7a5cfbfae, signin:False
+[ INFO ] 2016-09-27 19:09:20 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "7ca11c41-5910-4eea-946d-96c7a5cfbfae", "ip": "173.234.159.250", "method": "GET"}}
+[ DEBUG ] 2016-09-27 19:09:22 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 19:09:22 main.py:MainThread:39 Start Once Access, this requestId is 812866ef-e507-4525-9772-17dcf0352929, signin:False
+[ INFO ] 2016-09-27 19:09:22 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/leaves/tags/\u6bd5\u4e1a.htm", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "812866ef-e507-4525-9772-17dcf0352929", "ip": "173.234.159.250", "method": "GET"}}
+[ DEBUG ] 2016-09-27 19:09:34 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 19:09:34 main.py:MainThread:39 Start Once Access, this requestId is 0364eb2f-f176-46f0-a8bd-4b7b9ea16eec, signin:False
+[ INFO ] 2016-09-27 19:09:34 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/leaves/tags/\u6bd5\u4e1a.html", "status_code": 404, "agent": "Mozilla/5.0 (compatible; MJ12bot/v1.4.5; http://www.majestic12.co.uk/bot.php?+)", "referer": null, "requestId": "0364eb2f-f176-46f0-a8bd-4b7b9ea16eec", "ip": "173.234.159.250", "method": "GET"}}
+[ DEBUG ] 2016-09-27 19:17:41 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 19:17:41 main.py:MainThread:39 Start Once Access, this requestId is 8c64ca51-aa44-4023-b210-3c145555dee5, signin:False
+[ INFO ] 2016-09-27 19:17:41 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)", "referer": null, "requestId": "8c64ca51-aa44-4023-b210-3c145555dee5", "ip": "157.55.39.5", "method": "GET"}}
+[ DEBUG ] 2016-09-27 19:50:12 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 19:50:12 main.py:MainThread:39 Start Once Access, this requestId is e56ea95a-0281-48bf-a544-e01e38496416, signin:False
+[ INFO ] 2016-09-27 19:50:12 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.93 Safari/537.36", "referer": null, "requestId": "e56ea95a-0281-48bf-a544-e01e38496416", "ip": "202.46.51.118", "method": "GET"}}
+[ DEBUG ] 2016-09-27 19:50:18 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 19:50:18 main.py:MainThread:39 Start Once Access, this requestId is 86f89147-08d5-471c-baa2-96619a9f49a2, signin:False
+[ INFO ] 2016-09-27 19:50:18 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (Windows NT 5.1; rv:6.0.2) Gecko/20100101 Firefox/6.0.2", "referer": null, "requestId": "86f89147-08d5-471c-baa2-96619a9f49a2", "ip": "180.76.15.15", "method": "GET"}}
+[ DEBUG ] 2016-09-27 20:07:25 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 20:07:25 main.py:MainThread:39 Start Once Access, this requestId is e87ac522-5ca7-4b61-8484-20c3bb6fc9ce, signin:False
+[ INFO ] 2016-09-27 20:07:25 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/favicon.ico", "status_code": 404, "agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36", "referer": null, "requestId": "e87ac522-5ca7-4b61-8484-20c3bb6fc9ce", "ip": "219.150.233.196", "method": "GET"}}
+[ DEBUG ] 2016-09-27 20:07:26 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 20:07:26 main.py:MainThread:39 Start Once Access, this requestId is 82daf4f3-1640-40fe-b894-74e7651ee159, signin:False
+[ INFO ] 2016-09-27 20:07:26 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/favicon.ico", "status_code": 404, "agent": "Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/45.0.2454.101 Safari/537.36", "referer": null, "requestId": "82daf4f3-1640-40fe-b894-74e7651ee159", "ip": "219.150.233.196", "method": "GET"}}
+[ DEBUG ] 2016-09-27 21:23:31 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 21:23:31 main.py:MainThread:39 Start Once Access, this requestId is 96496778-7e44-410f-8296-d4259ca24c0f, signin:False
+[ INFO ] 2016-09-27 21:23:31 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (compatible; Baiduspider/2.0; +http://www.baidu.com/search/spider.html)", "referer": null, "requestId": "96496778-7e44-410f-8296-d4259ca24c0f", "ip": "180.76.15.149", "method": "GET"}}
+[ DEBUG ] 2016-09-27 22:06:58 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 22:06:58 main.py:MainThread:39 Start Once Access, this requestId is 40b7c07d-19c5-4893-9c6b-8c4794c8902c, signin:False
+[ INFO ] 2016-09-27 22:06:58 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)", "referer": null, "requestId": "40b7c07d-19c5-4893-9c6b-8c4794c8902c", "ip": "157.55.39.5", "method": "GET"}}
+[ DEBUG ] 2016-09-27 22:47:47 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 22:47:47 main.py:MainThread:39 Start Once Access, this requestId is 1e60d17d-c330-4866-9951-1fd4723d6ba4, signin:False
+[ INFO ] 2016-09-27 22:47:47 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", "referer": null, "requestId": "1e60d17d-c330-4866-9951-1fd4723d6ba4", "ip": "203.208.60.220", "method": "GET"}}
+[ DEBUG ] 2016-09-27 22:47:48 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 22:47:48 main.py:MainThread:39 Start Once Access, this requestId is d7ef1d20-074b-4d9f-9537-78f00a898ea5, signin:False
+[ INFO ] 2016-09-27 22:47:48 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/", "status_code": 200, "agent": "Mozilla/5.0 (Linux; Android 6.0.1; Nexus 5X Build/MMB29P) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/41.0.2272.96 Mobile Safari/537.36 (compatible; Googlebot/2.1; +http://www.google.com/bot.html)", "referer": null, "requestId": "d7ef1d20-074b-4d9f-9537-78f00a898ea5", "ip": "203.208.60.220", "method": "GET"}}
+[ DEBUG ] 2016-09-27 23:55:28 main.py:MainThread:33 /
+[ INFO ] 2016-09-27 23:55:28 main.py:MainThread:39 Start Once Access, this requestId is 3b36721f-426b-4b4b-b247-ea5e543dbc5a, signin:False
+[ INFO ] 2016-09-27 23:55:28 main.py:MainThread:54 {"AccessLog": {"url": "http://auth.saintic.com/robots.txt", "status_code": 404, "agent": "Mozilla/5.0 (compatible; bingbot/2.0; +http://www.bing.com/bingbot.htm)", "referer": null, "requestId": "3b36721f-426b-4b4b-b247-ea5e543dbc5a", "ip": "157.55.39.5", "method": "GET"}}

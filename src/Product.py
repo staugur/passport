@@ -2,7 +2,7 @@
 #product environment start application with `tornado IOLoop` and `gevent server`
 
 from main import app
-from utils import logger
+from utils.tool import logger
 from config import GLOBAL, PRODUCT, MODULES
 
 Host = GLOBAL.get('Host')
@@ -18,7 +18,7 @@ except ImportError, e:
 else:
     setproctitle.setproctitle(ProcessName)
     logger.info("The process is %s" % ProcessName)
-
+"""
 if GLOBAL.get("put2Redis") == True:
     logger.info("Open process `Put2Redis` to writting.")
     from utils import put2Redis
@@ -32,7 +32,7 @@ if GLOBAL.get("put2Redis") == True:
     MISC = {"loglevel": GLOBAL.get("LogLevel"), "proctype": ProductType}
     t = Thread(target=put2Redis, name='Put2Redis', args=(rc, ProcessName, Port, MISC))
     t.start()
-
+"""
 try:
     msg = '%s has been launched, %s:%d' %(ProcessName, Host, Port)
     print(msg)
