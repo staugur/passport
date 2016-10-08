@@ -6,31 +6,31 @@ from flask_restful import Api, Resource
 from config import GLOBAL, PRODUCT, MODULES
 from apis.User import User_blueprint
 from utils.tool import logger, gen_requestId, dms, md5
-from libs.AuthenticationManager import UserAuth
+from libs.AuthenticationManager import UserAuth_Login
 
 __author__  = 'Mr.tao <staugur@saintic.com>'
 __doc__     = 'Authentication System for SaintIC Web Applications.'
 __date__    = '2016-09-22'
 __org__     = 'SaintIC'
 __version__ = '0.0.1'
-__process__ = PRODUCT.get('ProcessName', 'Auth')
 
-app   = Flask(__name__)
-key   = GLOBAL.get("UserQueueKeyName", "user_authentication_mq")
-auth  = UserAuth()
+app = Flask(__name__)
+key = GLOBAL.get("UserQueueKey")
 
 @app.before_request
 def before_request():
+    """
     g.refererUrl= request.cookies.get("PageUrl") \
         if request.cookies.get("PageUrl") \
-        and not "/auth" in request.cookies.get("PageUrl") \
+        and not url_for("_auth") in request.cookies.get("PageUrl") \
         and not "favicon.ico" in request.cookies.get("PageUrl") \
         and not "robots.txt" in request.cookies.get("PageUrl") \
-        and not "/logout" in request.cookies.get("PageUrl") \
+        and not url_for("logout") in request.cookies.get("PageUrl") \
         and not "index.js.map" in request.cookies.get("PageUrl") \
         and not "static" in request.cookies.get("PageUrl") \
         else url_for("index")
-    logger.debug(g.refererUrl)
+    """
+    g.refererUrl = request.cookies.get("PageUrl", "")
     g.requestId = gen_requestId()
     g.username  = request.cookies.get("username", "")
     g.sessionId = request.cookies.get("sessionId", "")
@@ -41,8 +41,16 @@ def before_request():
 @app.after_request
 def after_request(response):
     response.headers["X-SaintIC-Request-Id"] = g.requestId
-    response.headers["Access-Control-Allow-Origin"] = "*"
-    response.set_cookie(key="PageUrl", value=request.url, expires=None)
+    PageUrl =  request.url if request.url \
+        and not url_for("_auth") in request.url \
+        and not "favicon.ico" in request.url \
+        and not "robots.txt" in request.url \
+        and not url_for("logout") in request.url \
+        and not "index.js.map" in request.url \
+        and not "static" in request.url \
+        else url_for("index")
+    response.set_cookie(key="PageUrl", value=PageUrl, expires=None)
+    response.set_cookie(key="RefererUrl", value=g.refererUrl, expires=None)
     logger.info(json.dumps({
         "AccessLog": {
             "status_code": response.status_code,
@@ -63,7 +71,7 @@ def page_not_found(e):
 
 @app.route("/")
 def index():
-    return "index, " + str(g.signin) + "<a href='/login'> login </a>"
+    return "index, " + str(g.signin) + ",<a href='/login'> login </a>" + "<a href='/logout'> logout </a>"
 
 @app.route("/login/")
 def login():
@@ -72,8 +80,17 @@ def login():
     else:
         return render_template("login.html")
 
-@app.route("/register/")
-def register():
+@app.route("/logout")
+def logout():
+    returnUrl = g.refererUrl or request.args.get('next', url_for('login'))
+    resp = make_response(redirect(returnUrl))
+    resp.set_cookie(key='logged_in', value='no', expires=0)
+    resp.set_cookie(key='username',  value='', expires=0)
+    resp.set_cookie(key='sessionId',  value='', expires=0)
+    return resp
+
+@app.route("/signup/")
+def signup():
     if g.signin:
         return redirect(request.args.get('next', g.refererUrl))
     else:
@@ -83,11 +100,14 @@ def register():
 def _auth():
     username = request.form.get("username")
     password = request.form.get("password")
-    remember = request.form.get("remember")
-    logger.debug(remember)
-    if username and password and auth.login(username, password):
-            expire_time = datetime.datetime.today() + datetime.timedelta(days=1)
-            if dms.hset(key, username, base64.encodestring(password)):
+    remember = 30 if request.form.get("remember") in ("True", "true", True) else None
+    logger.debug("username:%s, password:%s, remember:%s(%s)" %(username, password, remember, type(remember)))
+    if username and password and UserAuth_Login(username, password):
+            day = int(remember) if isinstance(remember, int) else None
+            logger.debug(day)
+            expire_time = datetime.datetime.today() + datetime.timedelta(days=day) if day else None
+            dms.hset(key, username, base64.encodestring(password))
+            if username in dms.hgetall(key):
                 logger.info("Create a redis session key(%s) successfully." %username)
                 resp = jsonify(loggedIn=True)
                 #resp = make_response(redirect(request.args.get('next', g.refererUrl)))
@@ -102,7 +122,7 @@ def _auth():
         error = "Login fail, invaild username or password."
         return jsonify(loggedIn=False, error=error)
     
-#register url rule(Blueprint), if get the result, please use app.url_map()
+#register url rule(Blueprint), if get the result, please use app.url_map
 app.register_blueprint(User_blueprint, url_prefix="/api")
 
 if __name__ == '__main__':
