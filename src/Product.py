@@ -18,6 +18,7 @@ except ImportError, e:
 else:
     setproctitle.setproctitle(ProcessName)
     logger.info("The process is %s" % ProcessName)
+
 """
 if GLOBAL.get("put2Redis") == True:
     logger.info("Open process `Put2Redis` to writting.")
@@ -33,6 +34,7 @@ if GLOBAL.get("put2Redis") == True:
     t = Thread(target=put2Redis, name='Put2Redis', args=(rc, ProcessName, Port, MISC))
     t.start()
 """
+
 try:
     msg = '%s has been launched, %s:%d' %(ProcessName, Host, Port)
     print(msg)
@@ -73,4 +75,4 @@ try:
 
 except Exception,e:
     print(e)
-    logger.error(e)
+    logger.error(e, exc_info=True)
