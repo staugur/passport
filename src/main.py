@@ -30,7 +30,7 @@ def before_request():
         and not "static" in request.cookies.get("PageUrl") \
         else url_for("index")
     """
-    g.refererUrl = request.cookies.get("PageUrl", "")
+    g.refererUrl = request.cookies.get("PageUrl", url_for("index"))
     g.requestId = gen_requestId()
     g.username  = request.cookies.get("username", "")
     g.sessionId = request.cookies.get("sessionId", "")
