@@ -1,8 +1,10 @@
 # coding:utf8
 
+from main import app
+from config import GLOBAL
+from werkzeug.contrib.profiler import ProfilerMiddleware
+
 if __name__ == "__main__":
-    from config import GLOBAL
-    from werkzeug.contrib.profiler import ProfilerMiddleware
     Host = GLOBAL.get('Host')
     Port = GLOBAL.get('Port')
     app.config['PROFILE'] = True

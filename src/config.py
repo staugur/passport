@@ -23,9 +23,10 @@ GLOBAL={
     "ACL": ("Team.Front", "Team.Api"),
     #Access Control List, 访问控制列表, 限定只有ACL定义中的应用可以访问某些资源。
 
-    "AppPrefix": "TeamAuth.Registered.Application",
+    "AppPrefix": "Auth.Registered.Application",
     #应用注册信息写入集群的前缀名
 
+    "UserQueueKeyName": "user_authentication_mq"
 }
 
 
@@ -43,28 +44,42 @@ PRODUCT={
 #模块配置项
 MODULES={
     #指定应用会话存储集群，暂时支持redis、redis_cluster、etcd、memory(StringIO),
-    "Session": os.environ.get("session", {
-        "type": "redis_cluster",
-        #会话存储集群类型
-        "host": "115.28.147.26",
-        #会话存储集群host/ip,
-        "port": 10101,
-        #会话存储集群port,
-        "pass": None
-        #验证密码(目前仅支持单实例版redis)
-    }),
+    "Session": {
+        "type": "redis",
 
-    #本地认证模块
-    "Authentication": os.environ.get("authentication", {
-        "type": "mysql",
-        #认证来源, 支持mysql表、LDAP、
         "host": "101.200.125.9",
 
-        "port": 3306,
+        "port": 1000,
 
-        "pass": None
-    }),
+        "pass": "SaintIC",
+        #验证密码(目前仅支持单实例版redis)
+
+        "db": 0
+        #单实例版redis连接的库
+    },
+
+    #账号认证模块
+    "Authentication": {
+        "type": "mysql",
+        #认证来源, 支持mysql表、LDAP、
+        "Host": "101.200.125.9",
+
+        "Port": 3306,
+
+        "User": "root",
+
+        "Passwd": "123456",
+
+        "Database": "team",
+        #数据库
+
+        "Charset": "utf8",
+        #字符集，默认国际统一标准utf8
+
+        "Timezone": "+8:00",
+        #时区，默认是东八区
+    },
 
     #权限管理模块
-    "Authority": os.environ.get("authority"),
+    "Authority": None,
 }

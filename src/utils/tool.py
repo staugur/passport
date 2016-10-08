@@ -1,17 +1,37 @@
-# -*- coding:utf8 -*-
+# -*- coding: utf8 -*-
 
-import re
-import time
-import hashlib
-import commands
-from log import Syslog
-import binascii, os, uuid
+import re, time, hashlib, binascii, os, uuid
+from _log import Syslog
+from config import MODULES
+from torndb import Connection as torndbConnection
+from redis import Redis
+from rediscluster import StrictRedisCluster
 
+
+MYSQL = MODULES.get("Authentication")
+REDIS = MODULES.get("Session")
+
+#公共正则表达式
+mail_check    = re.compile(r'([0-9a-zA-Z\_*\.*\-*]+)@([a-zA-Z0-9\-*\_*\.*]+)\.([a-zA-Z]+$)')
+chinese_check = re.compile(u"[\u4e00-\u9fa5]+")
+ip_pat        = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+
+#公共函数
 md5           = lambda pwd:hashlib.md5(pwd).hexdigest()
 logger        = Syslog.getLogger()
 gen_token     = lambda :binascii.b2a_base64(os.urandom(24))[:32]
 gen_requestId = lambda :str(uuid.uuid4())
-ip_pat        = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
+
+dms   = Redis(host=REDIS.get("host"), port=REDIS.get("port"), db=REDIS.get("db"), password=REDIS.get("pass"), socket_timeout=3, socket_connect_timeout=3, retry_on_timeout=3) if REDIS.get("type") == "redis" else StrictRedisCluster(startup_nodes=[{"host": REDIS.get("host"), "port": REDIS.get("port")}], decode_responses=True, socket_timeout=5)
+mysql = torndbConnection(
+                    host     = "%s:%s" %(MYSQL.get('Host'), MYSQL.get('Port', 3306)),
+                    database = MYSQL.get('Database'),
+                    user     = MYSQL.get('User', None),
+                    password = MYSQL.get('Passwd', None),
+                    time_zone= MYSQL.get('Timezone','+8:00'),
+                    charset  = MYSQL.get('Charset', 'utf8'),
+                    connect_timeout=3,
+                    max_idle_time=3)
 
 def ip_check(ip):
     logger.info("the function ip_check param is %s" %ip)
@@ -80,9 +100,9 @@ def put2RedisSimple(RedisConnection, key, value):
         return False
 
 # 计算加密cookie:
-def make_signed_cookie(uid, password, max_age):
+def make_signed_cookie(username, password, max_age):
     expires = str(int(time.time() + max_age))
-    L = [uid, expires, md5('%s-%s-%s-%s' % (uid, password, expires, _COOKIE_KEY))]
+    L = [username, expires, md5('%s-%s-%s-%s' % (username, password, expires, _COOKIE_KEY))]
     return '-'.join(L)
 
 # 解密cookie:
@@ -103,3 +123,19 @@ def parse_signed_cookie(cookie_str):
     except Exception,e:
         print e
         return None
+
+"""
+#Login required in need
+def login_required(func):
+    def _deco(g, *args, **kw):
+        if g.username and g.sessionId:
+            dms.hgetall(g.authkey).get(g.username)
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if g.user is None:
+            return redirect(url_for('login', next=request.url))
+        return f(*args, **kwargs)
+    return decorated_function
+"""
+

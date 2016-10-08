@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% block title %}Sign In{% endblock %}
+{#
+{% block head %}
+        <script src="{{ url_for('static', filename='js/my.js') }}"></script>
+{% endblock %}
+#}
+{% block container %}
+    <div class="container">
+            <div id="loginbox" style="margin-top:50px;" class="mainbox col-md-6 col-md-offset-3 col-sm-8 col-sm-offset-2">        
+                <div class="panel panel-info" >
+                    <div class="panel-heading">
+                        <div class="panel-title">Sign In</div>
+                        <div style="float:right; font-size: 80%; position: relative; top:-10px"><a href="#">Forgot password?</a></div>
+                    </div>     
+
+                    <div style="padding-top:30px" class="panel-body" >
+
+                        <div style="display:none" id="login-alert" class="alert alert-danger col-sm-12"></div>
+                            
+                        <form id="loginform" class="form-horizontal" role="form">
+                                    
+                            <div style="margin-bottom: 25px" class="input-group form-group-lg">
+                                        <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+                                        <input id="login-username" type="text" class="form-control" name="username" value="" placeholder="username" required>
+                            </div>
+                                
+                            <div style="margin-bottom: 25px" class="input-group form-group-lg">
+                                        <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+                                        <input id="login-password" type="password" class="form-control" name="password" placeholder="password" required>
+                            </div>
+                                
+                            <div class="input-group">
+                                      <div class="checkbox">
+                                        <label>
+                                          <input id="login-remember" type="checkbox" name="remember" value="1"> Remember me
+                                        </label>
+                                      </div>
+                            </div>
+
+                            <div style="margin-top:10px" class="form-group">
+                                    <!-- Button -->
+                                    <div class="col-sm-12 controls">
+                                      <!--<input id="btn-login" class="btn btn-default" onclick=postForm("{{ url_for('_auth') }}", "{% if g.refererUrl %}{{ g.refererUrl }}{% else %}{{ url_for('index') }}{% endif %}") type="button" value="Login ">-->
+                                      <input id="btn-login" class="btn btn-default" onclick=postForm("/_auth/", "/") type="button" value="Login ">
+                                      <a id="btn-qqlogin" href="#" class="btn btn-primary"><img src="{{ url_for('static', filename='img/public/Connect_qq.png') }}" class="img-circle"> QQ账号登录</a>
+                                    </div>
+                            </div>
+
+                        </form>
+                        <script>
+                        function postForm(url, nextUrl) {
+    $.ajax({
+        url: url,
+        method: 'POST',
+        datatype: 'json',
+        data: $('#loginform').serialize(),
+        success: function(res) {
+            console.log(res);
+            if (res.loggedIn == true){
+                window.location.href=nextUrl;
+            }
+        },
+        error: function(error){
+            console.log(error);
+            document.getElementById("error").innerHTML(error);
+        }
+    });
+};
+</script>
+
+                    </div>
+                </div>  
+            </div>
+    </div>
+{% endblock %}
