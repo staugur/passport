@@ -33,7 +33,7 @@ GLOBAL={
 #生产环境配置段
 PRODUCT={
 
-    "ProcessName": "Auth",
+    "ProcessName": "passport",
     #Custom process, you can see it with "ps aux|grep ProcessName".
 
     "ProductType": os.environ.get("producttype", "tornado"),
@@ -49,7 +49,7 @@ MODULES={
 
         "host": "101.200.125.9",
 
-        "port": 1000,
+        "port": 16379,
 
         "pass": "SaintIC",
         #验证密码(目前仅支持单实例版redis)
