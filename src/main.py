@@ -34,7 +34,7 @@ def before_request():
     g.requestId = gen_requestId()
     g.username  = request.cookies.get("username", "")
     g.sessionId = request.cookies.get("sessionId", "")
-    g.password  = dms.hgetall(key).get(g.username) if g.username and g.sessionId else ""
+    g.password  = dms.hgetall(key).get(g.username, "") if g.username and g.sessionId else ""
     g.signin    = True if g.sessionId == md5(g.username + base64.decodestring(g.password)) else False
     logger.info("Start Once Access, this requestId is %s, signin:%s" %(g.requestId, g.signin))
 
