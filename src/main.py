@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 import json, base64, datetime
-from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify, Markup
+from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
 from flask_restful import Api, Resource
 from config import GLOBAL, PRODUCT, MODULES
 from apis.User import User_blueprint
@@ -19,17 +19,6 @@ key = GLOBAL.get("UserQueueKey")
 
 @app.before_request
 def before_request():
-    """
-    g.refererUrl= request.cookies.get("PageUrl") \
-        if request.cookies.get("PageUrl") \
-        and not url_for("_auth") in request.cookies.get("PageUrl") \
-        and not "favicon.ico" in request.cookies.get("PageUrl") \
-        and not "robots.txt" in request.cookies.get("PageUrl") \
-        and not url_for("logout") in request.cookies.get("PageUrl") \
-        and not "index.js.map" in request.cookies.get("PageUrl") \
-        and not "static" in request.cookies.get("PageUrl") \
-        else url_for("index")
-    """
     g.refererUrl = request.cookies.get("PageUrl", url_for("index"))
     g.requestId = gen_requestId()
     g.username  = request.cookies.get("username", "")
@@ -71,8 +60,7 @@ def page_not_found(e):
 
 @app.route("/")
 def index():
-    '''just for verify website owner here.'''
-    return Markup('''<meta property="wb:webmaster" content="c5d37a57e7c79d85" />''')
+    return redirect(url_for("login"))
 
 @app.route("/login/")
 def login():
