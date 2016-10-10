@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 import json, base64, datetime
-from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
+from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify, Markup
 from flask_restful import Api, Resource
 from config import GLOBAL, PRODUCT, MODULES
 from apis.User import User_blueprint
@@ -71,7 +71,8 @@ def page_not_found(e):
 
 @app.route("/")
 def index():
-    return "index, " + str(g.signin) + ",<a href='/login'> login </a>" + "<a href='/logout'> logout </a>"
+    '''just for verify website owner here.'''
+    return Markup('''<meta property="wb:webmaster" content="c5d37a57e7c79d85" />''')
 
 @app.route("/login/")
 def login():
