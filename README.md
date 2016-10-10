@@ -1,5 +1,6 @@
 # Passport
-Authentication System for Web Application(SaintIC Org.)
+Unified authentication and authorization management SSO system for SaintIC Org.
+
 
 # LICENSE
 MIT
