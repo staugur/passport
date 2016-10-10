@@ -60,12 +60,12 @@ def page_not_found(e):
 
 @app.route("/")
 def index():
-    return redirect(url_for("login"))
+    return "SaintIC SSO"
 
 @app.route("/login/")
 def login():
     if g.signin:
-        return redirect(request.args.get('next', g.refererUrl))
+        return "logged_in"
     else:
         return render_template("login.html")
 
