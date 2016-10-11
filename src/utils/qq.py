@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 
+import json
 import requests
+import datetime
 from SpliceURL import Splice
 from .tool import mysql, logger
 
@@ -29,6 +31,9 @@ class QQLogin:
 
     def Callback_Returned_To_Dict(self, x):
         '''OAuthResponse class can't parse the JSON data with content-type text/html and because of a rubbish api, we can't just tell flask-oauthlib to treat it as json.'''
+
+        logger.debug(x)
+
         if x.find(b'callback') > -1:
             # the rubbish api (https://graph.qq.com/oauth2.0/authorize) is handled here as special case
             pos_lb = x.find(b'{')
@@ -38,9 +43,15 @@ class QQLogin:
         try:
             if type(x) != str:  # Py3k
                 x = x.decode('utf-8')
-            return json.loads(x, encoding='utf-8')
+            data = json.loads(x, encoding='utf-8')
         except:
-            return x
+            data = x
+
+        logger.debug(type(data))
+        logger.debug(data)
+        if isinstance(data, dict):
+            return data
+        return json.loads(data)
 
     @property
     def QQ_Login_Page_Url(self):
@@ -100,16 +111,17 @@ class QQLogin:
         UserQzoneInfo = self.Get_User_Qzone_Info(access_token, openid)
         cname  = UserQzoneInfo.get("nickname")
         avatar =  UserQzoneInfo.get("figureurl_qq_1")
-        sql = "INSERT INTO User (cname, avatar, extra) VALUES (%s, %s, %s)"
+        sql = "INSERT INTO User (cname, avatar, time, extra) VALUES (%s, %s, %s, %s)"
         try:
-            uid = int(mysql.insert(sql, cname, avatar, "大家好，我是来自QQ的小伙伴！"))
+            uid = int(mysql.insert(sql, cname, avatar, datetime.datetime.now().strftime("%Y-%m-%d"), "大家好，我是来自QQ的小伙伴！"))
         except Exception,e:
             logger.error(e, exc_info=True)
             return False
         else:
             logger.info("insert into User(%s)" %cname)
             expires = (datetime.datetime.now() + datetime.timedelta(seconds=int(expires_in))).strftime("%Y-%m-%d")
-            sql = "INSERT INTO OAuth (user_id, oauth_type, oauth_username, oauth_id, oauth_access_token, oauth_expires) VALUES (%d, %s, %s, %s, %s, %s)"
+            logger.debug(expires)
+            sql = "INSERT INTO OAuth (user_id, oauth_type, oauth_username, oauth_id, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s, %s)"
             mysql.insert(sql, uid, "QQ", "QQ_" + openid[:9], openid, access_token, expires)
             logger.info("insert into OAuth(%s)" %openid)
             return True
