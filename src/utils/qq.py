@@ -50,7 +50,7 @@ class QQLogin:
     def Get_Access_Token(self, code):
         ''' Authorization Code cannot repeat '''
         Get_Access_Token_Url = Splice(scheme="https", domain="graph.qq.com", path="/oauth2.0/token", query={"grant_type": "authorization_code", "client_id": self.QQ_APP_ID, "client_secret": self.QQ_APP_KEY, "code": code, "state": "P.passport", "redirect_uri": self.REDIRECT_URI}).geturl
-        access_token_data = requests.get(Get_Access_Token_Url, timeout=timeout, verify=verify).text
+        access_token_data = requests.get(Get_Access_Token_Url, timeout=self.timeout, verify=self.verify).text
 
         try:
             data = self.Parse_Access_Token(access_token_data)
@@ -71,7 +71,7 @@ class QQLogin:
     def Update_Access_Token(self, refresh_token):
         '''Update some required parameters for OAuth2.0 API calls'''
         Update_Access_Token_Url = Splice(scheme="https", domain="graph.qq.com", path="/oauth2.0/token", query={"grant_type": "refresh_token", "client_id": self.QQ_APP_ID, "client_secret": self.QQ_APP_KEY, "refresh_token": refresh_token}).geturl
-        access_token_data = requests.get(Update_Access_Token_Url, timeout=timeout, verify=verify).text
+        access_token_data = requests.get(Update_Access_Token_Url, timeout=self.timeout, verify=self.verify).text
 
         try:
             data = self.Parse_Access_Token(access_token_data)
@@ -90,7 +90,7 @@ class QQLogin:
         ''' Unique user ID '''
 
         Get_OpenID_Url = Splice(scheme="https", domain="graph.qq.com", path="/oauth2.0/me", query={"access_token": access_token}).geturl
-        openid_data = requests.get(Get_OpenID_Url, timeout=timeout, verify=verify).text
+        openid_data = requests.get(Get_OpenID_Url, timeout=self.timeout, verify=self.verify).text
 
         #Should returned right data, such as {"client_id":"100581101","openid":"AF8AA7E0F77451736DD97FB796849024"}
         data   = self.Callback_Returned_To_Dict(openid_data)
@@ -117,4 +117,4 @@ class QQLogin:
     def Get_User_Qzone_Info(self, access_token, openid):
         ''' With access_token and openid, access the qq api, get user resources '''
         Get_User_Info_Url = Splice(scheme="https", domain="graph.qq.com", path="/user/get_user_info", query={"access_token": access_token, "oauth_consumer_key": self.QQ_APP_ID, "openid": openid}).geturl
-        return requests.get(Get_User_Info_Url, timeout=timeout, verify=verify).json()
+        return requests.get(Get_User_Info_Url, timeout=self.timeout, verify=self.verify).json()
