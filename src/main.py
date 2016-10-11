@@ -7,15 +7,17 @@ from config import GLOBAL, PRODUCT, MODULES
 from apis.User import User_blueprint
 from utils.tool import logger, gen_requestId, dms, md5
 from libs.AuthenticationManager import UserAuth_Login
+from utils.qq import QQLogin
 
 __author__  = 'Mr.tao <staugur@saintic.com>'
-__doc__     = 'Authentication System for SaintIC Web Applications.'
+__doc__     = 'Unified Authorization for SaintIC Web Applications.'
 __date__    = '2016-09-22'
 __org__     = 'SaintIC'
 __version__ = '0.0.1'
 
 app = Flask(__name__)
 key = GLOBAL.get("UserQueueKey")
+qq  = QQLogin(GLOBAL['QQ_APP_ID'], GLOBAL['QQ_APP_KEY'], GLOBAL['QQ_REDIRECT_URI'])
 
 @app.before_request
 def before_request():
@@ -60,7 +62,14 @@ def page_not_found(e):
 
 @app.route("/")
 def index():
-    return "SaintIC SSO"
+    code = request.args.get("code")
+    if code and len(code) == 32:
+        if qq.Get_Access_Token(code):
+            return "qq login successfully"
+        else:
+            return "qq login failed"
+    else:
+        return redirect(url_for("login"))
 
 @app.route("/login/")
 def login():
@@ -68,6 +77,13 @@ def login():
         return "logged_in"
     else:
         return render_template("login.html")
+
+@app.route("/login/qq/")
+def login_qq():
+    if g.signin:
+        return "logged_in"
+    else:
+        return redirect(qq.QQ_Login_Page_Url)
 
 @app.route("/logout")
 def logout():
@@ -112,7 +128,7 @@ def _auth():
         return jsonify(loggedIn=False, error=error)
     
 #register url rule(Blueprint), if get the result, please use app.url_map
-app.register_blueprint(User_blueprint, url_prefix="/api")
+#app.register_blueprint(User_blueprint, url_prefix="/api")
 
 if __name__ == '__main__':
     Host  = GLOBAL.get('Host')

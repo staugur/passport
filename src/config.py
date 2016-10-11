@@ -2,7 +2,6 @@
 
 import os
 
-#全局配置端
 GLOBAL={
 
     "Host": os.getenv("passport_host", "0.0.0.0"),
@@ -25,11 +24,15 @@ GLOBAL={
 
     "AppRegistryKey": "passport_registered_application",
 
-    "UserQueueKey": "passport_user_authentication_mq"
+    "UserQueueKey": "passport_user_authentication_mq",
+
+    "QQ_APP_ID": 100581101,
+
+    "QQ_APP_KEY":  "36b4136a30a1bcd126525baf9e815f1f",
+
+    "QQ_REDIRECT_URI": "https://passport.saintic.com",
 }
 
-
-#生产环境配置段
 PRODUCT={
 
     "ProcessName": "passport",
@@ -40,7 +43,6 @@ PRODUCT={
 }
 
 
-#模块配置项
 MODULES={
     #指定应用会话存储集群，暂时支持redis、redis_cluster、etcd、memory(StringIO),
     "Session": {
@@ -65,11 +67,11 @@ MODULES={
 
         "Port": 3306,
 
-        "User": "root",
+        "User": "passport",
 
         "Passwd": "123456",
 
-        "Database": "team",
+        "Database": "passport",
         #数据库
 
         "Charset": "utf8",

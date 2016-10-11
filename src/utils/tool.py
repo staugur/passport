@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 import re, time, hashlib, binascii, os, uuid
-from _log import Syslog
+from log import Syslog
 from config import MODULES
 from torndb import Connection as torndbConnection
 from redis import Redis
