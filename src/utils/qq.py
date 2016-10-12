@@ -19,39 +19,20 @@ class QQLogin:
         self.QQ_APP_KEY   = QQ_APP_KEY
         self.REDIRECT_URI = REDIRECT_URI
 
-
-
     def Parse_Access_Token(self, x):
         '''
         parse string, such as access_token=E8BF2BCAF63B7CE749796519F5C5D5EB&expires_in=7776000&refresh_token=30AF0BD336324575029492BD2D1E134B.
         return data, such as {'access_token': 'E8BF2BCAF63B7CE749796519F5C5D5EB', 'expires_in': '7776000', 'refresh_token': '30AF0BD336324575029492BD2D1E134B'}
         '''
-
         return dict( _.split('=') for _ in x.split('&') )
 
     def Callback_Returned_To_Dict(self, x):
         '''OAuthResponse class can't parse the JSON data with content-type text/html and because of a rubbish api, we can't just tell flask-oauthlib to treat it as json.'''
-
         logger.debug(x)
-
-        if x.find(b'callback') > -1:
-            # the rubbish api (https://graph.qq.com/oauth2.0/authorize) is handled here as special case
-            pos_lb = x.find(b'{')
-            pos_rb = x.find(b'}')
-            x = x[pos_lb:pos_rb + 1]
-
-        try:
-            if type(x) != str:  # Py3k
-                x = x.decode('utf-8')
-            data = json.loads(x, encoding='utf-8')
-        except:
-            data = x
-
+        data = json.loads(x[10:-3])
         logger.debug(type(data))
         logger.debug(data)
-        if isinstance(data, dict):
-            return data
-        return json.loads(data)
+        return data
 
     @property
     def QQ_Login_Page_Url(self):
