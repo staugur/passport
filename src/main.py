@@ -4,7 +4,6 @@ import json, base64, datetime
 from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
 from flask_restful import Api, Resource
 from config import GLOBAL, PRODUCT, MODULES
-from apis.User import User_blueprint
 from utils.tool import logger, gen_requestId, dms, md5
 from libs.AuthenticationManager import UserAuth_Login
 from utils.qq import QQLogin
