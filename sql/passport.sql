@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50633
 File Encoding         : 65001
 
-Date: 2016-10-14 14:46:07
+Date: 2016-10-14 18:48:15
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -39,7 +39,7 @@ CREATE TABLE `OAuth` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `oauth_username` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
   `oauth_type` varchar(9) COLLATE utf8_unicode_ci NOT NULL,
-  `oauth_openid` varchar(41) COLLATE utf8_unicode_ci NOT NULL,
+  `oauth_openid` varchar(41) COLLATE utf8_unicode_ci DEFAULT NULL,
   `oauth_access_token` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
   `oauth_expires` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`,`oauth_username`),
@@ -72,4 +72,4 @@ CREATE TABLE `User` (
 -- ----------------------------
 -- Records of User
 -- ----------------------------
-INSERT INTO `User` VALUES ('1', 'admin', 'staugur@saintic.com', '陶成伟', '/static/upload/15768284.jpg', '原谅我一生放荡不羁爱自由', 'https://www.saintic.com', '2016-10-14', 'weibo.com/staugur', 'github.com/staugur', 'Administrator');
+INSERT INTO `User` VALUES ('1', 'admin', 'staugur@saintic.com', '陶成伟', '/static/upload/15768284.jpg', '原谅我一生放荡不羁爱自由', 'www.saintic.com', '2016-10-14', 'weibo.com/staugur', 'github.com/staugur', 'Administrator');
