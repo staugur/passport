@@ -4,7 +4,7 @@ import json, base64, datetime
 from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
 from flask_restful import Api, Resource
 from config import GLOBAL, PRODUCT, MODULES
-from utils.tool import logger, gen_requestId, dms, md5
+from utils.tool import logger, gen_requestId, dms, md5, mysql
 from libs.AuthenticationManager import UserAuth_Login
 from utils.qq import QQLogin
 
@@ -20,7 +20,15 @@ qq  = QQLogin(GLOBAL['QQ_APP_ID'], GLOBAL['QQ_APP_KEY'], GLOBAL['QQ_REDIRECT_URI
 
 @app.before_request
 def before_request():
-    g.refererUrl = request.cookies.get("PageUrl", url_for("index"))
+    g.refererUrl= request.cookies.get("PageUrl") \
+        if request.cookies.get("PageUrl") \
+        and not url_for("_auth") in request.cookies.get("PageUrl") \
+        and not "favicon.ico" in request.cookies.get("PageUrl") \
+        and not "robots.txt" in request.cookies.get("PageUrl") \
+        and not url_for("logout") in request.cookies.get("PageUrl") \
+        and not "index.js.map" in request.cookies.get("PageUrl") \
+        and not "static" in request.cookies.get("PageUrl") \
+        else url_for("index")
     g.requestId = gen_requestId()
     g.username  = request.cookies.get("username", "")
     g.sessionId = request.cookies.get("sessionId", "")
@@ -31,15 +39,7 @@ def before_request():
 @app.after_request
 def after_request(response):
     response.headers["X-SaintIC-Request-Id"] = g.requestId
-    PageUrl =  request.url if request.url \
-        and not url_for("_auth") in request.url \
-        and not "favicon.ico" in request.url \
-        and not "robots.txt" in request.url \
-        and not url_for("logout") in request.url \
-        and not "index.js.map" in request.url \
-        and not "static" in request.url \
-        else url_for("index")
-    response.set_cookie(key="PageUrl", value=PageUrl, expires=None)
+    response.set_cookie(key="PageUrl", value=request.url, expires=None)
     response.set_cookie(key="RefererUrl", value=g.refererUrl, expires=None)
     logger.info(json.dumps({
         "AccessLog": {
@@ -70,6 +70,13 @@ def index():
     else:
         return redirect(url_for("login"))
 
+@app.route("/ucenter/")
+def uc():
+    sql = "SELECT a.username, a.cname, a.email, a.motto, a.url, a.time, a.weibo, a.github, a.extra FROM User a INNER JOIN LAuth b ON a.username = b.lauth_username AND a.username=%s"
+    data=mysql.get(sql, g.username)
+    return jsonify(data)
+
+
 @app.route("/login/")
 def login():
     if g.signin:
@@ -84,7 +91,7 @@ def login_qq():
     else:
         return redirect(qq.QQ_Login_Page_Url)
 
-@app.route("/logout")
+@app.route("/logout/")
 def logout():
     returnUrl = g.refererUrl or request.args.get('next', url_for('login'))
     resp = make_response(redirect(returnUrl))
@@ -107,9 +114,7 @@ def _auth():
     remember = 30 if request.form.get("remember") in ("True", "true", True) else None
     logger.debug("username:%s, password:%s, remember:%s(%s)" %(username, password, remember, type(remember)))
     if username and password and UserAuth_Login(username, password):
-            day = int(remember) if isinstance(remember, int) else None
-            logger.debug(day)
-            expire_time = datetime.datetime.today() + datetime.timedelta(days=day) if day else None
+            expire_time = datetime.datetime.today() + datetime.timedelta(days=remember) if remember else None
             dms.hset(key, username, base64.encodestring(password))
             if username in dms.hgetall(key):
                 logger.info("Create a redis session key(%s) successfully." %username)
