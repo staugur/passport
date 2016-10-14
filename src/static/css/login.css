@@ -58,7 +58,9 @@ input {
 }
 input:focus { box-shadow: inset 0 -5px 45px rgba(100,100,100,0.4), 0 1px 1px rgba(255,255,255,0.2); }
 
-<!--Login with third applications-->
+/*
+Login with third applications
+*/
 .connect {
     width: 305px;
     margin: 35px auto 0 auto;
@@ -78,8 +80,7 @@ input:focus { box-shadow: inset 0 -5px 45px rgba(100,100,100,0.4), 0 1px 1px rgb
     -ms-transition: all .2s;
 }
 
-.connect a.weibo { background: url({{ url_for('static', filename='img/public/Connect_weibo.png') }}) center center no-repeat; }
-.connect a.qq { background: url({{ url_for('static', filename='img/public/Connect_qq.png') }}) center center no-repeat; }
-.connect a.fb { background: url({{ url_for('static', filename='img/public/Connect_facebook.png') }}) center center no-repeat; }
+.connect a.weibo { background: url(/static/img/public/Connect_weibo.png) center center no-repeat; }
+.connect a.qq { background: url(/static/img/public/Connect_qq.png) center center no-repeat; }
+.connect a.fb { background: url(/static/img/public/Connect_facebook.png) center center no-repeat; }
 .connect a:hover { background-position: center bottom; }
-<!--End-->
