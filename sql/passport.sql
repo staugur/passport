@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50633
 File Encoding         : 65001
 
-Date: 2016-10-12 17:58:50
+Date: 2016-10-14 14:46:07
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -24,11 +24,12 @@ CREATE TABLE `LAuth` (
   `lauth_username` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `lauth_password` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`,`lauth_username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of LAuth
 -- ----------------------------
+INSERT INTO `LAuth` VALUES ('1', 'admin', '8879168cbf8a9e11c296530803e93308');
 
 -- ----------------------------
 -- Table structure for OAuth
@@ -40,7 +41,7 @@ CREATE TABLE `OAuth` (
   `oauth_type` varchar(9) COLLATE utf8_unicode_ci NOT NULL,
   `oauth_openid` varchar(41) COLLATE utf8_unicode_ci NOT NULL,
   `oauth_access_token` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
-  `oauth_expires` date NOT NULL,
+  `oauth_expires` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`,`oauth_username`),
   UNIQUE KEY `openid` (`oauth_openid`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
@@ -61,13 +62,14 @@ CREATE TABLE `User` (
   `avatar` varchar(300) CHARACTER SET utf8 DEFAULT NULL,
   `motto` varchar(200) CHARACTER SET utf8 DEFAULT NULL,
   `url` varchar(50) CHARACTER SET utf8 DEFAULT NULL,
-  `time` date DEFAULT NULL,
+  `time` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL,
   `weibo` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
   `github` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
-  `extra` varchar(500) CHARACTER SET utf8 DEFAULT NULL,
+  `extra` text CHARACTER SET utf8,
   PRIMARY KEY (`id`,`username`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of User
 -- ----------------------------
+INSERT INTO `User` VALUES ('1', 'admin', 'staugur@saintic.com', '陶成伟', '/static/upload/15768284.jpg', '原谅我一生放荡不羁爱自由', 'https://www.saintic.com', '2016-10-14', 'weibo.com/staugur', 'github.com/staugur', 'Administrator');
