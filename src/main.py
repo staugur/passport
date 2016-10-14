@@ -4,32 +4,22 @@ import json, base64, datetime
 from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
 from flask_restful import Api, Resource
 from config import GLOBAL, PRODUCT, MODULES
-from apis.User import User_blueprint
 from utils.tool import logger, gen_requestId, dms, md5
 from libs.AuthenticationManager import UserAuth_Login
+from utils.qq import QQLogin
 
 __author__  = 'Mr.tao <staugur@saintic.com>'
-__doc__     = 'Authentication System for SaintIC Web Applications.'
+__doc__     = 'Unified Authorization for SaintIC Web Applications.'
 __date__    = '2016-09-22'
 __org__     = 'SaintIC'
 __version__ = '0.0.1'
 
 app = Flask(__name__)
 key = GLOBAL.get("UserQueueKey")
+qq  = QQLogin(GLOBAL['QQ_APP_ID'], GLOBAL['QQ_APP_KEY'], GLOBAL['QQ_REDIRECT_URI'])
 
 @app.before_request
 def before_request():
-    """
-    g.refererUrl= request.cookies.get("PageUrl") \
-        if request.cookies.get("PageUrl") \
-        and not url_for("_auth") in request.cookies.get("PageUrl") \
-        and not "favicon.ico" in request.cookies.get("PageUrl") \
-        and not "robots.txt" in request.cookies.get("PageUrl") \
-        and not url_for("logout") in request.cookies.get("PageUrl") \
-        and not "index.js.map" in request.cookies.get("PageUrl") \
-        and not "static" in request.cookies.get("PageUrl") \
-        else url_for("index")
-    """
     g.refererUrl = request.cookies.get("PageUrl", url_for("index"))
     g.requestId = gen_requestId()
     g.username  = request.cookies.get("username", "")
@@ -71,14 +61,28 @@ def page_not_found(e):
 
 @app.route("/")
 def index():
-    return "index, " + str(g.signin) + ",<a href='/login'> login </a>" + "<a href='/logout'> logout </a>"
+    code = request.args.get("code")
+    if code and len(code) == 32:
+        if qq.Get_Access_Token(code):
+            return "qq login successfully"
+        else:
+            return "qq login failed"
+    else:
+        return redirect(url_for("login"))
 
 @app.route("/login/")
 def login():
     if g.signin:
-        return redirect(request.args.get('next', g.refererUrl))
+        return "logged_in"
     else:
         return render_template("login.html")
+
+@app.route("/login/qq/")
+def login_qq():
+    if g.signin:
+        return "logged_in"
+    else:
+        return redirect(qq.QQ_Login_Page_Url)
 
 @app.route("/logout")
 def logout():
@@ -123,7 +127,7 @@ def _auth():
         return jsonify(loggedIn=False, error=error)
     
 #register url rule(Blueprint), if get the result, please use app.url_map
-app.register_blueprint(User_blueprint, url_prefix="/api")
+#app.register_blueprint(User_blueprint, url_prefix="/api")
 
 if __name__ == '__main__':
     Host  = GLOBAL.get('Host')

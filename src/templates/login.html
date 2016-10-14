@@ -36,7 +36,7 @@ a:link { text-decoration: none;}
 
 .login { 
 	position: absolute;
-	top: 50%;
+	top: 40%;
 	left: 50%;
 	margin: -150px 0 0 -150px;
 	width:300px;
@@ -91,8 +91,8 @@ input:focus { box-shadow: inset 0 -5px 45px rgba(100,100,100,0.4), 0 1px 1px rgb
 .connect a:hover { background-position: center bottom; }
 <!--End-->
 </style>
+
     <script src="{{ url_for('static', filename='js/jquery-3.1.0.min.js') }}" type="text/javascript"></script>
-    <script type="text/javascript" src="http://qzonestyle.gtimg.cn/qzone/openapi/qc_loader.js" data-appid="100581101" data-redirecturi="http://www.saintic.com" charset="utf-8"></script>
     <link href="{{ url_for('static', filename='img/public/favicon.ico') }}" rel="icon" type="image/x-icon" />
     <link href="{{ url_for('static', filename='img/public/favicon.ico') }}" rel="shortcut icon" type="image/x-icon" />
 </head>
@@ -106,17 +106,10 @@ input:focus { box-shadow: inset 0 -5px 45px rgba(100,100,100,0.4), 0 1px 1px rgb
             <p>Remember Me <input style="width: auto" type="checkbox" id="remember" name="remember" value='true' checked></p>
             <input onclick=postForm("{% if g.refererUrl %}{{ g.refererUrl }}{% else %}{{ url_for('index') }}{% endif %}") type="button" class="btn btn-primary btn-block btn-large" value="登录">
             <div class="connect">
-                <p>第三方社会化账号快捷登录:</p>
-                <p>
-                    <!--<a class="qq" href="#" id="qqLoginBtn"></a>-->
-                    <span id="qqLoginBtn"></span>
-<script type="text/javascript">
-    QC.Login({
-       btnId:"qqLoginBtn"    //插入按钮的节点id
-});
-</script>
-                    <a class="weibo" href="/auth/weibo"></a>
-                    <a class="fb" href="/auth/facebook"></a>
+                <p>第三方社会化账号快捷登录:<br/>
+                    <a class="qq" href="{{ url_for('login_qq') }}"></a>
+                    <a class="weibo" href="#"></a>
+                    <a class="fb" href="#"></a>
                 </p>
             </div>
         </form>
@@ -138,13 +131,13 @@ input:focus { box-shadow: inset 0 -5px 45px rgba(100,100,100,0.4), 0 1px 1px rgb
                 });
             };
         </script>
-        <!--
-        <div class="login-bottom">
-            <div class="forgot"></div>
-            <a href="#">注册</a>
-            <a href="{{ url_for('index') }}">返回首页</a>
+        <div style="text-align:center;">
+            <a href="{{ url_for('index') }}">首页</a>&nbsp;
+            <a href="http://www.saintic.com/" target="_blank">SaintIC</a>&nbsp;
+            <a href="http://github.com/saintic/passport" target="_blank">GitHub</a>&nbsp;
+            <p>Copyright © 2016 - 2016<br/> SaintIC Inc. All rights reserved.</p>
         </div>
-        -->
     </div>
+
 </body>
 </html>

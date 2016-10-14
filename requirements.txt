@@ -1,7 +1,4 @@
 Flask==0.10.1
-Flask-RESTful==0.3.5
-redis==2.10.5
-redis-py-cluster==1.2.0
 setproctitle==1.1.10
 gevent==1.1.1
 tornado==4.3

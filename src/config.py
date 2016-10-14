@@ -2,7 +2,6 @@
 
 import os
 
-#全局配置端
 GLOBAL={
 
     "Host": os.getenv("passport_host", "0.0.0.0"),
@@ -17,22 +16,23 @@ GLOBAL={
     "LogLevel": os.getenv("passport_loglevel", "DEBUG"),
     #应用程序写日志级别，目前有DEBUG，INFO，WARNING，ERROR，CRITICAL
 
-    "put2Redis": os.getenv("passport_put2redis", True),
-    #是否开启put至redis的线程
-
     "ACL": ("Team.Front", "Team.Api"),
     #Access Control List, 访问控制列表, 限定只有ACL定义中的应用可以访问某些资源。
 
     "AppRegistryKey": "passport_registered_application",
 
-    "UserQueueKey": "passport_user_authentication_mq"
+    "UserQueueKey": "passport_user_authentication_mq",
+
+    "QQ_APP_ID": 100581101,
+
+    "QQ_APP_KEY":  "36b4136a30a1bcd126525baf9e815f1f",
+
+    "QQ_REDIRECT_URI": "https://passport.saintic.com",
 }
 
-
-#生产环境配置段
 PRODUCT={
 
-    "ProcessName": "passport",
+    "ProcessName": "Passport",
     #Custom process, you can see it with "ps aux|grep ProcessName".
 
     "ProductType": os.getenv("passport_producttype", "tornado"),
@@ -40,7 +40,6 @@ PRODUCT={
 }
 
 
-#模块配置项
 MODULES={
     #指定应用会话存储集群，暂时支持redis、redis_cluster、etcd、memory(StringIO),
     "Session": {
@@ -65,11 +64,11 @@ MODULES={
 
         "Port": 3306,
 
-        "User": "root",
+        "User": "passport",
 
         "Passwd": "123456",
 
-        "Database": "team",
+        "Database": "passport",
         #数据库
 
         "Charset": "utf8",
