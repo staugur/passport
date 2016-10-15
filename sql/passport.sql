@@ -25,7 +25,7 @@ CREATE TABLE `LAuth` (
   `lauth_password` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`,`lauth_username`),
   UNIQUE KEY `username` (`lauth_username`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of LAuth
@@ -45,7 +45,7 @@ CREATE TABLE `OAuth` (
   `oauth_expires` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`,`oauth_username`),
   UNIQUE KEY `openid` (`oauth_openid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of OAuth
@@ -69,7 +69,7 @@ CREATE TABLE `User` (
   `extra` text CHARACTER SET utf8,
   PRIMARY KEY (`id`,`username`),
   UNIQUE KEY `username` (`username`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of User
