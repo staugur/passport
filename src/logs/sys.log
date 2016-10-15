@@ -1,0 +1,502 @@
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 117-071-024
+ * Running on http://0.0.0.0:10030/ (Press CTRL+C to quit)
+127.0.0.1 - - [15/Oct/2016 23:24:04] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:24:05] "GET /favicon.ico HTTP/1.1" 404 -
+127.0.0.1 - - [15/Oct/2016 23:24:06] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:24:36] "GET /login HTTP/1.1" 301 -
+127.0.0.1 - - [15/Oct/2016 23:24:36] "GET /login/ HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1836, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1820, in wsgi_app
+    response = self.make_response(self.handle_exception(e))
+  File "C:\Python27\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "C:\Python27\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1403, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1817, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1477, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Python27\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "C:\Python27\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1381, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1475, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1461, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "D:\GitHub\passport\src\main.py", line 81, in login
+    return render_template("login.html")
+  File "C:\Python27\lib\site-packages\flask\templating.py", line 128, in render_template
+    context, ctx.app)
+  File "C:\Python27\lib\site-packages\flask\templating.py", line 110, in _render
+    rv = template.render(context)
+  File "C:\Python27\lib\site-packages\jinja2\environment.py", line 989, in render
+    return self.environment.handle_exception(exc_info, True)
+  File "C:\Python27\lib\site-packages\jinja2\environment.py", line 754, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "D:\GitHub\passport\src\templates\login.html", line 25, in top-level template code
+    <a class="qq" href="{{ url_for('login_qq') }}"></a>
+  File "C:\Python27\lib\site-packages\flask\helpers.py", line 312, in url_for
+    return appctx.app.handle_url_build_error(error, endpoint, values)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1641, in handle_url_build_error
+    reraise(exc_type, exc_value, tb)
+  File "C:\Python27\lib\site-packages\flask\helpers.py", line 305, in url_for
+    force_external=external)
+  File "C:\Python27\lib\site-packages\werkzeug\routing.py", line 1758, in build
+    raise BuildError(endpoint, values, method, self)
+BuildError: Could not build url for endpoint 'login_qq'. Did you mean 'login' instead?
+127.0.0.1 - - [15/Oct/2016 23:24:37] "GET /login/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:24:37] "GET /login/?__debugger__=yes&cmd=resource&f=jquery.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:24:37] "GET /login/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:24:37] "GET /login/?__debugger__=yes&cmd=resource&f=ubuntu.ttf HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:24:37] "GET /login/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:24:37] "GET /login/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+ * Detected change in 'D:\\GitHub\\passport\\src\\main.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 117-071-024
+ * Running on http://0.0.0.0:10030/ (Press CTRL+C to quit)
+127.0.0.1 - - [15/Oct/2016 23:25:06] "GET /login/ HTTP/1.1" 500 -
+Traceback (most recent call last):
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1836, in __call__
+    return self.wsgi_app(environ, start_response)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1820, in wsgi_app
+    response = self.make_response(self.handle_exception(e))
+  File "C:\Python27\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "C:\Python27\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1403, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1817, in wsgi_app
+    response = self.full_dispatch_request()
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1477, in full_dispatch_request
+    rv = self.handle_user_exception(e)
+  File "C:\Python27\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "C:\Python27\lib\site-packages\flask_restful\__init__.py", line 271, in error_router
+    return original_handler(e)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1381, in handle_user_exception
+    reraise(exc_type, exc_value, tb)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1475, in full_dispatch_request
+    rv = self.dispatch_request()
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1461, in dispatch_request
+    return self.view_functions[rule.endpoint](**req.view_args)
+  File "D:\GitHub\passport\src\main.py", line 82, in login
+    return render_template("login.html")
+  File "C:\Python27\lib\site-packages\flask\templating.py", line 128, in render_template
+    context, ctx.app)
+  File "C:\Python27\lib\site-packages\flask\templating.py", line 110, in _render
+    rv = template.render(context)
+  File "C:\Python27\lib\site-packages\jinja2\environment.py", line 989, in render
+    return self.environment.handle_exception(exc_info, True)
+  File "C:\Python27\lib\site-packages\jinja2\environment.py", line 754, in handle_exception
+    reraise(exc_type, exc_value, tb)
+  File "D:\GitHub\passport\src\templates\login.html", line 25, in top-level template code
+    <a class="qq" href="{{ url_for('login_qq') }}"></a>
+  File "C:\Python27\lib\site-packages\flask\helpers.py", line 312, in url_for
+    return appctx.app.handle_url_build_error(error, endpoint, values)
+  File "C:\Python27\lib\site-packages\flask\app.py", line 1641, in handle_url_build_error
+    reraise(exc_type, exc_value, tb)
+  File "C:\Python27\lib\site-packages\flask\helpers.py", line 305, in url_for
+    force_external=external)
+  File "C:\Python27\lib\site-packages\werkzeug\routing.py", line 1758, in build
+    raise BuildError(endpoint, values, method, self)
+BuildError: Could not build url for endpoint 'login_qq'. Did you mean 'login' instead?
+127.0.0.1 - - [15/Oct/2016 23:25:07] "GET /login/?__debugger__=yes&cmd=resource&f=style.css HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:25:07] "GET /login/?__debugger__=yes&cmd=resource&f=jquery.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:25:07] "GET /login/?__debugger__=yes&cmd=resource&f=debugger.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:25:07] "GET /login/?__debugger__=yes&cmd=resource&f=ubuntu.ttf HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:25:07] "GET /login/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:25:07] "GET /login/?__debugger__=yes&cmd=resource&f=console.png HTTP/1.1" 200 -
+ * Detected change in 'D:\\GitHub\\passport\\src\\main.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 117-071-024
+ * Running on http://0.0.0.0:10030/ (Press CTRL+C to quit)
+127.0.0.1 - - [15/Oct/2016 23:25:39] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:28:56] "GET / HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:29:22] "GET /login/ HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:29:22] "GET /static/css/login.css HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:29:22] "GET /static/js/jquery-3.1.0.min.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:29:22] "GET /static/js/my.js HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:29:22] "GET /static/img/public/Connect_qq.png HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:29:22] "GET /static/img/public/Connect_weibo.png HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:29:22] "GET /static/img/public/Connect_facebook.png HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:29:22] "GET /static/img/public/favicon.ico HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:29:35] "GET /login//weibo HTTP/1.1" 302 -
+127.0.0.1 - - [15/Oct/2016 23:29:44] "GET /login/ HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:29:44] "GET /static/css/login.css HTTP/1.1" 304 -
+127.0.0.1 - - [15/Oct/2016 23:29:44] "GET /static/js/jquery-3.1.0.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [15/Oct/2016 23:29:44] "GET /static/js/my.js HTTP/1.1" 304 -
+127.0.0.1 - - [15/Oct/2016 23:29:44] "GET /static/img/public/favicon.ico HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:29:45] "GET /login//qq HTTP/1.1" 302 -
+127.0.0.1 - - [15/Oct/2016 23:29:48] "GET /login/ HTTP/1.1" 200 -
+127.0.0.1 - - [15/Oct/2016 23:29:49] "GET /static/css/login.css HTTP/1.1" 304 -
+127.0.0.1 - - [15/Oct/2016 23:29:49] "GET /static/js/jquery-3.1.0.min.js HTTP/1.1" 304 -
+127.0.0.1 - - [15/Oct/2016 23:29:49] "GET /static/js/my.js HTTP/1.1" 304 -
+127.0.0.1 - - [15/Oct/2016 23:29:49] "GET /static/img/public/favicon.ico HTTP/1.1" 200 -
+ * Detected change in 'D:\\GitHub\\passport\\src\\main.py', reloading
+ * Restarting with stat
+ * Debugger is active!
+ * Debugger pin code: 117-071-024
+ * Running on http://0.0.0.0:10030/ (Press CTRL+C to quit)
+
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:28:56 main.py:Thread-1:38 Start Once Access, this requestId is 84330ffa-2d03-4917-9c2e-ebf760ce1523, signin:False
+[ INFO ] 2016-10-15 23:28:56 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": null, "requestId": "84330ffa-2d03-4917-9c2e-ebf760ce1523", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:22 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:38 Start Once Access, this requestId is c69593ae-dd7e-48b5-87d2-b0f902adedc3, signin:False
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/login/", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": null, "requestId": "c69593ae-dd7e-48b5-87d2-b0f902adedc3", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:22 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:38 Start Once Access, this requestId is ebef9a63-9064-4991-9273-9fb5ed469730, signin:False
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/css/login.css", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "ebef9a63-9064-4991-9273-9fb5ed469730", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:22 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:38 Start Once Access, this requestId is 6a481fdd-0500-4430-ab86-25e0423e2971, signin:False
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/js/jquery-3.1.0.min.js", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "6a481fdd-0500-4430-ab86-25e0423e2971", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:22 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:38 Start Once Access, this requestId is 6e614f52-4048-48b6-826d-f3cb3e7e6b2e, signin:False
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/js/my.js", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "6e614f52-4048-48b6-826d-f3cb3e7e6b2e", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:22 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:38 Start Once Access, this requestId is f46e56ea-7ecf-4dfb-9552-3c0c98d135e9, signin:False
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/img/public/Connect_qq.png", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/static/css/login.css", "requestId": "f46e56ea-7ecf-4dfb-9552-3c0c98d135e9", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:22 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:38 Start Once Access, this requestId is 7909f063-4245-4dd5-9b93-94a6d23be306, signin:False
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/img/public/Connect_weibo.png", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/static/css/login.css", "requestId": "7909f063-4245-4dd5-9b93-94a6d23be306", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:22 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:38 Start Once Access, this requestId is 753240f3-f9b2-43d1-957d-5409b7f91225, signin:False
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/img/public/Connect_facebook.png", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/static/css/login.css", "requestId": "753240f3-f9b2-43d1-957d-5409b7f91225", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:22 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:38 Start Once Access, this requestId is 5cb5356a-c587-47a4-8fbf-8dd6202a9624, signin:False
+[ INFO ] 2016-10-15 23:29:22 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/img/public/favicon.ico", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "5cb5356a-c587-47a4-8fbf-8dd6202a9624", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:35 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:35 main.py:Thread-1:38 Start Once Access, this requestId is e65f2d88-8b20-4451-bfa0-bb8d3a6f2f3d, signin:False
+[ INFO ] 2016-10-15 23:29:35 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/login//weibo", "status_code": 302, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "e65f2d88-8b20-4451-bfa0-bb8d3a6f2f3d", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:44 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:44 main.py:Thread-1:38 Start Once Access, this requestId is e9481ed7-6585-4316-be46-afe899cf4ce4, signin:False
+[ INFO ] 2016-10-15 23:29:44 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/login/", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": null, "requestId": "e9481ed7-6585-4316-be46-afe899cf4ce4", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:44 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:44 main.py:Thread-1:38 Start Once Access, this requestId is 0a24efbb-a6b3-4ecc-984f-d07baf36eef2, signin:False
+[ INFO ] 2016-10-15 23:29:44 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/css/login.css", "status_code": 304, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "0a24efbb-a6b3-4ecc-984f-d07baf36eef2", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:44 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:44 main.py:Thread-1:38 Start Once Access, this requestId is ae7581a8-cb34-45fc-bc72-65fea3fb32a2, signin:False
+[ INFO ] 2016-10-15 23:29:44 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/js/jquery-3.1.0.min.js", "status_code": 304, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "ae7581a8-cb34-45fc-bc72-65fea3fb32a2", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:44 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:44 main.py:Thread-1:38 Start Once Access, this requestId is 89f8e5b4-d3b9-4e86-a872-4b4d3ba2d6b5, signin:False
+[ INFO ] 2016-10-15 23:29:44 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/js/my.js", "status_code": 304, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "89f8e5b4-d3b9-4e86-a872-4b4d3ba2d6b5", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:44 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:44 main.py:Thread-1:38 Start Once Access, this requestId is c8d5b006-88ef-4daf-82f2-866a19df4590, signin:False
+[ INFO ] 2016-10-15 23:29:44 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/img/public/favicon.ico", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "c8d5b006-88ef-4daf-82f2-866a19df4590", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:45 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:45 main.py:Thread-1:38 Start Once Access, this requestId is e467d6b3-95d9-4e80-a919-f38c405bb7ac, signin:False
+[ INFO ] 2016-10-15 23:29:45 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/login//qq", "status_code": 302, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "e467d6b3-95d9-4e80-a919-f38c405bb7ac", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:48 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:48 main.py:Thread-1:38 Start Once Access, this requestId is 13d2d796-36ef-4b61-8e77-4da8026e44dc, signin:False
+[ INFO ] 2016-10-15 23:29:48 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/login/", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": null, "requestId": "13d2d796-36ef-4b61-8e77-4da8026e44dc", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:49 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:49 main.py:Thread-1:38 Start Once Access, this requestId is d4d8295c-1461-44fc-816e-5226ec990501, signin:False
+[ INFO ] 2016-10-15 23:29:49 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/css/login.css", "status_code": 304, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "d4d8295c-1461-44fc-816e-5226ec990501", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:49 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:49 main.py:Thread-1:38 Start Once Access, this requestId is c58790e6-7fe0-4a64-a1c8-7466aff9625e, signin:False
+[ INFO ] 2016-10-15 23:29:49 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/js/jquery-3.1.0.min.js", "status_code": 304, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "c58790e6-7fe0-4a64-a1c8-7466aff9625e", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:49 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:49 main.py:Thread-1:38 Start Once Access, this requestId is a28e4338-8e79-42a5-a1e3-9a64eacc9596, signin:False
+[ INFO ] 2016-10-15 23:29:49 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/js/my.js", "status_code": 304, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "a28e4338-8e79-42a5-a1e3-9a64eacc9596", "ip": "127.0.0.1", "method": "GET"}}
+[ DEBUG ] 2016-10-15 23:29:49 main.py:Thread-1:23 Map([<Rule '/callback/weibo' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/weibo/' (HEAD, OPTIONS, GET) -> callback.weibo>,
+ <Rule '/callback/qq' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/callback/qq/' (HEAD, OPTIONS, GET) -> callback.qq>,
+ <Rule '/login//weibo' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//weibo/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.weibo>,
+ <Rule '/login//qq' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/login//qq/' (HEAD, OPTIONS, GET) -> plugins.thirdLogin.qq>,
+ <Rule '/ucenter/' (HEAD, OPTIONS, GET) -> uc>,
+ <Rule '/logout/' (HEAD, OPTIONS, GET) -> logout>,
+ <Rule '/signup/' (HEAD, OPTIONS, GET) -> signup>,
+ <Rule '/login/' (HEAD, OPTIONS, GET) -> login>,
+ <Rule '/_auth/' (POST, OPTIONS) -> _auth>,
+ <Rule '/' (HEAD, OPTIONS, GET) -> index>,
+ <Rule '/static/<filename>' (HEAD, OPTIONS, GET) -> static>])
+[ INFO ] 2016-10-15 23:29:49 main.py:Thread-1:38 Start Once Access, this requestId is 47c5a0fa-b299-4cdc-a223-d15ec19f0676, signin:False
+[ INFO ] 2016-10-15 23:29:49 main.py:Thread-1:53 {"AccessLog": {"url": "http://127.0.0.1:10030/static/img/public/favicon.ico", "status_code": 200, "agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/53.0.2785.143 Safari/537.36", "referer": "http://127.0.0.1:10030/login/", "requestId": "47c5a0fa-b299-4cdc-a223-d15ec19f0676", "ip": "127.0.0.1", "method": "GET"}}

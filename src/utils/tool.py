@@ -1,29 +1,25 @@
 # -*- coding: utf8 -*-
 
-import re, time, hashlib, binascii, os, uuid
+import re, time, hashlib, binascii, os, uuid, datetime
 from log import Syslog
 from config import MODULES
 from torndb import Connection as torndbConnection
 from redis import Redis
 from rediscluster import StrictRedisCluster
 
-
 MYSQL = MODULES.get("Authentication")
 REDIS = MODULES.get("Session")
-
 
 #公共正则表达式
 mail_check    = re.compile(r'([0-9a-zA-Z\_*\.*\-*]+)@([a-zA-Z0-9\-*\_*\.*]+)\.([a-zA-Z]+$)')
 chinese_check = re.compile(u"[\u4e00-\u9fa5]+")
 ip_pat        = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 
-
 #公共函数
 md5           = lambda pwd:hashlib.md5(pwd).hexdigest()
 logger        = Syslog.getLogger()
 gen_token     = lambda :binascii.b2a_base64(os.urandom(24))[:32]
 gen_requestId = lambda :str(uuid.uuid4())
-
 
 dms   = Redis(host=REDIS.get("host"), port=REDIS.get("port"), db=REDIS.get("db"), password=REDIS.get("pass"), socket_timeout=3, socket_connect_timeout=3, retry_on_timeout=3) if REDIS.get("type") == "redis" else StrictRedisCluster(startup_nodes=[{"host": REDIS.get("host"), "port": REDIS.get("port")}], decode_responses=True, socket_timeout=5)
 mysql = torndbConnection(
@@ -40,6 +36,33 @@ def ip_check(ip):
     logger.info("the function ip_check param is %s" %ip)
     if isinstance(ip, (str, unicode)):
         return ip_pat.match(ip)
+
+def Parse_Access_Token(x):
+    '''
+        parse string, such as access_token=E8BF2BCAF63B7CE749796519F5C5D5EB&expires_in=7776000&refresh_token=30AF0BD336324575029492BD2D1E134B.
+        return data, such as {'access_token': 'E8BF2BCAF63B7CE749796519F5C5D5EB', 'expires_in': '7776000', 'refresh_token': '30AF0BD336324575029492BD2D1E134B'}
+    '''
+    return dict( _.split('=') for _ in x.split('&') )
+
+def How_Much_Time(seconds=0, minutes=0, hours=0):
+    dt = datetime.datetime.now() + datetime.timedelta(seconds=seconds, minutes=minutes, hours=hours)
+    return dt.strftime("%Y-%m-%d")
+
+def ISOString2Time(s):
+    ''' 
+    convert a ISO format time to second
+    from:2006-04-12 to:23123123
+    '''
+    import time
+    d = datetime.datetime.strptime(s,"%Y-%m-%d")
+    return time.mktime(d.timetuple())
+
+def Callback_Returned_To_Dict(x):
+    '''
+        OAuthResponse class can't parse the JSON data with content-type text/html and because of a rubbish api,
+        we can't just tell flask-oauthlib to treat it as json.
+    '''
+    return json.loads(x[10:-3])
 
 def get_ip(getLanIp=False):
     _WanIpCmd = "/sbin/ifconfig | grep -o '\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}' | grep -vE '192.168.|172.1[0-9]|172.2[0-9]|172.3[0-1]|10.[0-254]|255|127.0.0.1|0.0.0.0'"

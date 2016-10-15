@@ -22,8 +22,8 @@
             <input onclick="postForm('{{ url_for('_auth') }}', '{% if g.refererUrl %}{{ g.refererUrl }}{% else %}{{ url_for('index') }}{% endif %}')" type="button" class="btn btn-primary btn-block btn-large" value="登录">
             <div class="connect">
                 <p>第三方社会化账号快捷登录:<br/>
-                    <a class="qq" href="{{ url_for('login_qq') }}"></a>
-                    <a class="weibo" href="#"></a>
+                    <a class="qq" href="{{ url_for('plugins.thirdLogin.qq') }}"></a>
+                    <a class="weibo" href="{{ url_for('plugins.thirdLogin.weibo') }}"></a>
                     <a class="fb" href="#"></a>
                 </p>
             </div>
