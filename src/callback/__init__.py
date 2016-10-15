@@ -94,7 +94,7 @@ def Weibo_Login_Page_State(code):
         User_Info_Url = Splice(scheme="https", domain="api.weibo.com", path="/2/users/show.json", query={"access_token": access_token, "uid": uid}).geturl
         data          = requests.get(User_Info_Url, timeout=timeout, verify=verify).json()
         logger.debug(data)
-        username      = "Weibo_" + access_token[:9]
+        username      = "Weibo_" + access_token[4:13]
         user_cname    = data.get("screen_name")
         user_avater   = data.get("profile_image_url")
         user_extra    = data.get("description")
@@ -104,6 +104,8 @@ def Weibo_Login_Page_State(code):
             mysql.insert(UserSQL, username, user_cname, user_avater, How_Much_Time(), user_weibo, user_extra)
             OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
             mysql.insert(OAuthSQL, username, "Weibo", uid, access_token, How_Much_Time(seconds=int(expires_in)))
+        except IntegrityError:
+            return {"username": username, "expires_in": expires_in, "uid": uid}
         except Exception,e:
             logger.error(e, exc_info=True)
             return False
@@ -157,7 +159,7 @@ class Weibo_Callback_Page(Resource):
                 resp = make_response(redirect(url_for("uc")))
                 resp.set_cookie(key='logged_in', value="yes", expires=expire_time)
                 resp.set_cookie(key='username',  value=username, expires=expire_time)
-                resp.set_cookie(key='sessionId', value=md5(username + userid), expires=expire_time)
+                resp.set_cookie(key='sessionId', value=md5(username + str(userid)), expires=expire_time)
                 resp.set_cookie(key='type', value='Weibo', expires=expire_time)
                 return resp
         else:

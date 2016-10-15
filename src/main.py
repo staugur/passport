@@ -83,11 +83,12 @@ def login():
 
 @app.route("/logout/")
 def logout():
-    returnUrl = g.refererUrl or request.args.get('next', url_for('login'))
+    returnUrl = request.args.get('next', url_for('login'))
     resp = make_response(redirect(returnUrl))
     resp.set_cookie(key='logged_in', value='no', expires=0)
     resp.set_cookie(key='username',  value='', expires=0)
     resp.set_cookie(key='sessionId',  value='', expires=0)
+    resp.set_cookie(key='type',  value='', expires=0)
     return resp
 
 @app.route("/signup/")
@@ -113,6 +114,7 @@ def _auth():
                 resp.set_cookie(key='logged_in', value="yes", expires=expire_time)
                 resp.set_cookie(key='username',  value=username, expires=expire_time)
                 resp.set_cookie(key='sessionId', value=md5(username + password), expires=expire_time)
+                resp.set_cookie(key='type', value="local", expires=expire_time)
             else:
                 resp = jsonify(loggedIn=False)
                 logger.warn("Create a redis session key(%s) failed." %username)
