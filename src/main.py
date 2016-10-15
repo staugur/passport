@@ -69,10 +69,10 @@ def uc():
     #sql = "SELECT a.username, a.cname, a.email, a.motto, a.url, a.time, a.weibo, a.github, a.extra FROM User a INNER JOIN LAuth b ON a.username = b.lauth_username AND a.username=%s"
     #data=mysql.get(sql, g.username)
     #return jsonify(data)
-    if g.signin:
-        return "User Center"
-    else:
-        return redirect(url_for("login"))
+    #if g.signin:
+    return "User Center"
+    #else:
+    #    return redirect(url_for("login"))
 
 @app.route("/login/")
 def login():
