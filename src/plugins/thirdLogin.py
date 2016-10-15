@@ -9,7 +9,7 @@ import requests
 from flask import Blueprint, g, redirect, url_for
 from flask_restful import Api, Resource
 from SpliceURL import Splice
-from utils.tool import mysql, logger, Parse_Access_Token, Callback_Returned_To_Dict, How_Much_Time
+from utils.tool import logger, Parse_Access_Token, Callback_Returned_To_Dict, How_Much_Time
 from config import GLOBAL
 
 timeout            = 5

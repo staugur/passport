@@ -9,8 +9,9 @@ import datetime
 from flask import Blueprint, request, g, redirect, url_for, make_response
 from flask_restful import Api, Resource
 from config import GLOBAL
-from utils.tool import logger, How_Much_Time, Callback_Returned_To_Dict, Parse_Access_Token
+from utils.tool import mysql, logger, How_Much_Time, Callback_Returned_To_Dict, Parse_Access_Token, md5
 from SpliceURL import Splice
+from torndb import IntegrityError
 
 timeout            = 5
 verify             = False
@@ -56,16 +57,20 @@ def QQ_Login_Page_State(code):
 
         OpenID_Url = Splice(scheme="https", domain="graph.qq.com", path="/oauth2.0/me", query={"access_token": access_token}).geturl
         data   = Callback_Returned_To_Dict(requests.get(OpenID_Url, timeout=timeout, verify=verify).text)
+        logger.debug(data)
         openid = data.get("openid")
         if openid:
             User_Info_Url = Splice(scheme="https", domain="graph.qq.com", path="/user/get_user_info", query={"access_token": access_token, "oauth_consumer_key": QQ_APP_ID, "openid": openid}).geturl
             UserQzoneInfo = requests.get(User_Info_Url, timeout=timeout, verify=verify).json()
             username = "QQ_" + openid[:9]
+            logger.info(UserQzoneInfo)
             try:
                 UserSQL  = "INSERT INTO User (username, cname, avatar, time, extra) VALUES (%s, %s, %s, %s, %s)"
                 mysql.insert(UserSQL, username, UserQzoneInfo.get("nickname"), UserQzoneInfo.get("figureurl_qq_1"), How_Much_Time(), "大家好，我是来自QQ的小伙伴！")
                 OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
                 mysql.insert(OAuthSQL, username, "QQ", openid, access_token, How_Much_Time(seconds=int(expires_in)))
+            except IntegrityError:
+                return {"username": username, "expires_in": expires_in, "openid": openid}
             except Exception,e:
                 logger.error(e, exc_info=True)
                 return False
@@ -115,14 +120,16 @@ class QQ_Callback_Page(Resource):
 
         code = request.args.get("code")
         if g.signin:
+            logger.debug('qq logined')
             return redirect(url_for("uc"))
         elif code:
+            logger.debug('qq has code')
             data = QQ_Login_Page_State(code)
             if data:
                 username    = data.get("username")
                 expires_in  = data.get("expires_in")
                 openid      = data.get("openid")
-                expire_time = How_Much_Time(seconds=expires_in) if expires_in else None
+                expire_time = How_Much_Time(seconds=int(expires_in)) if expires_in else None
                 resp = make_response(redirect(url_for("uc")))
                 resp.set_cookie(key='logged_in', value="yes", expires=expire_time)
                 resp.set_cookie(key='username',  value=username, expires=expire_time)
@@ -130,6 +137,7 @@ class QQ_Callback_Page(Resource):
                 resp.set_cookie(key='type', value='QQ', expires=expire_time)
                 return resp
         else:
+            logger.debug('qq to login')
             return redirect(url_for("login"))
 
 class Weibo_Callback_Page(Resource):

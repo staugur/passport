@@ -45,7 +45,7 @@ def Parse_Access_Token(x):
     return dict( _.split('=') for _ in x.split('&') )
 
 def How_Much_Time(seconds=0, minutes=0, hours=0):
-    dt = datetime.datetime.now() + datetime.timedelta(seconds=seconds, minutes=minutes, hours=hours)
+    dt = datetime.datetime.now() + datetime.timedelta(seconds=int(seconds), minutes=int(minutes), hours=int(hours))
     return dt.strftime("%Y-%m-%d")
 
 def ISOString2Time(s):

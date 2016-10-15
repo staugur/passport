@@ -77,7 +77,7 @@ def uc():
 @app.route("/login/")
 def login():
     if g.signin:
-        return "logged_in"
+        return redirect(url_for("uc"))
     else:
         return render_template("login.html")
 
