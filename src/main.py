@@ -123,7 +123,7 @@ def _auth():
     
 #register url rule(Blueprint), if get the result, please use app.url_map
 app.register_blueprint(callback_blueprint, url_prefix="/callback")
-app.register_blueprint(login_blueprint, url_prefix="/login/")
+app.register_blueprint(login_blueprint, url_prefix="/login")
 
 if __name__ == '__main__':
     Host  = GLOBAL.get('Host')

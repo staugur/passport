@@ -3,12 +3,14 @@
 # Callback URL
 #
 
+import json
+import requests
 import datetime
 from flask import Blueprint, request, g, redirect, url_for, make_response
 from flask_restful import Api, Resource
 from config import GLOBAL
-from utils.tool import logger, How_Much_Time
-
+from utils.tool import logger, How_Much_Time, Callback_Returned_To_Dict, Parse_Access_Token
+from SpliceURL import Splice
 
 timeout            = 5
 verify             = False
@@ -89,7 +91,7 @@ def Weibo_Login_Page_State(code):
         logger.debug(data)
         username      = "Weibo_" + access_token[:9]
         user_cname    = data.get("screen_name")
-        user_avater   = date.get("profile_image_url")
+        user_avater   = data.get("profile_image_url")
         user_extra    = data.get("description")
         user_weibo    = "weibo.com/" + data.get("profile_url")
         try:
