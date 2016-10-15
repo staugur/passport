@@ -6,20 +6,21 @@ from flask_restful import Api, Resource
 from config import GLOBAL, PRODUCT, MODULES
 from utils.tool import logger, gen_requestId, dms, md5, mysql
 from libs.AuthenticationManager import UserAuth_Login
-from utils.qq import QQLogin
+from callback import callback_blueprint
+from plugins.thirdLogin import login_blueprint
 
 __author__  = 'Mr.tao <staugur@saintic.com>'
-__doc__     = 'Unified Authorization for SaintIC Web Applications.'
+__doc__     = 'SSO for SaintIC Web Applications.'
 __date__    = '2016-09-22'
 __org__     = 'SaintIC'
 __version__ = '0.0.1'
 
 app = Flask(__name__)
 key = GLOBAL.get("UserQueueKey")
-qq  = QQLogin(GLOBAL['QQ_APP_ID'], GLOBAL['QQ_APP_KEY'], GLOBAL['QQ_REDIRECT_URI'])
 
 @app.before_request
 def before_request():
+    logger.debug(app.url_map)
     g.refererUrl= request.cookies.get("PageUrl") \
         if request.cookies.get("PageUrl") \
         and not url_for("_auth") in request.cookies.get("PageUrl") \
@@ -61,43 +62,33 @@ def page_not_found(e):
 
 @app.route("/")
 def index():
-    code = request.args.get("code")
-    if code and len(code) == 32:
-        if qq.Get_Access_Token(code):
-            return "qq login successfully"
-        else:
-            return "qq login failed"
-    else:
-        return redirect(url_for("login"))
+    return "SaintiC SSO"
 
 @app.route("/ucenter/")
 def uc():
-    sql = "SELECT a.username, a.cname, a.email, a.motto, a.url, a.time, a.weibo, a.github, a.extra FROM User a INNER JOIN LAuth b ON a.username = b.lauth_username AND a.username=%s"
-    data=mysql.get(sql, g.username)
-    return jsonify(data)
-
+    #sql = "SELECT a.username, a.cname, a.email, a.motto, a.url, a.time, a.weibo, a.github, a.extra FROM User a INNER JOIN LAuth b ON a.username = b.lauth_username AND a.username=%s"
+    #data=mysql.get(sql, g.username)
+    #return jsonify(data)
+    #if g.signin:
+    return "User Center"
+    #else:
+    #    return redirect(url_for("login"))
 
 @app.route("/login/")
 def login():
     if g.signin:
-        return "logged_in"
+        return redirect(url_for("uc"))
     else:
         return render_template("login.html")
 
-@app.route("/login/qq/")
-def login_qq():
-    if g.signin:
-        return "logged_in"
-    else:
-        return redirect(qq.QQ_Login_Page_Url)
-
 @app.route("/logout/")
 def logout():
-    returnUrl = g.refererUrl or request.args.get('next', url_for('login'))
+    returnUrl = request.args.get('next', url_for('login'))
     resp = make_response(redirect(returnUrl))
     resp.set_cookie(key='logged_in', value='no', expires=0)
     resp.set_cookie(key='username',  value='', expires=0)
     resp.set_cookie(key='sessionId',  value='', expires=0)
+    resp.set_cookie(key='type',  value='', expires=0)
     return resp
 
 @app.route("/signup/")
@@ -123,6 +114,7 @@ def _auth():
                 resp.set_cookie(key='logged_in', value="yes", expires=expire_time)
                 resp.set_cookie(key='username',  value=username, expires=expire_time)
                 resp.set_cookie(key='sessionId', value=md5(username + password), expires=expire_time)
+                resp.set_cookie(key='type', value="local", expires=expire_time)
             else:
                 resp = jsonify(loggedIn=False)
                 logger.warn("Create a redis session key(%s) failed." %username)
@@ -132,7 +124,8 @@ def _auth():
         return jsonify(loggedIn=False, error=error)
     
 #register url rule(Blueprint), if get the result, please use app.url_map
-#app.register_blueprint(User_blueprint, url_prefix="/api")
+app.register_blueprint(callback_blueprint, url_prefix="/callback")
+app.register_blueprint(login_blueprint, url_prefix="/login")
 
 if __name__ == '__main__':
     Host  = GLOBAL.get('Host')

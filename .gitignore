@@ -89,4 +89,6 @@ ENV/
 .ropeproject
 
 logs/
-.log
+src/logs/
+src/logs/sys.log
+

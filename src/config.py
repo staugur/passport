@@ -27,7 +27,13 @@ GLOBAL={
 
     "QQ_APP_KEY":  "36b4136a30a1bcd126525baf9e815f1f",
 
-    "QQ_REDIRECT_URI": "https://passport.saintic.com",
+    "QQ_REDIRECT_URI": "https://passport.saintic.com/callback/qq/",
+
+    "WEIBO_APP_ID":  1746902937,
+
+    "WEIBO_APP_KEY": '8853e9ba5835e5a26fa0b4907c2995ce',
+
+    "WEIBO_REDIRECT_URI": "https://passport.saintic.com/callback/weibo/",
 }
 
 PRODUCT={

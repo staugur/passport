@@ -3,14 +3,14 @@ Navicat MySQL Data Transfer
 
 Source Server         : 101.200.125.9
 Source Server Version : 50633
-Source Host           : localhost:3306
+Source Host           : 127.0.0.1:3306
 Source Database       : passport
 
 Target Server Type    : MYSQL
 Target Server Version : 50633
 File Encoding         : 65001
 
-Date: 2016-10-14 18:48:15
+Date: 2016-10-16 00:56:51
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -23,8 +23,9 @@ CREATE TABLE `LAuth` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `lauth_username` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
   `lauth_password` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
-  PRIMARY KEY (`id`,`lauth_username`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  PRIMARY KEY (`id`,`lauth_username`),
+  UNIQUE KEY `username` (`lauth_username`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of LAuth
@@ -44,7 +45,7 @@ CREATE TABLE `OAuth` (
   `oauth_expires` varchar(10) COLLATE utf8_unicode_ci NOT NULL,
   PRIMARY KEY (`id`,`oauth_username`),
   UNIQUE KEY `openid` (`oauth_openid`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of OAuth
@@ -66,8 +67,9 @@ CREATE TABLE `User` (
   `weibo` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
   `github` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL,
   `extra` text CHARACTER SET utf8,
-  PRIMARY KEY (`id`,`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+  PRIMARY KEY (`id`,`username`),
+  UNIQUE KEY `username` (`username`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of User
