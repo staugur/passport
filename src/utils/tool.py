@@ -150,18 +150,12 @@ def parse_signed_cookie(cookie_str):
         print e
         return None
 
-"""
 #Login required in need
-def login_required(func):
-    def _deco(g, *args, **kw):
-        if g.username and g.sessionId:
-            dms.hgetall(g.authkey).get(g.username)
 def login_required(f):
     @wraps(f)
-    def decorated_function(*args, **kwargs):
+    def deco(*args, **kwargs):
         if g.user is None:
             return redirect(url_for('login', next=request.url))
         return f(*args, **kwargs)
-    return decorated_function
-"""
+    return deco
 
