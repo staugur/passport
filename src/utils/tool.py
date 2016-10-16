@@ -6,6 +6,8 @@ from config import MODULES
 from torndb import Connection as torndbConnection
 from redis import Redis
 from rediscluster import StrictRedisCluster
+from functools import wraps
+from flask import g, redirect, url_for
 
 MYSQL = MODULES.get("Authentication")
 REDIS = MODULES.get("Session")
@@ -126,36 +128,49 @@ def put2RedisSimple(RedisConnection, key, value):
         return False
 
 # 计算加密cookie:
-def make_signed_cookie(username, password, max_age):
-    expires = str(int(time.time() + max_age))
-    L = [username, expires, md5('%s-%s-%s-%s' % (username, password, expires, _COOKIE_KEY))]
-    return '-'.join(L)
+def make_signed_cookie(username, flag, seconds=0, minutes=0, hours=0):
+    '''
+      ::param: username, global in g.
+      ::param: flag, it's password(local auth) or openid(qq auth) or userid(weibo auth).
+      ::param: seconds, minutes, hours, it's a day time, such as 2016-10-16.
+    '''
+    expires = How_Much_Time(seconds=seconds, minutes=minutes, hours=hours)
+    return '.'.join([ username, expires, md5('%s-%s-%s-%s' %(username, flag, expires, md5("COOKIE_KEY"))).upper() ])
 
 # 解密cookie:
-def parse_signed_cookie(cookie_str):
+def parse_signed_cookie(cookie_str, flag):
     try:
-        L = cookie_str.split('-')
+        L = cookie_str.split('.')
+
         if len(L) != 3:
             return None
-        id, expires, md5 = L
-        if int(expires) < time.time():
+
+        username, expires, md5str = L
+
+        if expires < How_Much_Time():
             return None
-        user = User.get(id)
-        if user is None:
+
+        if not username:
             return None
-        if md5 != hashlib.md5('%s-%s-%s-%s' % (id, user.password, expires, _COOKIE_KEY)).hexdigest():
+
+        if md5str != md5('%s-%s-%s-%s' % (username, flag, expires, md5("COOKIE_KEY"))).upper():
             return None
-        return user
+
+        return username
     except Exception,e:
         print e
         return None
 
+'''
 #Login required in need
-def login_required(f):
-    @wraps(f)
+def login_required(func):
+    logger.info("exec check login")
+    @wraps(func)
     def deco(*args, **kwargs):
-        if g.user is None:
-            return redirect(url_for('login', next=request.url))
-        return f(*args, **kwargs)
+        logger.debug(dir(g))
+        if hasattr(g, "signin"):
+            return func(*args, **kwargs)
+        else:
+            return redirect(url_for("login"))
     return deco
-
+'''
