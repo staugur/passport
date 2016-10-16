@@ -36,6 +36,7 @@ def before_request():
     g.password  = dms.hgetall(key).get(g.username, "") if g.username and g.sessionId else ""
     g.signin    = True if g.sessionId == md5(g.username + base64.decodestring(g.password)) else False
     logger.info("Start Once Access, this requestId is %s, signin:%s" %(g.requestId, g.signin))
+    logger.debug(dir(g))
 
 @app.after_request
 def after_request(response):
@@ -66,13 +67,12 @@ def index():
 
 @app.route("/ucenter/")
 def uc():
-    #sql = "SELECT a.username, a.cname, a.email, a.motto, a.url, a.time, a.weibo, a.github, a.extra FROM User a INNER JOIN LAuth b ON a.username = b.lauth_username AND a.username=%s"
-    #data=mysql.get(sql, g.username)
-    #return jsonify(data)
-    #if g.signin:
-    return "User Center"
-    #else:
-    #    return redirect(url_for("login"))
+    if g.signin:
+        sql = "SELECT username, cname, email, motto, url, time, weibo, github, extra FROM User WHERE username=%s"
+        data=mysql.get(sql, g.username)
+        return jsonify(data)
+    else:
+        return redirect(url_for("login"))
 
 @app.route("/login/")
 def login():
@@ -91,13 +91,6 @@ def logout():
     resp.set_cookie(key='type',  value='', expires=0)
     return resp
 
-@app.route("/signup/")
-def signup():
-    if g.signin:
-        return redirect(request.args.get('next', g.refererUrl))
-    else:
-        return render_template("register.html")
-
 @app.route('/_auth/', methods=["POST", ])
 def _auth():
     username = request.form.get("username")
@@ -114,7 +107,8 @@ def _auth():
                 resp.set_cookie(key='logged_in', value="yes", expires=expire_time)
                 resp.set_cookie(key='username',  value=username, expires=expire_time)
                 resp.set_cookie(key='sessionId', value=md5(username + password), expires=expire_time)
-                resp.set_cookie(key='type', value="local", expires=expire_time)
+                #resp.set_cookie(key='type', value="local", expires=expire_time)
+                resp.set_cookie(key='type', value="local", max_age=120)
             else:
                 resp = jsonify(loggedIn=False)
                 logger.warn("Create a redis session key(%s) failed." %username)
