@@ -21,7 +21,7 @@ GLOBAL={
 
     "AppRegistryKey": "passport_registered_application",
 
-    "UserQueueKey": "passport_user_authentication_mq",
+    "UserQueueKey": "passport_user_authentication_mq_",
 
     "QQ_APP_ID": 100581101,
 
@@ -66,11 +66,11 @@ MODULES={
     "Authentication": {
         "type": "mysql",
         #认证来源, 支持mysql表、LDAP、
-        "Host": "101.200.125.9",
+        "Host": "127.0.0.1",
 
         "Port": 3306,
 
-        "User": "passport",
+        "User": "root",
 
         "Passwd": "123456",
 

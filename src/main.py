@@ -1,10 +1,10 @@
 # -*- coding: utf8 -*-
 
 import json, base64, datetime
+from config import GLOBAL
 from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
 from flask_restful import Api, Resource
-from config import GLOBAL, PRODUCT, MODULES
-from utils.tool import logger, gen_requestId, dms, md5, mysql
+from utils.tool import logger, gen_requestId, dms, md5, mysql, make_signed_cookie, parse_signed_cookie, isLogged_in, How_Much_Time
 from libs.AuthenticationManager import UserAuth_Login
 from callback import callback_blueprint
 from plugins.thirdLogin import login_blueprint
@@ -16,33 +16,20 @@ __org__     = 'SaintIC'
 __version__ = '0.0.1'
 
 app = Flask(__name__)
-key = GLOBAL.get("UserQueueKey")
+#key = GLOBAL.get("UserQueueKey")
 
 @app.before_request
 def before_request():
-    logger.debug(app.url_map)
-    g.refererUrl= request.cookies.get("PageUrl") \
-        if request.cookies.get("PageUrl") \
-        and not url_for("_auth") in request.cookies.get("PageUrl") \
-        and not "favicon.ico" in request.cookies.get("PageUrl") \
-        and not "robots.txt" in request.cookies.get("PageUrl") \
-        and not url_for("logout") in request.cookies.get("PageUrl") \
-        and not "index.js.map" in request.cookies.get("PageUrl") \
-        and not "static" in request.cookies.get("PageUrl") \
-        else url_for("index")
     g.requestId = gen_requestId()
     g.username  = request.cookies.get("username", "")
     g.sessionId = request.cookies.get("sessionId", "")
-    g.password  = dms.hgetall(key).get(g.username, "") if g.username and g.sessionId else ""
-    g.signin    = True if g.sessionId == md5(g.username + base64.decodestring(g.password)) else False
+    g.expires   = request.cookies.get("time", "")
+    g.signin = isLogged_in('.'.join([ g.username, g.expires, g.sessionId ]))
     logger.info("Start Once Access, this requestId is %s, signin:%s" %(g.requestId, g.signin))
-    logger.debug(dir(g))
 
 @app.after_request
 def after_request(response):
     response.headers["X-SaintIC-Request-Id"] = g.requestId
-    response.set_cookie(key="PageUrl", value=request.url, expires=None)
-    response.set_cookie(key="RefererUrl", value=g.refererUrl, expires=None)
     logger.info(json.dumps({
         "AccessLog": {
             "status_code": response.status_code,
@@ -88,7 +75,8 @@ def logout():
     resp.set_cookie(key='logged_in', value='no', expires=0)
     resp.set_cookie(key='username',  value='', expires=0)
     resp.set_cookie(key='sessionId',  value='', expires=0)
-    resp.set_cookie(key='type',  value='', expires=0)
+    resp.set_cookie(key='Azone',  value='', expires=0)
+    resp.set_cookie(key='time',  value='', expires=0)
     return resp
 
 @app.route('/_auth/', methods=["POST", ])
@@ -96,27 +84,24 @@ def _auth():
     username = request.form.get("username")
     password = request.form.get("password")
     remember = 30 if request.form.get("remember") in ("True", "true", True) else None
-    logger.debug("username:%s, password:%s, remember:%s(%s)" %(username, password, remember, type(remember)))
     if username and password and UserAuth_Login(username, password):
-            expire_time = datetime.datetime.today() + datetime.timedelta(days=remember) if remember else None
-            dms.hset(key, username, base64.encodestring(password))
-            if username in dms.hgetall(key):
-                logger.info("Create a redis session key(%s) successfully." %username)
-                resp = jsonify(loggedIn=True)
-                #resp = make_response(redirect(request.args.get('next', g.refererUrl)))
-                resp.set_cookie(key='logged_in', value="yes", expires=expire_time)
-                resp.set_cookie(key='username',  value=username, expires=expire_time)
-                resp.set_cookie(key='sessionId', value=md5(username + password), expires=expire_time)
-                #resp.set_cookie(key='type', value="local", expires=expire_time)
-                resp.set_cookie(key='type', value="local", max_age=120)
-            else:
-                resp = jsonify(loggedIn=False)
-                logger.warn("Create a redis session key(%s) failed." %username)
+            max_age_sec = 3600 * 24 * remember if remember else None
+            expires     = How_Much_Time(max_age_sec)
+            #expire_time= datetime.datetime.today() + datetime.timedelta(days=remember) if remember else None
+            logger.debug("max_age_sec: %s, expire_time: %s, expires: %s" %(max_age_sec, None, expires))
+
+            resp = make_response(redirect(url_for("uc")))
+            resp.set_cookie(key='logged_in', value="yes", max_age=max_age_sec)
+            resp.set_cookie(key='username',  value=username, max_age=max_age_sec)
+            resp.set_cookie(key='sessionId', value=md5('%s-%s-%s-%s' %(username, md5(password), expires, "COOKIE_KEY")).upper(), max_age=max_age_sec)
+            resp.set_cookie(key='time', value=expires, max_age=max_age_sec)
+            #LogonCredentials: make_signed_cookie(username, md5(password), seconds=max_age_sec)
+            resp.set_cookie(key='Azone', value="local", max_age=max_age_sec)
+            #write to redis
             return resp
     else:
-        error = "Login fail, invaild username or password."
-        return jsonify(loggedIn=False, error=error)
-    
+        return redirect(url_for("login"))
+
 #register url rule(Blueprint), if get the result, please use app.url_map
 app.register_blueprint(callback_blueprint, url_prefix="/callback")
 app.register_blueprint(login_blueprint, url_prefix="/login")

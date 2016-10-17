@@ -32,7 +32,7 @@ mysql = torndbConnection(
                     time_zone= MYSQL.get('Timezone','+8:00'),
                     charset  = MYSQL.get('Charset', 'utf8'),
                     connect_timeout=3,
-                    max_idle_time=3)
+                    max_idle_time=2)
 
 def ip_check(ip):
     logger.info("the function ip_check param is %s" %ip)
@@ -87,31 +87,6 @@ def get_ip(getLanIp=False):
         Ips = (_WanIp,)
     return Ips
 
-def put2Redis(RedisConnection, name="Team.Front", port=10050, misc={}):
-    def Ips():
-        _WanIps, _LanIps = get_ip(getLanIp=True)
-        logger.debug("wanip(%s), lanip(%s)" %(_WanIps, _LanIps))
-        WanIp = _WanIps if len(_WanIps.split(",")) == 1 else _WanIps.split(",")[0]
-        LanIp = _LanIps if len(_LanIps.split(",")) == 1 else _LanIps.split(",")[0]
-        return WanIp, LanIp, _WanIps, _LanIps
-    WanIp, LanIp, _WanIps, _LanIps = Ips()
-    while True:
-        if ip_check(WanIp):
-            logger.info("You will write something information into redis.")
-            try:
-                value = "port:%d, proc:%s, wanIp:%s, lanIp:%s, misc:%s" %(port, name, _WanIps, _LanIps, misc)
-                logger.debug(RedisConnection.ttl(name))
-                RedisConnection.set(name, value)
-                RedisConnection.expire(name, 60)
-                logger.info(RedisConnection.get(name))
-            except Exception,e:
-                logger.error(e)
-        else:
-            logger.warn("ip invaild, continue.")
-            WanIp, LanIp, _WanIps, _LanIps = Ips()
-            continue
-        time.sleep(15)
-
 def put2RedisSimple(RedisConnection, key, value):
     if key and value:
         try:
@@ -135,36 +110,69 @@ def make_signed_cookie(username, flag, seconds=0, minutes=0, hours=0):
       ::param: seconds, minutes, hours, it's a day time, such as 2016-10-16.
     '''
     expires = How_Much_Time(seconds=seconds, minutes=minutes, hours=hours)
-    return '.'.join([ username, expires, md5('%s-%s-%s-%s' %(username, flag, expires, md5("COOKIE_KEY"))).upper() ])
+    return '.'.join([ username, expires, md5('%s-%s-%s-%s' %(username, flag, expires, "COOKIE_KEY")).upper() ])
 
 # 解密cookie:
 def parse_signed_cookie(cookie_str, flag):
+
+    logger.info("parse signed cookie is %s, pivotal flag is %s" %(cookie_str, flag))
     try:
         L = cookie_str.split('.')
+        logger.debug(L)
 
         if len(L) != 3:
             return None
 
         username, expires, md5str = L
-
         if expires < How_Much_Time():
+            logger.debug(expires)
             return None
 
         if not username:
+            logger.debug(username)
             return None
 
-        if md5str != md5('%s-%s-%s-%s' % (username, flag, expires, md5("COOKIE_KEY"))).upper():
-            return None
+        t = '%s-%s-%s-%s' %(username, flag, expires, "COOKIE_KEY")
+        s = md5(t).upper()
+        logger.debug(t)
+        logger.debug(s)
+        if md5str == s:
+            return True
 
-        return username
     except Exception,e:
-        print e
+        logger.warn(e, exc_info=True)
         return None
 
+# 判断是否登录
+def isLogged_in(cookie_str):
+    ''' check username is logged in '''
+
+    if cookie_str:
+        username = cookie_str.split('.')[0]
+        logger.info("check login request, cookie_str: %s, username: %s" %(cookie_str, username))
+    else:        
+        return False
+
+    sql1 = "SELECT lauth_password FROM LAuth WHERE lauth_username=%s"
+    flag = mysql.get(sql1, username)
+    if flag:
+        flag = flag.get("lauth_password")
+    else:
+        sql2 = "SELECT oauth_openid FROM OAuth WHERE oauth_username=%s"
+        flag = mysql.get(sql2, username)
+        if flag:
+            flag = flag.get("oauth_openid")
+        else:
+            return False
+
+    if parse_signed_cookie(cookie_str, flag):
+        return True
+    else:
+        return False
+
 '''
-#Login required in need
 def login_required(func):
-    logger.info("exec check login")
+    logger.info("exec check login deco")
     @wraps(func)
     def deco(*args, **kwargs):
         logger.debug(dir(g))
