@@ -69,12 +69,13 @@ def QQ_Login_Page_State(code):
                 mysql.insert(UserSQL, username, UserQzoneInfo.get("nickname"), UserQzoneInfo.get("figureurl_qq_1"), How_Much_Time(), "大家好，我是来自QQ的小伙伴！")
                 OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
                 mysql.insert(OAuthSQL, username, "QQ", openid, access_token, How_Much_Time(seconds=int(expires_in)))
-            except IntegrityError:
+            except IntegrityError,e:
+                logger.debug(e, exc_info=True)
                 #Check if it has been registered
                 CheckSQL = "SELECT oauth_username FROM OAuth WHERE oauth_username=%s"
                 if mysql.get(CheckSQL, username):
                     UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s WHERE oauth_username=%s"
-                    mysql.update(UpdateSQL, access_token, How_Much_Time(expires_in), username)
+                    mysql.update(UpdateSQL, access_token, How_Much_Time(seconds=int(expires_in)), username)
                     return {"username": username, "expires_in": expires_in, "openid": openid}
             except Exception,e:
                 logger.error(e, exc_info=True)
