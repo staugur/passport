@@ -74,7 +74,7 @@ def QQ_Login_Page_State(code):
                 CheckSQL = "SELECT oauth_username FROM OAuth WHERE oauth_username=%s"
                 if mysql.get(CheckSQL, username):
                     UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s WHERE oauth_username=%s"
-                    mysql.update(UpdateSQL, access_token, expires_in, username)
+                    mysql.update(UpdateSQL, access_token, How_Much_Time(expires_in), username)
                     return {"username": username, "expires_in": expires_in, "openid": openid}
             except Exception,e:
                 logger.error(e, exc_info=True)
