@@ -134,7 +134,7 @@ class QQ_Callback_Page(Resource):
             data = QQ_Login_Page_State(code)
             if data:
                 username    = data.get("username")
-                expires_in  = data.get("expires_in")
+                expires_in  = int(data.get("expires_in"))
                 openid      = data.get("openid")
                 expire_time = How_Much_Time(expires_in)
 
