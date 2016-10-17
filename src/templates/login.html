@@ -13,13 +13,13 @@
 <body>
 
     <div class="login">
-        <h1>{{ request.args.get("app") or "SaintIC Passport" }}</h1>
-        <form action="" method="post" id="UserLoginFormId">
+        <h1>SaintIC Passport</h1>
+        <form action="{{ url_for('_auth') }}" method="post" id="UserLoginFormId">
             <p style="color:red; text-align: center; width: auto" id="login_error"></p>
             <input type="text" id="username" name="username" placeholder="username" required>
             <input type="password" id="password" name="password" placeholder="password" required>
             <p>Remember Me <input style="width: auto" type="checkbox" id="remember" name="remember" value='true' checked></p>
-            <input onclick="postForm('{{ url_for('_auth') }}', '{% if g.refererUrl %}{{ g.refererUrl }}{% else %}{{ url_for('index') }}{% endif %}')" type="button" class="btn btn-primary btn-block btn-large" value="登录">
+            <input type="submit" class="btn btn-primary btn-block btn-large" value="登录">
             <div class="connect">
                 <p>第三方社会化账号快捷登录:<br/>
                     <a class="qq" href="{{ url_for('plugins.thirdLogin.qq') }}"></a>
