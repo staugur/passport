@@ -55,8 +55,8 @@ def QQ_Login_Page_State(code):
         else:
             return False
 
-        OpenID_Url = Splice(scheme="https", domain="graph.qq.com", path="/oauth2.0/me", query={"access_token": access_token}).geturl
-        data   = Callback_Returned_To_Dict(requests.get(OpenID_Url, timeout=timeout, verify=verify).text)
+        getId  = Splice(scheme="https", domain="graph.qq.com", path="/oauth2.0/me", query={"access_token": access_token}).geturl
+        data   = Callback_Returned_To_Dict(requests.get(getId, timeout=timeout, verify=verify).text)
         logger.debug(data)
         openid = data.get("openid")
         if openid:
@@ -70,7 +70,12 @@ def QQ_Login_Page_State(code):
                 OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
                 mysql.insert(OAuthSQL, username, "QQ", openid, access_token, How_Much_Time(seconds=int(expires_in)))
             except IntegrityError:
-                return {"username": username, "expires_in": expires_in, "openid": openid}
+                #Check if it has been registered
+                CheckSQL = "SELECT oauth_username FROM OAuth WHERE oauth_username=%s"
+                if mysql.get(CheckSQL, username):
+                    UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s WHERE oauth_username=%s"
+                    mysql.update(UpdateSQL, access_token, expires_in, username)
+                    return {"username": username, "expires_in": expires_in, "openid": openid}
             except Exception,e:
                 logger.error(e, exc_info=True)
                 return False
@@ -80,7 +85,7 @@ def QQ_Login_Page_State(code):
         else:
             return False
     else:
-        logger.error("Get Access Token Error with Authorization Code")
+        logger.error("Get Access Token Error with Authorization Code in %s" %data)
         return False
 
 def Weibo_Login_Page_State(code):
