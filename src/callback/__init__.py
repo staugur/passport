@@ -143,7 +143,7 @@ class QQ_Callback_Page(Resource):
                 resp.set_cookie(key='username',  value=username, max_age=expires_in)
                 resp.set_cookie(key='time', value=expire_time, max_age=expires_in)
                 resp.set_cookie(key='Azone', value="QQ", max_age=expires_in)
-                resp.set_cookie(key='sessionId', value=md5('%s-%s-%s-%s' %(username, md5(openid), expire_time, "COOKIE_KEY")).upper(), max_age=expires_in)
+                resp.set_cookie(key='sessionId', value=md5('%s-%s-%s-%s' %(username, openid, expire_time, "COOKIE_KEY")).upper(), max_age=expires_in)
                 return resp
         else:
             logger.debug('qq to login')

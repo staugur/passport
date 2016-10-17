@@ -156,13 +156,17 @@ def isLogged_in(cookie_str):
     sql1 = "SELECT lauth_password FROM LAuth WHERE lauth_username=%s"
     flag = mysql.get(sql1, username)
     if flag:
+        logger.info("LAuth check logged successfully")
         flag = flag.get("lauth_password")
     else:
+        logger.info("LAuth check logged fail, OAuth check logged")
         sql2 = "SELECT oauth_openid FROM OAuth WHERE oauth_username=%s"
         flag = mysql.get(sql2, username)
         if flag:
+            logger.info("OAuth check logged successfully")
             flag = flag.get("oauth_openid")
         else:
+            logger.info("OAuth check logged fail")
             return False
 
     if parse_signed_cookie(cookie_str, flag):
