@@ -136,12 +136,14 @@ class QQ_Callback_Page(Resource):
                 username    = data.get("username")
                 expires_in  = data.get("expires_in")
                 openid      = data.get("openid")
-                expire_time = How_Much_Time(seconds=int(expires_in)) if expires_in else None
+                expire_time = How_Much_Time(expires_in)
+
                 resp = make_response(redirect(url_for("uc")))
-                resp.set_cookie(key='logged_in', value="yes", expires=expire_time)
-                resp.set_cookie(key='username',  value=username, expires=expire_time)
-                resp.set_cookie(key='sessionId', value=md5(username + openid), expires=expire_time)
-                resp.set_cookie(key='type', value='QQ', expires=expire_time)
+                resp.set_cookie(key='logged_in', value="yes", max_age=expires_in)
+                resp.set_cookie(key='username',  value=username, max_age=expires_in)
+                resp.set_cookie(key='time', value=expire_time, max_age=expires_in)
+                resp.set_cookie(key='Azone', value="QQ", max_age=expires_in)
+                resp.set_cookie(key='sessionId', value=md5('%s-%s-%s-%s' %(username, md5(openid), expire_time, "COOKIE_KEY")).upper(), max_age=expires_in)
                 return resp
         else:
             logger.debug('qq to login')
