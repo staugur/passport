@@ -57,7 +57,7 @@ def uc():
     if g.signin:
         sql = "SELECT cname, avatar, extra FROM User WHERE username=%s"
         data=mysql.get(sql, g.username)
-        return jsonify(data)
+        #return jsonify(data)
         return """
         <html>
         <head>
