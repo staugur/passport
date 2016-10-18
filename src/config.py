@@ -43,7 +43,6 @@ PRODUCT={
     #生产环境启动方法，可选`gevent`, `tornado`。
 }
 
-
 MODULES={
     #指定应用会话存储集群，暂时支持redis、redis_cluster、etcd、memory(StringIO),
     "Session": {
@@ -84,4 +83,22 @@ MODULES={
 
     #权限管理模块
     "Authority": None,
+}
+
+
+PLUGINS = {
+    "thirdLogin": {
+        "WEIBO": {
+            "ENABLE": True,
+            "APP_ID": 1746902937,
+            "APP_KEY": "8853e9ba5835e5a26fa0b4907c2995ce",
+            "REDIRECT_URI": "https://passport.saintic.com/callback/weibo/"
+        },
+        "QQ": {
+            "ENABLE": True,
+            "APP_ID": 100581101,
+            "APP_KEY": "36b4136a30a1bcd126525baf9e815f1f",
+            "REDIRECT_URI": "https://passport.saintic.com/callback/qq/"
+        }
+    },
 }
