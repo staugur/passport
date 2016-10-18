@@ -76,7 +76,6 @@ def QQ_Login_Page_State(code):
                 if mysql.get(CheckSQL, username):
                     UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s WHERE oauth_username=%s"
                     mysql.update(UpdateSQL, access_token, How_Much_Time(seconds=int(expires_in)), username)
-                    #update user profile
                     return {"username": username, "expires_in": expires_in, "openid": openid}
             except Exception,e:
                 logger.error(e, exc_info=True)
@@ -104,8 +103,8 @@ def Weibo_Login_Page_State(code):
         username      = "Weibo_" + access_token[4:13]
         user_cname    = data.get("screen_name")
         user_avater   = data.get("profile_image_url")
-        user_extra    = data.get("description")
         user_weibo    = "weibo.com/" + data.get("profile_url")
+        user_extra    = data.get("description")
         try:
             UserSQL  = "INSERT INTO User (username, cname, avatar, time, weibo, extra) VALUES (%s, %s, %s, %s, %s, %s)"
             mysql.insert(UserSQL, username, user_cname, user_avater, How_Much_Time(), user_weibo, user_extra)
@@ -119,6 +118,8 @@ def Weibo_Login_Page_State(code):
                 UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
                 mysql.update(UpdateSQL, access_token, How_Much_Time(seconds=int(expires_in)), uid, username)
                 #update user profile
+                UpdateUserSQL = "UPDATE User SET cname=%s, avatar=%s, weibo=%s, extra=%s WHERE oauth_username=%s"
+                mysql.update(UpdateUserSQL, user_cname, user_avater, user_weibo, user_extra, username)
                 return {"username": username, "expires_in": expires_in, "uid": uid}
         except Exception,e:
             logger.error(e, exc_info=True)
