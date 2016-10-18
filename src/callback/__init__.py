@@ -8,21 +8,13 @@ import requests
 import datetime
 from flask import Blueprint, request, g, redirect, url_for, make_response
 from flask_restful import Api, Resource
-from config import GLOBAL
 from utils.tool import mysql, logger, How_Much_Time, Callback_Returned_To_Dict, Parse_Access_Token, md5
 from SpliceURL import Splice
 from torndb import IntegrityError
+from config import PLUGINS
 
-timeout            = 5
-verify             = False
-QQ_APP_ID          = GLOBAL['QQ_APP_ID']
-QQ_APP_KEY         = GLOBAL['QQ_APP_KEY']
-QQ_REDIRECT_URI    = GLOBAL['QQ_REDIRECT_URI']
-WEIBO_APP_ID       = GLOBAL['WEIBO_APP_ID']
-WEIBO_APP_KEY      = GLOBAL['WEIBO_APP_KEY']
-WEIBO_REDIRECT_URI = GLOBAL['WEIBO_REDIRECT_URI']
 
-def QQ_Login_Page_State(code):
+def QQ_Login_Page_State(code, QQ_APP_ID, QQ_APP_KEY, QQ_REDIRECT_URI, timeout=5, verify=False):
     ''' Authorization Code cannot repeat '''
     QQ_Access_Token_Url = Splice(scheme="https", domain="graph.qq.com", path="/oauth2.0/token", query={"grant_type": "authorization_code", "client_id": QQ_APP_ID, "client_secret": QQ_APP_KEY, "code": code, "state": "P.passport", "redirect_uri": QQ_REDIRECT_URI}).geturl
     access_token_data = requests.get(QQ_Access_Token_Url, timeout=timeout, verify=verify).text
@@ -89,7 +81,7 @@ def QQ_Login_Page_State(code):
         logger.error("Get Access Token Error with Authorization Code in %s" %data)
         return False
 
-def Weibo_Login_Page_State(code):
+def Weibo_Login_Page_State(code, WEIBO_APP_ID, WEIBO_APP_KEY, WEIBO_REDIRECT_URI, timeout=5, verify=False):
     ''' Authorization Code cannot repeat '''
     Access_Token_Url = Splice(scheme="https", domain="api.weibo.com", path="/oauth2/access_token", query={"grant_type": "authorization_code", "client_id": WEIBO_APP_ID, "client_secret": WEIBO_APP_KEY, "code": code, "redirect_uri": WEIBO_REDIRECT_URI}).geturl
     data = requests.post(Access_Token_Url, timeout=timeout, verify=verify).json()
@@ -136,12 +128,13 @@ class QQ_Callback_Page(Resource):
     def get(self):
 
         code = request.args.get("code")
+        logger.debug(request.args)
         if g.signin:
             logger.debug('qq logined')
             return redirect(url_for("uc"))
         elif code:
             logger.debug('qq has code')
-            data = QQ_Login_Page_State(code)
+            data = QQ_Login_Page_State(code, PLUGINS['thirdLogin']['QQ']['APP_ID'], PLUGINS['thirdLogin']['QQ']['APP_KEY'], PLUGINS['thirdLogin']['QQ']['REDIRECT_URI'])
             if data:
                 username    = data.get("username")
                 expires_in  = int(data.get("expires_in"))
@@ -167,7 +160,7 @@ class Weibo_Callback_Page(Resource):
         if g.signin:
             return redirect(url_for("uc"))
         elif code:
-            data = Weibo_Login_Page_State(code)
+            data = Weibo_Login_Page_State(code, PLUGINS['thirdLogin']['WEIBO']['APP_ID'], PLUGINS['thirdLogin']['WEIBO']['APP_KEY'], PLUGINS['thirdLogin']['WEIBO']['REDIRECT_URI'])
             if data:
                 username    = data.get("username")
                 expires_in  = int(data.get("expires_in"))
