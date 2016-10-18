@@ -57,14 +57,13 @@ def uc():
     if g.signin:
         sql = "SELECT cname, avatar, extra FROM User WHERE username=%s"
         data=mysql.get(sql, g.username)
-        #return jsonify(data)
         return """
         <html>
         <head>
         <title>SaintIC Passport User Center</title>
         </head>
         <body>
-        <h1>%s</h1><a href="%s"></a>
+        <h1>%s</h1><img src="%s" />
         <h2>%s</h2>
         """ %(data.get("cname"), data.get("avatar"), data.get("extra"))
     else:
