@@ -19,19 +19,6 @@ GLOBAL={
     "ACL": ("Team.Front", "Team.Api"),
     #Access Control List, 访问控制列表, 限定只有ACL定义中的应用可以访问某些资源。
 
-    "UserQueueKey": "passport_user_authentication_mq_",
-
-    "QQ_APP_ID": 100581101,
-
-    "QQ_APP_KEY":  "36b4136a30a1bcd126525baf9e815f1f",
-
-    "QQ_REDIRECT_URI": "https://passport.saintic.com/callback/qq/",
-
-    "WEIBO_APP_ID":  1746902937,
-
-    "WEIBO_APP_KEY": '8853e9ba5835e5a26fa0b4907c2995ce',
-
-    "WEIBO_REDIRECT_URI": "https://passport.saintic.com/callback/weibo/",
 }
 
 PRODUCT={
@@ -63,7 +50,7 @@ MODULES={
     "Authentication": {
         "type": "mysql",
         #认证来源, 支持mysql表、LDAP、
-        "Host": "127.0.0.1",
+        "Host": "101.200.125.9",
 
         "Port": 3306,
 
@@ -89,7 +76,7 @@ MODULES={
 PLUGINS = {
     "thirdLogin": {
         "WEIBO": {
-            "ENABLE": True,
+            "ENABLE": False,
             "APP_ID": 1746902937,
             "APP_KEY": "8853e9ba5835e5a26fa0b4907c2995ce",
             "REDIRECT_URI": "https://passport.saintic.com/callback/weibo/"

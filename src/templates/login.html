@@ -22,9 +22,13 @@
             <input type="submit" class="btn btn-primary btn-block btn-large" value="登录">
             <div class="connect">
                 <p>第三方社会化账号快捷登录:<br/>
-                    <a class="qq" href="{{ url_for('plugins.thirdLogin.qq') }}"></a>
-                    <a class="weibo" href="{{ url_for('plugins.thirdLogin.weibo') }}"></a>
-                    <a class="fb" href="#"></a>
+                    {% if enable_qq %}
+                        <a class="qq" href="{{ url_for('plugins.thirdLogin.qq') }}"></a>
+                    {% endif %}
+                    {% if enable_weibo %}
+                        <a class="weibo" href="{{ url_for('plugins.thirdLogin.weibo') }}"></a>
+                    {% endif %}
+                    <!--<a class="fb" href="#"></a>-->
                 </p>
             </div>
         </form>

@@ -1,7 +1,7 @@
 # -*- coding: utf8 -*-
 
 import json, base64, datetime
-from config import GLOBAL
+from config import GLOBAL, PLUGINS
 from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
 from flask_restful import Api, Resource
 from utils.tool import logger, gen_requestId, dms, md5, mysql, make_signed_cookie, parse_signed_cookie, isLogged_in, How_Much_Time
@@ -75,7 +75,7 @@ def login():
     if g.signin:
         return redirect(url_for("uc"))
     else:
-        return render_template("login.html")
+        return render_template("login.html", enable_qq=PLUGINS['thirdLogin']['QQ']['ENABLE'], enable_weibo=PLUGINS['thirdLogin']['WEIBO']['ENABLE'])
 
 @app.route("/logout/")
 def logout():

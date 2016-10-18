@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+# -*- coding: utf8 -*-
 #
 # Web application with the third account login module
 #
@@ -11,16 +11,6 @@ from flask_restful import Api, Resource
 from SpliceURL import Splice
 from utils.tool import logger, Parse_Access_Token, Callback_Returned_To_Dict, How_Much_Time
 from config import PLUGINS
-
-'''
-QQ_APP_ID          = GLOBAL['QQ_APP_ID']
-QQ_APP_KEY         = GLOBAL['QQ_APP_KEY']
-QQ_REDIRECT_URI    = GLOBAL['QQ_REDIRECT_URI']
-WEIBO_APP_ID       = GLOBAL['WEIBO_APP_ID']
-WEIBO_APP_KEY      = GLOBAL['WEIBO_APP_KEY']
-WEIBO_REDIRECT_URI = GLOBAL['WEIBO_REDIRECT_URI']
-'''
-thirdLoginPlugins  = PLUGINS['thirdLogin']
 
 
 def QQ_Login_Page_Url(QQ_APP_ID, QQ_REDIRECT_URI):
@@ -39,8 +29,8 @@ class QQ_Login_Page(Resource):
         if g.signin:
             return redirect(url_for("uc"))
         else:
-            if thirdLoginPlugins['QQ']['ENABLE']:
-                return redirect(QQ_Login_Page_Url(thirdLoginPlugins['QQ']['APP_ID'], thirdLoginPlugins['QQ']['REDIRECT_URI']))
+            if PLUGINS['thirdLogin']['QQ']['ENABLE']:
+                return redirect(QQ_Login_Page_Url(PLUGINS['thirdLogin']['QQ']['APP_ID'], PLUGINS['thirdLogin']['QQ']['REDIRECT_URI']))
             else:
                 return redirect(url_for("login"))
 
@@ -51,8 +41,8 @@ class Weibo_Login_Page(Resource):
         if g.signin:
             return redirect(url_for("uc"))
         else:
-            if thirdLoginPlugins['WEIBO']['ENABLE']:
-                return redirect(Weibo_Login_Page_Url(thirdLoginPlugins['WEIBO']['APP_ID'], thirdLoginPlugins['WEIBO']['REDIRECT_URI']))
+            if PLUGINS['thirdLogin']['WEIBO']['ENABLE']:
+                return redirect(Weibo_Login_Page_Url(PLUGINS['thirdLogin']['WEIBO']['APP_ID'], PLUGINS['thirdLogin']['WEIBO']['REDIRECT_URI']))
             else:
                 return redirect(url_for("login"))
 
