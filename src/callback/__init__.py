@@ -118,7 +118,7 @@ def Weibo_Login_Page_State(code):
                 UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
                 mysql.update(UpdateSQL, access_token, How_Much_Time(seconds=int(expires_in)), uid, username)
                 #update user profile
-                UpdateUserSQL = "UPDATE User SET cname=%s, avatar=%s, weibo=%s, extra=%s WHERE oauth_username=%s"
+                UpdateUserSQL = "UPDATE User SET cname=%s, avatar=%s, weibo=%s, extra=%s WHERE username=%s"
                 mysql.update(UpdateUserSQL, user_cname, user_avater, user_weibo, user_extra, username)
                 return {"username": username, "expires_in": expires_in, "uid": uid}
         except Exception,e:
