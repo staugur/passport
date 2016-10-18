@@ -63,7 +63,7 @@ def uc():
         <title>SaintIC Passport User Center</title>
         </head>
         <body>
-        <h1>%s</h1><img src="%s" />
+        <h1>%s<img src="%s" /></h1>
         <h2>%s</h2>
         """ %(data.get("cname"), data.get("avatar"), data.get("extra"))
     else:
