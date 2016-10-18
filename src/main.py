@@ -55,9 +55,18 @@ def index():
 @app.route("/ucenter/")
 def uc():
     if g.signin:
-        sql = "SELECT username, cname, email, motto, url, time, weibo, github, extra FROM User WHERE username=%s"
+        sql = "SELECT cname, avatar, extra FROM User WHERE username=%s"
         data=mysql.get(sql, g.username)
-        return jsonify(data)
+        return """
+        <html>
+        <head>
+        <title>SaintIC Passport User Center</title>
+        </head>
+        <body>
+        <h1>%s<img src="%s" /></h1>
+        <h2>%s</h2>
+        <p><a href="%s">Logout</a></p>
+        """ %(data.get("cname"), data.get("avatar"), data.get("extra"), url_for("logout"))
     else:
         return redirect(url_for("login"))
 
