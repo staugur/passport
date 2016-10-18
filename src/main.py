@@ -65,7 +65,8 @@ def uc():
         <body>
         <h1>%s<img src="%s" /></h1>
         <h2>%s</h2>
-        """ %(data.get("cname"), data.get("avatar"), data.get("extra"))
+        <p><a href="%s">Logout</a></p>
+        """ %(data.get("cname"), data.get("avatar"), data.get("extra"), url_for("logout"))
     else:
         return redirect(url_for("login"))
 
