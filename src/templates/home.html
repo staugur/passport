@@ -14,12 +14,15 @@
 		<meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=1.0, user-scalable=no"/>
 		
 		<!-- google fonts -->
+		<!--
 		<link rel='stylesheet' href='http://fonts.googleapis.com/css?family=PT+Sans'>
 		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Serif:regular,bold"/>
 		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Alegreya+Sans:regular,italic,bold,bolditalic"/>
 		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nixie+One:regular,italic,bold,bolditalic"/>
 		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Alegreya+SC:regular,italic,bold,bolditalic"/>
-		
+		-->
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
+
 		<!-- css -->
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" media="screen"/>
@@ -33,7 +36,7 @@
 			<div id="header" class="content-block">
 				<section class="top clearfix">
 					<div class="pull-left">
-						<h1><a class="logo" href="index.html">SaintIC &amp; Passport</a></h1>
+						<h1><a class="logo" href="{{ url_for('uc') }}">SaintIC &amp; Passport</a></h1>
 					</div>
 				</section>
 				<section class="center">

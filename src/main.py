@@ -56,7 +56,7 @@ def uc():
     if g.signin:
         sql = "SELECT cname, avatar, extra FROM User WHERE username=%s"
         data= mysql.get(sql, g.username)
-        return render_template("index.html", data=data)
+        return render_template("home.html", data=data)
     else:
         return redirect(url_for("login"))
 
