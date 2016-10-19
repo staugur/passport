@@ -26,7 +26,7 @@
 			<div id="header" class="content-block">
 
 				<section class="center">
-					<p><img src="{{ data.get('avatar') or url_for('static', filename='img/avatar/admin.jpg') }}" class="img-circle" title="{{ data.get('cname') }}"></p>
+					<p><img src="{{ data.get('avatar') or url_for('static', filename='img/avatar/admin.jpg') }}" class="img-circle" title="{{ data.get('cname') or 'Oh' }}"></p>
 					<div class="secondary-slogan">
 						{% if data.get('cname') %}<p>{{ data.get('cname') }}</p>{% endif %}
 						{% if data.get('url') %}<p>{{ data.get('url') }}</p>{% endif %}
