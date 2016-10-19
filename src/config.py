@@ -76,7 +76,7 @@ MODULES={
 PLUGINS = {
     "thirdLogin": {
         "WEIBO": {
-            "ENABLE": False,
+            "ENABLE": True,
             "APP_ID": 1746902937,
             "APP_KEY": "8853e9ba5835e5a26fa0b4907c2995ce",
             "REDIRECT_URI": "https://passport.saintic.com/callback/weibo/"
