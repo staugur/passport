@@ -28,9 +28,9 @@
 				<section class="center">
 					<p><img src="{{ data.get('avatar') or url_for('static', filename='img/avatar/admin.jpg') }}" class="img-circle" title="{{ data.get('cname') }}"></p>
 					<div class="secondary-slogan">
-						<p>{{ data.get('cname') }}</p>
+						{% if data.get('cname') %}<p>{{ data.get('cname') }}</p>{% endif %}
 						{% if data.get('url') %}<p>{{ data.get('url') }}</p>{% endif %}
-						<p>{{ data.get('motto') or data.get('extra') }}</p>
+						{% if data.get('motto') %}<p>{{ data.get('motto') or data.get('extra') }}</p>{% endif %}
 						<p>
 						    {% if data.get('email') %}<a href="mailto:{{ data.get('email') }}">Email</a>{% endif %}
 						    {% if data.get('weibo') %}<a href="{{ data.get('weibo') }}" target="_blank">Weibo</a>{% endif %}
