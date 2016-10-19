@@ -1,6 +1,6 @@
 # -*- coding: utf8 -*-
 
-import json, base64, datetime
+import json, datetime
 from config import GLOBAL, PLUGINS
 from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
 from flask_restful import Api, Resource
@@ -16,7 +16,6 @@ __org__     = 'SaintIC'
 __version__ = '0.0.1'
 
 app = Flask(__name__)
-#key = GLOBAL.get("UserQueueKey")
 
 @app.before_request
 def before_request():
@@ -63,10 +62,11 @@ def uc():
         <title>SaintIC Passport User Center</title>
         </head>
         <body>
-        <h1>%s<img src="%s" /></h1>
+        <img src="%s" />
+        <h1>%s</h1>
         <h2>%s</h2>
         <p><a href="%s">Logout</a></p>
-        """ %(data.get("cname"), data.get("avatar"), data.get("extra"), url_for("logout"))
+        """ %(data.get("avatar"), data.get("cname"), data.get("extra"), url_for("logout"))
     else:
         return redirect(url_for("login"))
 
@@ -79,9 +79,8 @@ def login():
 
 @app.route("/logout/")
 def logout():
-    returnUrl = request.args.get('next', url_for('login'))
-    resp = make_response(redirect(returnUrl))
-    resp.set_cookie(key='logged_in', value='no', expires=0)
+    resp = make_response(redirect(url_for('login')))
+    resp.set_cookie(key='logged_in', value='no', expires=None)
     resp.set_cookie(key='username',  value='', expires=0)
     resp.set_cookie(key='sessionId',  value='', expires=0)
     resp.set_cookie(key='Azone',  value='', expires=0)
@@ -105,8 +104,8 @@ def _auth():
             resp.set_cookie(key='sessionId', value=md5('%s-%s-%s-%s' %(username, md5(password), expires, "COOKIE_KEY")).upper(), max_age=max_age_sec)
             resp.set_cookie(key='time', value=expires, max_age=max_age_sec)
             #LogonCredentials: make_signed_cookie(username, md5(password), seconds=max_age_sec)
+            #LogonCredentials: make_signed_cookie(username, openid/uid, seconds=max_age_sec)
             resp.set_cookie(key='Azone', value="local", max_age=max_age_sec)
-            #write to redis
             return resp
     else:
         return redirect(url_for("login"))
