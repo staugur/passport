@@ -13,16 +13,6 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=1.0, user-scalable=no"/>
 		
-		<!-- google fonts -->
-		<!--
-		<link rel='stylesheet' href='http://fonts.googleapis.com/css?family=PT+Sans'>
-		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Droid+Serif:regular,bold"/>
-		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Alegreya+Sans:regular,italic,bold,bolditalic"/>
-		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Nixie+One:regular,italic,bold,bolditalic"/>
-		<link rel="stylesheet" href="http://fonts.googleapis.com/css?family=Alegreya+SC:regular,italic,bold,bolditalic"/>
-		-->
-		<link rel="stylesheet" href="{{ url_for('static', filename='css/fonts.css') }}">
-
 		<!-- css -->
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" media="screen"/>
@@ -34,11 +24,7 @@
 		<div id="wrapper">
 			
 			<div id="header" class="content-block">
-				<section class="top clearfix">
-					<div class="pull-left">
-						<h1><a class="logo" href="{{ url_for('uc') }}">SaintIC &amp; Passport</a></h1>
-					</div>
-				</section>
+
 				<section class="center">
 					<p><img src="{{ data.get('avatar') or url_for('static', filename='img/avatar/admin.jpg') }}" class="img-circle" title="{{ data.get('cname') }}"></p>
 					<div class="secondary-slogan">
@@ -52,6 +38,7 @@
 				<section class="bottom">
 						<i>&copy; Copyright 2016 SaintIC Inc. All rights reserved.</i>
 				</section>
+
 			</div><!-- header -->
 
 		</div><!--/#wrapper-->
