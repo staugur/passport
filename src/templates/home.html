@@ -32,9 +32,9 @@
 						{% if data.get('url') %}<p>{{ data.get('url') }}</p>{% endif %}
 						<p>{{ data.get('motto') or data.get('extra') }}</p>
 						<p>
-						    <a href="mailto:{{ data.get('email') }}">Email</a>
-						    <a href="{{ data.get('weibo') }}" target="_blank">Weibo</a>
-						    <a href="{{ data.get('github') }}" target="_blank">GitHub</a>
+						    {% if data.get('email') %}<a href="mailto:{{ data.get('email') }}">Email</a>{% endif %}
+						    {% if data.get('weibo') %}<a href="{{ data.get('weibo') }}" target="_blank">Weibo</a>{% endif %}
+						    {% if data.get('github') %}<a href="{{ data.get('github') }}" target="_blank">GitHub</a>{% endif %}
 						</p>
 						<p>It is a pity that you should <a href="{{ url_for('logout') }}">quit</a> the system.</p>
 					</div>
