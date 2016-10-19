@@ -54,7 +54,7 @@ def index():
 @app.route("/ucenter/")
 def uc():
     if g.signin:
-        sql = "SELECT cname, avatar, extra FROM User WHERE username=%s"
+        sql = "SELECT cname, email, avatar, motto, weibo, github, url, extra FROM User WHERE username=%s"
         data= mysql.get(sql, g.username)
         return render_template("home.html", data=data)
     else:

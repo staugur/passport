@@ -97,7 +97,7 @@ def Weibo_Login_Page_State(code, WEIBO_APP_ID, WEIBO_APP_KEY, WEIBO_REDIRECT_URI
         username      = "Weibo_" + access_token[4:13]
         user_cname    = data.get("screen_name")
         user_avater   = data.get("profile_image_url")
-        user_weibo    = "weibo.com/" + data.get("profile_url")
+        user_weibo    = "http://weibo.com/" + data.get("profile_url")
         user_extra    = data.get("description")
         try:
             UserSQL  = "INSERT INTO User (username, cname, avatar, time, weibo, extra) VALUES (%s, %s, %s, %s, %s, %s)"

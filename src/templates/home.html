@@ -28,7 +28,13 @@
 				<section class="center">
 					<p><img src="{{ data.get('avatar') or url_for('static', filename='img/avatar/admin.jpg') }}" class="img-circle" title="{{ data.get('cname') }}"></p>
 					<div class="secondary-slogan">
-						<p>{{ data.get('extra') }}</p>
+						<p>{{ data.get('url') }}</p>
+						<p>{{ data.get('motto') or data.get('extra') }}</p>
+						<p>
+						    <a href="mailto:{{ data.get('email') }}">Email</a>
+						    <a href="{{ data.get('weibo') }}" target="_blank">Weibo</a>
+						    <a href="{{ data.get('github') }}" target="_blank">GitHub</a>
+						</p>
 						<p>It is a pity that you should <a href="{{ url_for('logout') }}">quit</a> the system.</p>
 					</div>
 					<div class="slogan">
