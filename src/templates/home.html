@@ -28,6 +28,7 @@
 				<section class="center">
 					<p><img src="{{ data.get('avatar') or url_for('static', filename='img/avatar/admin.jpg') }}" class="img-circle" title="{{ data.get('cname') }}"></p>
 					<div class="secondary-slogan">
+						<p>{{ data.get('cname') }}</p>
 						<p>{{ data.get('url') }}</p>
 						<p>{{ data.get('motto') or data.get('extra') }}</p>
 						<p>
