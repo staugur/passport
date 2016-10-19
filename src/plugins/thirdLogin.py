@@ -3,9 +3,6 @@
 # Web application with the third account login module
 #
 
-import os
-import json
-import requests
 from flask import Blueprint, g, redirect, url_for
 from flask_restful import Api, Resource
 from SpliceURL import Splice
