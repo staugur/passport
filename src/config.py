@@ -31,7 +31,6 @@ PRODUCT={
 }
 
 MODULES={
-    #指定应用会话存储集群，暂时支持redis、redis_cluster、etcd、memory(StringIO),
     "Session": {
         "type": "redis",
 
@@ -49,7 +48,7 @@ MODULES={
     #账号认证模块
     "Authentication": {
         "type": "mysql",
-        #认证来源, 支持mysql表、LDAP、
+
         "Host": "101.200.125.9",
 
         "Port": 3306,
@@ -59,13 +58,10 @@ MODULES={
         "Passwd": "123456",
 
         "Database": "passport",
-        #数据库
 
         "Charset": "utf8",
-        #字符集，默认国际统一标准utf8
 
         "Timezone": "+8:00",
-        #时区，默认是东八区
     },
 
     #权限管理模块
@@ -74,6 +70,8 @@ MODULES={
 
 
 PLUGINS = {
+
+    #Third party social account login plug-in, allowing developers to enable some of the third party application login, if disabled, then the login page does not appear the corresponding third party login icon.
     "thirdLogin": {
         "WEIBO": {
             "ENABLE": True,

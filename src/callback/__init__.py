@@ -1,9 +1,8 @@
 # -*- coding: utf8 -*-
 #
-# Callback URL
+# The third login's callback bluerint
 #
 
-import json
 import requests
 import datetime
 from flask import Blueprint, request, g, redirect, url_for, make_response
@@ -133,10 +132,8 @@ class QQ_Callback_Page(Resource):
         code = request.args.get("code")
         logger.debug(request.args)
         if g.signin:
-            logger.debug('qq logined')
             return redirect(url_for("uc"))
         elif code:
-            logger.debug('qq has code')
             data = QQ_Login_Page_State(code, PLUGINS['thirdLogin']['QQ']['APP_ID'], PLUGINS['thirdLogin']['QQ']['APP_KEY'], PLUGINS['thirdLogin']['QQ']['REDIRECT_URI'])
             if data:
                 username    = data.get("username")
@@ -152,7 +149,6 @@ class QQ_Callback_Page(Resource):
                 resp.set_cookie(key='sessionId', value=md5('%s-%s-%s-%s' %(username, openid, expire_time, "COOKIE_KEY")).upper(), max_age=expires_in)
                 return resp
         else:
-            logger.debug('qq to login')
             return redirect(url_for("login"))
 
 class Weibo_Callback_Page(Resource):
@@ -160,6 +156,7 @@ class Weibo_Callback_Page(Resource):
     def get(self):
 
         code = request.args.get("code")
+        logger.debug(request.args)
         if g.signin:
             return redirect(url_for("uc"))
         elif code:
