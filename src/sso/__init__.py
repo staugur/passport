@@ -5,7 +5,7 @@
 
 from flask import Blueprint, g, redirect, url_for
 from flask_restful import Api, Resource
-from SpliceURL import Splice
+from SpliceURL import Splice, Modify
 from utils.tool import logger
 
 class QQ_Login_Page(Resource):

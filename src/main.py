@@ -1,6 +1,7 @@
 # -*- coding: utf8 -*-
 
-import json, datetime
+import json
+import datetime
 from config import GLOBAL, PLUGINS
 from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
 from flask_restful import Api, Resource
@@ -49,7 +50,7 @@ def page_not_found(e):
 
 @app.route("/")
 def index():
-    return "SaintiC SSO"
+    return redirect(url_for("login"))
 
 @app.route("/ucenter/")
 def uc():

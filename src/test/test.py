@@ -1,11 +1,10 @@
 # coding:utf8
 
 import unittest
-import pub
 from api import app
 
 
-class TeamApiTest(unittest.TestCase):
+class PassportTest(unittest.TestCase):
 
     def setUp(self):
         self.app    = app.test_client()
