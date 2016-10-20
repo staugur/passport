@@ -74,3 +74,8 @@ MySQL-python     数据库模块
 > 6. Update user profile with qq, weibo when login
 > 7. Unified account login is good.
 
+**v0.0.2**
+
+> 1. GitHub Login
+> 2. User Center Page Update
+> 3. SSO Define and Client(https://github.com/saintic/passport.client)
