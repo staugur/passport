@@ -66,7 +66,7 @@ def login():
     if g.signin:
         return redirect(url_for("uc"))
     else:
-        return render_template("login.html", enable_qq=PLUGINS['thirdLogin']['QQ']['ENABLE'], enable_weibo=PLUGINS['thirdLogin']['WEIBO']['ENABLE'])
+        return render_template("login.html", enable_qq=PLUGINS['thirdLogin']['QQ']['ENABLE'], enable_weibo=PLUGINS['thirdLogin']['WEIBO']['ENABLE'], enable_github=PLUGINS['thirdLogin']['GITHUB']['ENABLE'])
 
 @app.route("/logout/")
 def logout():

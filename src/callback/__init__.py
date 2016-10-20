@@ -223,7 +223,27 @@ class Weibo_Callback_Page(Resource):
 class GitHub_Callback_Page(Resource):
 
     def get(self):
-        return requests.args.get("code")
+
+        code = request.args.get("code")
+        if g.signin:
+            return redirect(url_for("uc"))
+        elif code:
+            data = GitHub_Login_Page_State(code, PLUGINS['thirdLogin']['GITHUB']['APP_ID'], PLUGINS['thirdLogin']['GITHUB']['APP_KEY'], PLUGINS['thirdLogin']['GITHUB']['REDIRECT_URI'])
+            if data:
+                username    = data.get("username")
+                expires_in  = 3600 * 24 * 30
+                userid      = data.get("uid")
+                expire_time = How_Much_Time(seconds=expires_in) if expires_in else None
+
+                resp = make_response(redirect(url_for("uc")))
+                resp.set_cookie(key='logged_in', value="yes", max_age=expires_in)
+                resp.set_cookie(key='username',  value=username, max_age=expires_in)
+                resp.set_cookie(key='time', value=expire_time, max_age=expires_in)
+                resp.set_cookie(key='Azone', value="GitHub", max_age=expires_in)
+                resp.set_cookie(key='sessionId', value=md5('%s-%s-%s-%s' %(username, userid, expire_time, "COOKIE_KEY")).upper(), max_age=expires_in)
+                return resp
+        else:
+            return redirect(url_for("login"))
 
 callback_blueprint = Blueprint(__name__, __name__)
 callback_page = Api(callback_blueprint)

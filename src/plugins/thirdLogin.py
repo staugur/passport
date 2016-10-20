@@ -54,7 +54,7 @@ class GitHub_Login_Page(Resource):
             return redirect(url_for("uc"))
         else:
             if PLUGINS['thirdLogin']['GITHUB']['ENABLE']:
-                return redirect(QQ_Login_Page_Url(PLUGINS['thirdLogin']['GITHUB']['APP_ID'], PLUGINS['thirdLogin']['GITHUB']['REDIRECT_URI']))
+                return redirect(GitHub_Login_Page_Url(PLUGINS['thirdLogin']['GITHUB']['APP_ID'], PLUGINS['thirdLogin']['GITHUB']['REDIRECT_URI']))
             else:
                 return redirect(url_for("login"))
 

@@ -26,7 +26,9 @@
                     {% if enable_weibo %}
                         <a class="weibo" href="{{ url_for('plugins.thirdLogin.weibo') }}"></a>
                     {% endif %}
-                    <!--<a class="fb" href="#"></a>-->
+                    {% if enable_github %}
+                        <a class="github" href="{{ url_for('plugins.thirdLogin.github') }}"></a>
+                    {% endif %}
                 </p>
             </div>
         </form>
