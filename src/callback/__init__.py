@@ -125,6 +125,49 @@ def Weibo_Login_Page_State(code, WEIBO_APP_ID, WEIBO_APP_KEY, WEIBO_REDIRECT_URI
         logger.error(data)
         return False
 
+def GitHub_Login_Page_State(code, GITHUB_APP_ID, GITHUB_APP_KEY, GITHUB_REDIRECT_URI, timeout=5, verify=False):
+    ''' Authorization Code cannot repeat '''
+    Access_Token_Url = Splice(scheme="https", domain="github.com", path="/login/oauth/access_token", query={"client_id": GITHUB_APP_ID, "client_secret": GITHUB_APP_KEY, "code": code, "redirect_uri": GITHUB_REDIRECT_URI}).geturl
+    data = requests.post(Get_Access_Token_Url, timeout=timeout, verify=verify).text
+    data = Parse_Access_Token(data)
+
+    if "access_token" in data:
+        access_token  = data.get("access_token")
+        User_Info_Url = Splice(scheme="https", domain="api.github.com", path="/user", query={"access_token": access_token}).geturl
+        data          = requests.get(User_Info_Url, timeout=timeout, verify=verify).json()
+        username      = "GitHub_" + data.get("login")
+        user_id       = data.get("id")
+        user_github   = data.get("html_url")
+        user_cname    = data.get("name")
+        user_avater   = data.get("avatar_url")
+        user_email    = data.get("email")
+        user_extra    = "blog:%s, company:%s, location" %(data.get("blog"), data.get("company"), data.get("location"))
+        try:
+            UserSQL  = "INSERT INTO User (username, cname, email, avatar, time, github, extra) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            mysql.insert(UserSQL, username, user_cname, user_email, user_avater, How_Much_Time(), user_github, user_extra)
+            OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
+            mysql.insert(OAuthSQL, username, "GitHub", user_id, access_token, How_Much_Time())
+        except IntegrityError, e:
+            logger.debug(e, exc_info=True)
+            #Check if it has been registered
+            CheckSQL = "SELECT oauth_username FROM OAuth WHERE oauth_username=%s"
+            if mysql.get(CheckSQL, username):
+                UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
+                mysql.update(UpdateSQL, access_token, How_Much_Time(), user_id, username)
+                #update user profile
+                UpdateUserSQL = "UPDATE User SET cname=%s, avatar=%s, extra=%s WHERE username=%s"
+                mysql.update(UpdateUserSQL, user_cname, user_avater, user_extra, username)
+                return {"username": username, "uid": user_id}
+        except Exception,e:
+            logger.error(e, exc_info=True)
+            return False
+        else:
+            logger.info("insert into User and OAuth, %s" %username)
+            return {"username": username, "uid": user_id}
+    else:
+        logger.error(data)
+        return False
+
 class QQ_Callback_Page(Resource):
 
     def get(self):
