@@ -141,7 +141,7 @@ def GitHub_Login_Page_State(code, GITHUB_APP_ID, GITHUB_APP_KEY, GITHUB_REDIRECT
         user_cname    = data.get("name")
         user_avater   = data.get("avatar_url")
         user_email    = data.get("email")
-        user_extra    = "blog:%s, company:%s, location" %(data.get("blog"), data.get("company"), data.get("location"))
+        user_extra    = "blog:%s, company:%s, location:%s" %(data.get("blog"), data.get("company"), data.get("location"))
         try:
             UserSQL  = "INSERT INTO User (username, cname, email, avatar, time, github, extra) VALUES (%s, %s, %s, %s, %s, %s, %s)"
             mysql.insert(UserSQL, username, user_cname, user_email, user_avater, How_Much_Time(), user_github, user_extra)
