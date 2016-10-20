@@ -1,24 +1,35 @@
-/*
-Navicat MySQL Data Transfer
+-- MySQL dump 10.13  Distrib 5.6.33, for Linux (x86_64)
+--
+-- Host: localhost    Database: passport
+-- ------------------------------------------------------
+-- Server version	5.6.33
 
-Source Server         : 101.200.125.9
-Source Server Version : 50633
-Source Host           : localhost:3306
-Source Database       : passport
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET @OLD_CHARACTER_SET_RESULTS=@@CHARACTER_SET_RESULTS */;
+/*!40101 SET @OLD_COLLATION_CONNECTION=@@COLLATION_CONNECTION */;
+/*!40101 SET NAMES utf8 */;
+/*!40103 SET @OLD_TIME_ZONE=@@TIME_ZONE */;
+/*!40103 SET TIME_ZONE='+00:00' */;
+/*!40014 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+/*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
-Target Server Type    : MYSQL
-Target Server Version : 50633
-File Encoding         : 65001
+--
+-- Current Database: `passport`
+--
 
-Date: 2016-10-18 11:52:19
-*/
+CREATE DATABASE /*!32312 IF NOT EXISTS*/ `passport` /*!40100 DEFAULT CHARACTER SET utf8 COLLATE utf8_unicode_ci */;
 
-SET FOREIGN_KEY_CHECKS=0;
+USE `passport`;
 
--- ----------------------------
--- Table structure for LAuth
--- ----------------------------
+--
+-- Table structure for table `LAuth`
+--
+
 DROP TABLE IF EXISTS `LAuth`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `LAuth` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `lauth_username` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
@@ -27,20 +38,25 @@ CREATE TABLE `LAuth` (
   UNIQUE KEY `username` (`lauth_username`) USING BTREE,
   UNIQUE KEY `id` (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of LAuth
--- ----------------------------
-INSERT INTO `LAuth` VALUES ('1', 'admin', '8879168cbf8a9e11c296530803e93308');
-INSERT INTO `LAuth` VALUES ('2', 'saintic', '8879168cbf8a9e11c296530803e93308');
-INSERT INTO `LAuth` VALUES ('3', 'sakura', '8879168cbf8a9e11c296530803e93308');
-INSERT INTO `LAuth` VALUES ('4', 'staugur', '8879168cbf8a9e11c296530803e93308');
-INSERT INTO `LAuth` VALUES ('5', 'taochengwei', '8879168cbf8a9e11c296530803e93308');
+--
+-- Dumping data for table `LAuth`
+--
 
--- ----------------------------
--- Table structure for OAuth
--- ----------------------------
+LOCK TABLES `LAuth` WRITE;
+/*!40000 ALTER TABLE `LAuth` DISABLE KEYS */;
+INSERT INTO `LAuth` VALUES (1,'admin','8879168cbf8a9e11c296530803e93308'),(2,'saintic','8879168cbf8a9e11c296530803e93308'),(3,'sakura','8879168cbf8a9e11c296530803e93308'),(4,'staugur','8879168cbf8a9e11c296530803e93308'),(5,'taochengwei','8879168cbf8a9e11c296530803e93308');
+/*!40000 ALTER TABLE `LAuth` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `OAuth`
+--
+
 DROP TABLE IF EXISTS `OAuth`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `OAuth` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `oauth_username` varchar(30) COLLATE utf8_unicode_ci NOT NULL,
@@ -51,39 +67,49 @@ CREATE TABLE `OAuth` (
   PRIMARY KEY (`id`,`oauth_username`),
   UNIQUE KEY `openid` (`oauth_openid`) USING BTREE,
   UNIQUE KEY `id` (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of OAuth
--- ----------------------------
-INSERT INTO `OAuth` VALUES ('9', 'QQ_AF8AA7E0F', 'QQ', 'AF8AA7E0F77451736DD97FB796849024', '861B113AD1B8D386882A27C05E3805C3', '2017-01-16');
-INSERT INTO `OAuth` VALUES ('12', 'Weibo_RWZ4ZDpPp', 'Weibo', '3271188341', '2.00RWZ4ZDpPpNuB645c8c2e44dACccB', '2021-10-17');
-INSERT INTO `OAuth` VALUES ('13', 'QQ_C83D12014', 'QQ', 'C83D1201492C20026F74410F3F0904C4', '3FBAC5C2F590F1E38051C7ABB41D8D21', '2017-01-16');
-INSERT INTO `OAuth` VALUES ('14', 'QQ_9B72DAC02', 'QQ', '9B72DAC022A38DC7D36C9BFF392F93A2', 'DA336BD86DD2AAE44E9BEF01AA3BB3E0', '2017-01-16');
-INSERT INTO `OAuth` VALUES ('15', 'QQ_006BA58A0', 'QQ', '006BA58A03B6C55D9BD2BC01451263A7', '76A120E9E8F9C830FCBCBE0A07E635F9', '2017-01-16');
-INSERT INTO `OAuth` VALUES ('16', 'QQ_C912C3A44', 'QQ', 'C912C3A4459366E6083009093F15A99B', '9B02840E3B635AA3690228D2C3D35488', '2017-01-16');
-INSERT INTO `OAuth` VALUES ('17', 'QQ_464F8186C', 'QQ', '464F8186CB06B7F43F0A768DF0E9F105', '5634DFDD360FFEC66945C7DCE69A3ED7', '2017-01-16');
-INSERT INTO `OAuth` VALUES ('18', 'QQ_8A26C82CF', 'QQ', '8A26C82CF475638821EEF834F9884EF0', 'F7B602C695B4913F016A6DA076646F50', '2017-01-16');
-INSERT INTO `OAuth` VALUES ('19', 'QQ_C91E712F8', 'QQ', 'C91E712F8C23E489AF2AB9869CC3235D', 'FD96FD70F9A53B721A529AC1A00AC381', '2017-01-16');
+--
+-- Dumping data for table `OAuth`
+--
 
--- ----------------------------
--- Table structure for SSO
--- ----------------------------
+LOCK TABLES `OAuth` WRITE;
+/*!40000 ALTER TABLE `OAuth` DISABLE KEYS */;
+INSERT INTO `OAuth` VALUES (9,'QQ_AF8AA7E0F','QQ','AF8AA7E0F77451736DD97FB796849024','E55507D1EF2B2613080A7D3D1F4E4FB6','2017-01-18'),(12,'Weibo_RWZ4ZDpPp','Weibo','3271188341','2.00RWZ4ZDpPpNuB645c8c2e44dACccB','2021-10-19'),(13,'QQ_C83D12014','QQ','C83D1201492C20026F74410F3F0904C4','FD54FCCAF090379B5B3755F3BEA374A9','2017-01-18'),(14,'QQ_9B72DAC02','QQ','9B72DAC022A38DC7D36C9BFF392F93A2','DA336BD86DD2AAE44E9BEF01AA3BB3E0','2017-01-16'),(15,'QQ_006BA58A0','QQ','006BA58A03B6C55D9BD2BC01451263A7','76A120E9E8F9C830FCBCBE0A07E635F9','2017-01-16'),(16,'QQ_C912C3A44','QQ','C912C3A4459366E6083009093F15A99B','8642D1B8E686CF5D4990B6D821D3515A','2017-01-17'),(17,'QQ_464F8186C','QQ','464F8186CB06B7F43F0A768DF0E9F105','5634DFDD360FFEC66945C7DCE69A3ED7','2017-01-16'),(18,'QQ_8A26C82CF','QQ','8A26C82CF475638821EEF834F9884EF0','F7B602C695B4913F016A6DA076646F50','2017-01-16'),(19,'QQ_C91E712F8','QQ','C91E712F8C23E489AF2AB9869CC3235D','FD96FD70F9A53B721A529AC1A00AC381','2017-01-16'),(20,'Weibo_PIKiQCpPp','Weibo','2079212423','2.00PIKiQCpPpNuB81deb168b0xM8x5D','2016-10-22'),(21,'QQ_8E1F1C7A5','QQ','8E1F1C7A562A6D8A60405DE883B2662A','87BA89AAFA99D04E45BCA7B88BF98CC5','2017-01-16'),(22,'QQ_8C9A426DA','QQ','8C9A426DAC79F4E53F76091A3F3960CC','B6FEC5DE9784002D053292BF76019EE3','2017-01-18'),(23,'QQ_E3F80F154','QQ','E3F80F154FBF9A9143EEF63D897C580F','12804462CEB6146A0C6F8597A8CC30A3','2017-01-18');
+/*!40000 ALTER TABLE `OAuth` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `SSO`
+--
+
 DROP TABLE IF EXISTS `SSO`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `SSO` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of SSO
--- ----------------------------
+--
+-- Dumping data for table `SSO`
+--
 
--- ----------------------------
--- Table structure for User
--- ----------------------------
+LOCK TABLES `SSO` WRITE;
+/*!40000 ALTER TABLE `SSO` DISABLE KEYS */;
+/*!40000 ALTER TABLE `SSO` ENABLE KEYS */;
+UNLOCK TABLES;
+
+--
+-- Table structure for table `User`
+--
+
 DROP TABLE IF EXISTS `User`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `User` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(32) COLLATE utf8_unicode_ci NOT NULL,
@@ -98,22 +124,26 @@ CREATE TABLE `User` (
   `extra` text CHARACTER SET utf8,
   PRIMARY KEY (`id`,`username`),
   UNIQUE KEY `username` (`username`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=85 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+/*!40101 SET character_set_client = @saved_cs_client */;
 
--- ----------------------------
--- Records of User
--- ----------------------------
-INSERT INTO `User` VALUES ('1', 'admin', 'staugur@saintic.com', '陶成伟', '/static/upload/15768284.jpg', '原谅我一生放荡不羁爱自由', 'www.saintic.com', '2016-10-14', 'weibo.com/staugur', 'github.com/staugur', 'Administrator');
-INSERT INTO `User` VALUES ('10', 'QQ_AF8AA7E0F', null, 'Together Forever!', 'http://q.qlogo.cn/qqapp/100581101/AF8AA7E0F77451736DD97FB796849024/40', null, null, '2016-10-16', null, null, '大家好，我是来自QQ的小伙伴！');
-INSERT INTO `User` VALUES ('22', 'Weibo_RWZ4ZDpPp', null, '姓陶字成伟', 'http://tva3.sinaimg.cn/crop.0.0.200.200.50/c2fa5f75jw8f8w9kk6cydj205k05kdft.jpg', null, null, '2016-10-16', 'weibo.com/staugur', null, 'www.saintic.com');
-INSERT INTO `User` VALUES ('24', 'taochengwei', null, null, null, null, null, '2016-10-17', null, null, null);
-INSERT INTO `User` VALUES ('25', 'sakura', null, null, null, null, null, '2016-10-17', null, null, null);
-INSERT INTO `User` VALUES ('26', 'saintic', null, null, null, null, null, '2016-10-17', null, null, null);
-INSERT INTO `User` VALUES ('27', 'staugur', null, null, null, null, null, '2016-10-17', null, null, null);
-INSERT INTO `User` VALUES ('36', 'QQ_C83D12014', null, 'ａ楠子', 'http://q.qlogo.cn/qqapp/100581101/C83D1201492C20026F74410F3F0904C4/40', null, null, '2016-10-18', null, null, '大家好，我是来自QQ的小伙伴！');
-INSERT INTO `User` VALUES ('37', 'QQ_9B72DAC02', null, '楠子i', 'http://q.qlogo.cn/qqapp/100581101/9B72DAC022A38DC7D36C9BFF392F93A2/40', null, null, '2016-10-18', null, null, '大家好，我是来自QQ的小伙伴！');
-INSERT INTO `User` VALUES ('38', 'QQ_006BA58A0', null, '瑕疵', 'http://q.qlogo.cn/qqapp/100581101/006BA58A03B6C55D9BD2BC01451263A7/40', null, null, '2016-10-18', null, null, '大家好，我是来自QQ的小伙伴！');
-INSERT INTO `User` VALUES ('40', 'QQ_C912C3A44', null, '情不知所起一往而深', 'http://q.qlogo.cn/qqapp/100581101/C912C3A4459366E6083009093F15A99B/40', null, null, '2016-10-18', null, null, '大家好，我是来自QQ的小伙伴！');
-INSERT INTO `User` VALUES ('42', 'QQ_464F8186C', null, '陪伴是最长情的告白', 'http://q.qlogo.cn/qqapp/100581101/464F8186CB06B7F43F0A768DF0E9F105/40', null, null, '2016-10-18', null, null, '大家好，我是来自QQ的小伙伴！');
-INSERT INTO `User` VALUES ('43', 'QQ_8A26C82CF', null, '风继续吹', 'http://q.qlogo.cn/qqapp/100581101/8A26C82CF475638821EEF834F9884EF0/40', null, null, '2016-10-18', null, null, '大家好，我是来自QQ的小伙伴！');
-INSERT INTO `User` VALUES ('51', 'QQ_C91E712F8', null, '致我爱的人', 'http://q.qlogo.cn/qqapp/100581101/C91E712F8C23E489AF2AB9869CC3235D/40', null, null, '2016-10-18', null, null, '大家好，我是来自QQ的小伙伴！');
+--
+-- Dumping data for table `User`
+--
+
+LOCK TABLES `User` WRITE;
+/*!40000 ALTER TABLE `User` DISABLE KEYS */;
+INSERT INTO `User` VALUES (1,'admin','staugur@saintic.com','陶成伟','/static/img/avatar/admin.jpg','原谅我一生放荡不羁爱自由','http://www.saintic.com','2016-10-14','http://weibo.com/staugur','https://github.com/staugur','Administrator'),(10,'QQ_AF8AA7E0F',NULL,'Together Forever!','http://q.qlogo.cn/qqapp/100581101/AF8AA7E0F77451736DD97FB796849024/40',NULL,NULL,'2016-10-16',NULL,NULL,'大家好，我是来自QQ的小伙伴！'),(22,'Weibo_RWZ4ZDpPp',NULL,'陶字成伟','http://tva3.sinaimg.cn/crop.0.0.200.200.50/c2fa5f75jw8f8w9kk6cydj205k05kdft.jpg',NULL,NULL,'2016-10-16','http://weibo.com/staugur',NULL,'www.saintic.com'),(24,'taochengwei',NULL,NULL,'/static/img/avatar/admin.jpg',NULL,NULL,'2016-10-17',NULL,NULL,NULL),(25,'sakura',NULL,NULL,'/static/img/avatar/admin.jpg',NULL,NULL,'2016-10-17',NULL,NULL,NULL),(26,'saintic',NULL,NULL,'/static/img/avatar/admin.jpg',NULL,NULL,'2016-10-17',NULL,NULL,NULL),(27,'staugur',NULL,NULL,'/static/img/avatar/admin.jpg',NULL,NULL,'2016-10-17',NULL,NULL,NULL),(36,'QQ_C83D12014',NULL,'ａ楠子','http://q.qlogo.cn/qqapp/100581101/C83D1201492C20026F74410F3F0904C4/40',NULL,NULL,'2016-10-18',NULL,NULL,'大家好，我是来自QQ的小伙伴！'),(37,'QQ_9B72DAC02',NULL,'楠子i','http://q.qlogo.cn/qqapp/100581101/9B72DAC022A38DC7D36C9BFF392F93A2/40',NULL,NULL,'2016-10-18',NULL,NULL,'大家好，我是来自QQ的小伙伴！'),(38,'QQ_006BA58A0',NULL,'瑕疵','http://q.qlogo.cn/qqapp/100581101/006BA58A03B6C55D9BD2BC01451263A7/40',NULL,NULL,'2016-10-18',NULL,NULL,'大家好，我是来自QQ的小伙伴！'),(40,'QQ_C912C3A44',NULL,'SaintIC Test','http://q.qlogo.cn/qqapp/100581101/C912C3A4459366E6083009093F15A99B/40',NULL,NULL,'2016-10-18',NULL,NULL,'大家好，我是来自QQ的小伙伴！'),(42,'QQ_464F8186C',NULL,'陪伴是最长情的告白','http://q.qlogo.cn/qqapp/100581101/464F8186CB06B7F43F0A768DF0E9F105/40',NULL,NULL,'2016-10-18',NULL,NULL,'大家好，我是来自QQ的小伙伴！'),(43,'QQ_8A26C82CF',NULL,'风继续吹','http://q.qlogo.cn/qqapp/100581101/8A26C82CF475638821EEF834F9884EF0/40',NULL,NULL,'2016-10-18',NULL,NULL,'大家好，我是来自QQ的小伙伴！'),(51,'QQ_C91E712F8',NULL,'致我爱的人','http://q.qlogo.cn/qqapp/100581101/C91E712F8C23E489AF2AB9869CC3235D/40',NULL,NULL,'2016-10-18',NULL,NULL,'大家好，我是来自QQ的小伙伴！'),(57,'Weibo_PIKiQCpPp',NULL,'楠子zzz','http://tva3.sinaimg.cn/crop.0.0.996.996.50/7bee4387jw8f8oc5x5588j20ro0rot9w.jpg',NULL,NULL,'2016-10-18','http://weibo.com/u/2079212423',NULL,'你从不孤单。因为这个世界上，肯定有个人，在努力的走到你的身边！'),(63,'QQ_8E1F1C7A5',NULL,'我想找个女朋友','http://q.qlogo.cn/qqapp/100581101/8E1F1C7A562A6D8A60405DE883B2662A/40',NULL,NULL,'2016-10-18',NULL,NULL,'大家好，我是来自QQ的小伙伴！'),(79,'QQ_8C9A426DA',NULL,'遮天','http://q.qlogo.cn/qqapp/100581101/8C9A426DAC79F4E53F76091A3F3960CC/40',NULL,NULL,'2016-10-20',NULL,NULL,'大家好，我是来自QQ的小伙伴！'),(80,'QQ_E3F80F154',NULL,'诸天诸代星辰幻灭','http://q.qlogo.cn/qqapp/100581101/E3F80F154FBF9A9143EEF63D897C580F/40',NULL,NULL,'2016-10-20',NULL,NULL,'大家好，我是来自QQ的小伙伴！');
+/*!40000 ALTER TABLE `User` ENABLE KEYS */;
+UNLOCK TABLES;
+/*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
+
+/*!40101 SET SQL_MODE=@OLD_SQL_MODE */;
+/*!40014 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS */;
+/*!40014 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS */;
+/*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
+/*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
+/*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+/*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
+
+-- Dump completed on 2016-10-20 17:46:16

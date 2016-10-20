@@ -24,7 +24,14 @@
 		<div id="wrapper">
 			
 			<div id="header" class="content-block">
-
+				<section class="top clearfix">
+					<div class="pull-left">
+						<h1><a class="logo" href="{{ url_for('uc') }}">SaintIC User Center</a></h1>
+					</div>
+					<div class="pull-right">
+						<a class="toggleDrawer" href="#"><i class="fa fa-bars fa-2x"></i></a>
+					</div>
+				</section>
 				<section class="center">
 					<p><img src="{{ data.get('avatar') or url_for('static', filename='img/avatar/admin.jpg') }}" class="img-circle" title="{{ data.get('cname') or 'Oh' }}"></p>
 					<div class="secondary-slogan">
@@ -36,14 +43,12 @@
 						    {% if data.get('weibo') %}<a href="{{ data.get('weibo') }}" target="_blank">Weibo</a>{% endif %}
 						    {% if data.get('github') %}<a href="{{ data.get('github') }}" target="_blank">GitHub</a>{% endif %}
 						</p>
-						<p>It is a pity that you should <a href="{{ url_for('logout') }}">quit</a> the system.</p>
+						<p>If you <a href="{{ url_for('logout') }}">quit</a>, we are sad.</p>
 					</div>
-					<div class="slogan">
-						SaintIC Passport &amp; User Center
-					</div>
+
 				</section>
 				<section class="bottom">
-						<i>&copy; Copyright 2016 SaintIC Inc. All rights reserved.</i>
+						<i>&copy; Copyright 2016 SaintIC Team. All rights reserved. Originate by <a href="https://github.com/saintic/passport/" target="_blank">GitHub</a>.</i>
 				</section>
 
 			</div><!-- header -->
