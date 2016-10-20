@@ -11,10 +11,10 @@ from callback import callback_blueprint
 from plugins.thirdLogin import login_blueprint
 
 __author__  = 'Mr.tao <staugur@saintic.com>'
-__doc__     = 'SSO for SaintIC Web Applications.'
-__date__    = '2016-09-22'
+__doc__     = 'Unified authentication and single sign on system for SaintIC web applications.'
+__date__    = '2016-00-20'
 __org__     = 'SaintIC'
-__version__ = '0.0.1'
+__version__ = '0.0.2'
 
 app = Flask(__name__)
 
@@ -66,7 +66,7 @@ def login():
     if g.signin:
         return redirect(url_for("uc"))
     else:
-        return render_template("login.html", enable_qq=PLUGINS['thirdLogin']['QQ']['ENABLE'], enable_weibo=PLUGINS['thirdLogin']['WEIBO']['ENABLE'])
+        return render_template("login.html", enable_qq=PLUGINS['thirdLogin']['QQ']['ENABLE'], enable_weibo=PLUGINS['thirdLogin']['WEIBO']['ENABLE'], enable_github=PLUGINS['thirdLogin']['GITHUB']['ENABLE'])
 
 @app.route("/logout/")
 def logout():
@@ -88,7 +88,6 @@ def _auth():
             expires     = How_Much_Time(max_age_sec)
             #expire_time= datetime.datetime.today() + datetime.timedelta(days=remember) if remember else None
             logger.debug("max_age_sec: %s, expire_time: %s, expires: %s" %(max_age_sec, None, expires))
-
             resp = make_response(redirect(url_for("uc")))
             resp.set_cookie(key='logged_in', value="yes", max_age=max_age_sec)
             resp.set_cookie(key='username',  value=username, max_age=max_age_sec)

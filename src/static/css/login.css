@@ -83,4 +83,5 @@ Login with third applications
 .connect a.weibo { background: url(/static/img/public/Connect_weibo.png) center center no-repeat; }
 .connect a.qq { background: url(/static/img/public/Connect_qq.png) center center no-repeat; }
 .connect a.fb { background: url(/static/img/public/Connect_facebook.png) center center no-repeat; }
+.connect a.github { background: url(/static/img/public/Connect_github.png) center center no-repeat; }
 .connect a:hover { background-position: center bottom; }
