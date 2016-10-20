@@ -58,6 +58,7 @@ class GitHub_Login_Page(Resource):
             else:
                 return redirect(url_for("login"))
 
+
 login_blueprint = Blueprint(__name__, __name__)
 login_page = Api(login_blueprint)
 login_page.add_resource(QQ_Login_Page, '/qq', '/qq/', endpoint='qq')
