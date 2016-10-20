@@ -56,13 +56,6 @@ MySQL-python     数据库模块
 ```
 
 
-## Front Usage
-
-> 1. With SwarmOpsFront(Will be open source in the future)
-
-> 2. With Jenkins(See misc/jenkins/)
-
-
 ## Design
 ![Design][1]
 

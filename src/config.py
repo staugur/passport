@@ -84,6 +84,13 @@ PLUGINS = {
             "APP_ID": 100581101,
             "APP_KEY": "36b4136a30a1bcd126525baf9e815f1f",
             "REDIRECT_URI": "https://passport.saintic.com/callback/qq/"
+        },
+        "GITHUB": {
+            "ENABLE": False,
+            "APP_ID": '32d6eea53343476e62ac',
+            "APP_KEY": "847b038ae547c41d0ba07f9641bef74309870224",
+            "REDIRECT_URI": "https://passport.saintic.com/callback/github/"
+            #https://github.com/login/oauth/authorize?client_id=32d6eea53343476e62ac&redirect_uri=https%3a%2f%2fpassport.saintic.com%2fcallback%2fgithub%2f&
         }
     },
 }
