@@ -177,7 +177,13 @@ class Weibo_Callback_Page(Resource):
         else:
             return redirect(url_for("login"))
 
+class GitHub_Callback_Page(Resource):
+
+    def get(self):
+        return requests.args.get("code")
+
 callback_blueprint = Blueprint(__name__, __name__)
 callback_page = Api(callback_blueprint)
 callback_page.add_resource(QQ_Callback_Page, '/qq', '/qq/', endpoint='qq')
 callback_page.add_resource(Weibo_Callback_Page, '/weibo', '/weibo/', endpoint='weibo')
+callback_page.add_resource(GitHub_Callback_Page, '/github', '/github/', endpoint='github')
