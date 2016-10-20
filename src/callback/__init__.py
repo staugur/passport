@@ -128,7 +128,7 @@ def Weibo_Login_Page_State(code, WEIBO_APP_ID, WEIBO_APP_KEY, WEIBO_REDIRECT_URI
 def GitHub_Login_Page_State(code, GITHUB_APP_ID, GITHUB_APP_KEY, GITHUB_REDIRECT_URI, timeout=5, verify=False):
     ''' Authorization Code cannot repeat '''
     Access_Token_Url = Splice(scheme="https", domain="github.com", path="/login/oauth/access_token", query={"client_id": GITHUB_APP_ID, "client_secret": GITHUB_APP_KEY, "code": code, "redirect_uri": GITHUB_REDIRECT_URI}).geturl
-    data = requests.post(Get_Access_Token_Url, timeout=timeout, verify=verify).text
+    data = requests.post(Access_Token_Url, timeout=timeout, verify=verify).text
     data = Parse_Access_Token(data)
 
     if "access_token" in data:
