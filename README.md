@@ -48,10 +48,11 @@ MySQL-python     数据库模块
 ## Usage for Docker
 
 ```
-   cd misc ; mv Dockerfile_gcc Dockerfile ; docker build -t alpine:gcc .
+   cd misc ; docker build -f Dockerfile_gcc -t alpine:gcc .
+   #上一步需时较长，你也可以使用构建好的镜像，修改Dockerfile，第一行设置成FROM registry.saintic.com/alpine-python:gcc
    cd .. ;   docker build -t passport .
    docker run -tdi --name passport --net=host --always=restart passport
-   ps aux|grep passport //查看进程
+   ps aux|grep Passport //查看进程
 ```
 
 
