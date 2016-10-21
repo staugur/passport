@@ -21,13 +21,13 @@
             <div class="connect">
                 <p>第三方社会化账号快捷登录:<br/>
                     {% if enable_qq %}
-                        <a class="qq" href="{{ url_for('plugins.thirdLogin.qq') }}"></a>
+                        <abbr title="使用QQ账号登录"><a class="qq" href="{{ url_for('plugins.thirdLogin.qq') }}"></a></abbr>
                     {% endif %}
                     {% if enable_weibo %}
-                        <a class="weibo" href="{{ url_for('plugins.thirdLogin.weibo') }}"></a>
+                        <abbr title="使用微博账号登录"><a class="weibo" href="{{ url_for('plugins.thirdLogin.weibo') }}"></a></abbr>
                     {% endif %}
                     {% if enable_github %}
-                        <a class="github" href="{{ url_for('plugins.thirdLogin.github') }}"></a>
+                        <abbr title="使用GitHub账号登录"><a class="github" href="{{ url_for('plugins.thirdLogin.github') }}"></a></abbr>
                     {% endif %}
                 </p>
             </div>
@@ -36,7 +36,7 @@
             <a href="{{ url_for('index') }}">首页</a>&nbsp;
             <a href="http://www.saintic.com/" target="_blank">SaintIC</a>&nbsp;
             <a href="http://github.com/saintic/passport" target="_blank">GitHub</a>&nbsp;
-            <p>Copyright © 2016 - 2016<br/> SaintIC Inc. All rights reserved.</p>
+            <p>Copyright &copy; 2016 - 2016<br/> SaintIC Team. All rights reserved.</p>
         </div>
     </div>
 
