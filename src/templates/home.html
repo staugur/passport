@@ -12,11 +12,13 @@
 		<meta http-equiv="X-UA-Compatible" content="IE=edge">
 		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
 		<meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=1.0, user-scalable=no"/>
-		
+   
 		<!-- css -->
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
 		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" media="screen"/>
-
+		<link href="{{ url_for('static', filename='img/public/favicon.ico') }}" rel="icon" type="image/x-icon" />
+        <link href="{{ url_for('static', filename='img/public/favicon.ico') }}" rel="shortcut icon" type="image/x-icon" />
+ 
 	</head>
 	
 	<body>
@@ -37,7 +39,7 @@
 					<div class="secondary-slogan">
 						{% if data.get('cname') %}<p>{{ data.get('cname') }}</p>{% endif %}
 						{% if data.get('url') %}<p>{{ data.get('url') }}</p>{% endif %}
-						{% if data.get('motto') %}<p>{{ data.get('motto') or data.get('extra') }}</p>{% endif %}
+						{% if data.get('motto') %}<p>{{ data.get('motto') }}</p>{% endif %}
 						<p>
 						    {% if data.get('email') %}<a href="mailto:{{ data.get('email') }}">Email</a>{% endif %}
 						    {% if data.get('weibo') %}<a href="{{ data.get('weibo') }}" target="_blank">Weibo</a>{% endif %}
@@ -48,7 +50,7 @@
 
 				</section>
 				<section class="bottom">
-						<i>&copy; Copyright 2016 SaintIC Team. All rights reserved. Originate by <a href="https://github.com/saintic/passport/" target="_blank">GitHub</a>.</i>
+						<i>Copyright &copy; 2016 - 2016 SaintIC Team. All rights reserved. Originate by <a href="https://github.com/saintic/passport/" target="_blank">GitHub</a>.</i>
 				</section>
 
 			</div><!-- header -->
