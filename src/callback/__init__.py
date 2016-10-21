@@ -69,8 +69,8 @@ def QQ_Login_Page_State(code, QQ_APP_ID, QQ_APP_KEY, QQ_REDIRECT_URI, timeout=5,
                     UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s WHERE oauth_username=%s"
                     mysql.update(UpdateSQL, access_token, How_Much_Time(seconds=int(expires_in)), username)
                     #update user profile
-                    UpdateUserSQL = "UPDATE User SET cname=%s,gender=%s WHERE username=%s"
-                    mysql.update(UpdateUserSQL, UserQzoneInfo.get("nickname"), UserQzoneInfo.get("gender"), username)
+                    UpdateUserSQL = "UPDATE User SET cname=%s,gender=%s,extra=%s WHERE username=%s"
+                    mysql.update(UpdateUserSQL, UserQzoneInfo.get("nickname"), UserQzoneInfo.get("gender"), user_extra, username)
                     return {"username": username, "expires_in": expires_in, "openid": openid}
             except Exception,e:
                 logger.error(e, exc_info=True)
