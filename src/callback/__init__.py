@@ -54,11 +54,11 @@ def QQ_Login_Page_State(code, QQ_APP_ID, QQ_APP_KEY, QQ_REDIRECT_URI, timeout=5,
             User_Info_Url = Splice(scheme="https", domain="graph.qq.com", path="/user/get_user_info", query={"access_token": access_token, "oauth_consumer_key": QQ_APP_ID, "openid": openid}).geturl
             UserQzoneInfo = requests.get(User_Info_Url, timeout=timeout, verify=verify).json()
             username   = "QQ_" + openid[:9]
-            user_extra = "%s %s" %(data.get("province"), data.get("city"))
+            user_extra = "%s %s" %(UserQzoneInfo.get("province"), UserQzoneInfo.get("city"))
             logger.info(UserQzoneInfo)
             try:
-                UserSQL  = "INSERT INTO User (username, cname, avatar, time, gender, extra) VALUES (%s, %s, %s, %s, %s)"
-                mysql.insert(UserSQL, username, UserQzoneInfo.get("nickname"), UserQzoneInfo.get("figureurl_qq_1"), How_Much_Time(), data.get("gender"), user_extra)
+                UserSQL  = "INSERT INTO User (username, cname, avatar, time, gender, extra) VALUES (%s, %s, %s, %s, %s, %s)"
+                mysql.insert(UserSQL, username, UserQzoneInfo.get("nickname"), UserQzoneInfo.get("figureurl_qq_1"), How_Much_Time(), UserQzoneInfo.get("gender"), user_extra)
                 OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
                 mysql.insert(OAuthSQL, username, "QQ", openid, access_token, How_Much_Time(seconds=int(expires_in)))
             except IntegrityError,e:
@@ -70,7 +70,7 @@ def QQ_Login_Page_State(code, QQ_APP_ID, QQ_APP_KEY, QQ_REDIRECT_URI, timeout=5,
                     mysql.update(UpdateSQL, access_token, How_Much_Time(seconds=int(expires_in)), username)
                     #update user profile
                     UpdateUserSQL = "UPDATE User SET cname=%s,gender=%s WHERE username=%s"
-                    mysql.update(UpdateUserSQL, UserQzoneInfo.get("nickname"), data.get("gender"), username)
+                    mysql.update(UpdateUserSQL, UserQzoneInfo.get("nickname"), UserQzoneInfo.get("gender"), username)
                     return {"username": username, "expires_in": expires_in, "openid": openid}
             except Exception,e:
                 logger.error(e, exc_info=True)
@@ -102,7 +102,7 @@ def Weibo_Login_Page_State(code, WEIBO_APP_ID, WEIBO_APP_KEY, WEIBO_REDIRECT_URI
         user_extra    = data.get("description")
         user_gender   = u"男" if data.get("gender") == "m" else u"女"
         try:
-            UserSQL  = "INSERT INTO User (username, cname, avatar, time, weibo, gender, extra) VALUES (%s, %s, %s, %s, %s, %s)"
+            UserSQL  = "INSERT INTO User (username, cname, avatar, time, weibo, gender, extra) VALUES (%s, %s, %s, %s, %s, %s, %s)"
             mysql.insert(UserSQL, username, user_cname, user_avater, How_Much_Time(), user_weibo, user_gender, user_extra)
             OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
             mysql.insert(OAuthSQL, username, "Weibo", uid, access_token, How_Much_Time(seconds=int(expires_in)))
