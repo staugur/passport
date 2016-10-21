@@ -37,10 +37,10 @@
 				<section class="center">
 					<p><img src="{{ data.get('avatar') or url_for('static', filename='img/avatar/admin.jpg') }}" class="img-circle" title="{{ data.get('cname') or 'Oh' }}"></p>
 					<div class="secondary-slogan">
-						{% if data.get('cname') %}<p>{{ data.get('cname') }}</p>{% endif %}
-						{% if data.get('url') %}<p>{{ data.get('url') }}</p>{% endif %}
+						{% if data.get('cname') %}<p><attr title="{% if data.get('gender') == '男' %}A handsome boy{% elif data.get('gender') == '女' %}A pretty girl{% else %}{% endif %} Joined on {{ data.get('time') }}">{{ data.get('cname') }}</attr></p>{% endif %}
 						{% if data.get('motto') %}<p>{{ data.get('motto') }}</p>{% endif %}
 						<p>
+						    {% if data.get('url') %}<a href="{{ data.get('url') }}" target="_blank">My</a>{% endif %}
 						    {% if data.get('email') %}<a href="mailto:{{ data.get('email') }}">Email</a>{% endif %}
 						    {% if data.get('weibo') %}<a href="{{ data.get('weibo') }}" target="_blank">Weibo</a>{% endif %}
 						    {% if data.get('github') %}<a href="{{ data.get('github') }}" target="_blank">GitHub</a>{% endif %}
