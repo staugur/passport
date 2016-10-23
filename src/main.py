@@ -15,11 +15,7 @@ __author__  = 'Mr.tao <staugur@saintic.com>'
 __doc__     = 'Unified authentication and single sign on system for SaintIC web applications.'
 __date__    = '2016-10-23'
 __org__     = 'SaintIC'
-<<<<<<< HEAD
 __version__ = '1.0.0'
-=======
-__version__ = '1.0.1'
->>>>>>> d661c90906eb20c3677d15d16c6d55491fc69553
 
 app = Flask(__name__)
 
