@@ -12,7 +12,7 @@
 
     <div class="login">
         <h1>SaintIC Passport</h1>
-        <form action="{{ url_for('_auth') }}" method="post" id="UserLoginFormId">
+        <form action="{{ url_for('login', sso=request.args.get('sso'), sso_p=request.args.get('sso_p'), sso_r=request.args.get('sso_r')) }}" method="post">
             <p style="color:red; text-align: center; width: auto" id="login_error"></p>
             <input type="text" id="username" name="username" placeholder="username" required>
             <input type="password" id="password" name="password" placeholder="password" required>

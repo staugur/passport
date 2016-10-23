@@ -16,7 +16,7 @@ GLOBAL={
     "LogLevel": os.getenv("passport_loglevel", "DEBUG"),
     #应用程序写日志级别，目前有DEBUG，INFO，WARNING，ERROR，CRITICAL
 
-    "ACL": ("Team.Front", "Team.Api"),
+    "ACL": ("Team.Front", "Team.Api", "test", "passport.client"),
     #Access Control List, 访问控制列表, 限定只有ACL定义中的应用可以访问某些资源。
 
 }
