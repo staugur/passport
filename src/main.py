@@ -13,7 +13,7 @@ from sso import sso_blueprint
 
 __author__  = 'Mr.tao <staugur@saintic.com>'
 __doc__     = 'Unified authentication and single sign on system for SaintIC web applications.'
-__date__    = '2016-10-21'
+__date__    = '2016-10-23'
 __org__     = 'SaintIC'
 __version__ = '1.0.1'
 
