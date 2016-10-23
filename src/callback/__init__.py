@@ -7,7 +7,7 @@ import requests
 import datetime
 from flask import Blueprint, request, g, redirect, url_for, make_response
 from flask_restful import Api, Resource
-from utils.tool import mysql, logger, How_Much_Time, Callback_Returned_To_Dict, Parse_Access_Token, md5
+from utils.tool import mysql, logger, How_Much_Time, Callback_Returned_To_Dict, Parse_Access_Token, md5, isLogged_in
 from SpliceURL import Splice
 from torndb import IntegrityError
 from config import PLUGINS
@@ -247,8 +247,20 @@ class GitHub_Callback_Page(Resource):
         else:
             return redirect(url_for("login"))
 
+class SSO_Callback_Page(Resource):
+
+    def post(self):
+        username  = request.form.get("username", "")
+        sessionId = request.form.get("sessionId", "")
+        expires   = request.form.get("time", "")
+        signin    = isLogged_in('.'.join([ username, expires, sessionId ]))
+        logger.info("Request SSO %s" %signin)
+        return {"success": signin}
+     
+
 callback_blueprint = Blueprint(__name__, __name__)
 callback_page = Api(callback_blueprint)
 callback_page.add_resource(QQ_Callback_Page, '/qq', '/qq/', endpoint='qq')
 callback_page.add_resource(Weibo_Callback_Page, '/weibo', '/weibo/', endpoint='weibo')
 callback_page.add_resource(GitHub_Callback_Page, '/github', '/github/', endpoint='github')
+#callback_page.add_resource(SSO_Callback_Page, '/sso', '/sso/', endpoint='sso')

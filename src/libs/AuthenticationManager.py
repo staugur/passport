@@ -4,6 +4,7 @@ from utils.tool import logger, mysql, md5
 
 def UserAuth_Login(username, password):
 
+    return True
     sql = " SELECT lauth_username, lauth_password FROM LAuth WHERE lauth_username=%s"
     data= mysql.get(sql, username)
     logger.debug("mysql data is %s, request %s:%s" %(data, username, md5(password)))

@@ -1,20 +1,22 @@
 # -*- coding: utf8 -*-
 # 
-# The callback blueprint for uniform landing and exit
+# The SSO Api
 #
 
-from flask import Blueprint, g, redirect, url_for
+from flask import Blueprint, request
 from flask_restful import Api, Resource
-from SpliceURL import Splice, Modify
-from utils.tool import logger
+from utils.tool import logger, isLogged_in
 
-class QQ_Login_Page(Resource):
+class SSO_Api(Resource):
 
-    def get(self):
+    def post(self):
+        username  = request.form.get("username", "")
+        sessionId = request.form.get("sessionId", "")
+        expires   = request.form.get("time", "")
+        signin    = isLogged_in('.'.join([ username, expires, sessionId ]))
+        logger.info("Request SSO %s" %signin)
+        return {"success": signin}
 
-        return redirect(url_for("login"))
-
-login_blueprint = Blueprint(__name__, __name__)
-login_page = Api(login_blueprint)
-login_page.add_resource(QQ_Login_Page, '/qq', '/qq/', endpoint='qq')
-login_page.add_resource(Weibo_Login_Page, '/weibo', '/weibo/', endpoint='weibo')
+sso_blueprint = Blueprint(__name__, __name__)
+sso_api = Api(sso_blueprint)
+sso_api.add_resource(SSO_Api, '/sso', '/sso/', endpoint='api')
