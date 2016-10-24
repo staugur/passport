@@ -26,8 +26,7 @@ def before_request():
     g.sessionId = request.cookies.get("sessionId", "")
     g.expires   = request.cookies.get("time", "")
     g.credential= '.'.join([ g.username, g.expires, g.sessionId ])
-    g.signin = isLogged_in(g.credential)
-    logger.debug(app.url_map)
+    g.signin    = isLogged_in(g.credential)
     logger.info("Start Once Access, this requestId is %s, signin:%s" %(g.requestId, g.signin))
 
 @app.after_request

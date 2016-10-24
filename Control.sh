@@ -6,7 +6,6 @@ log_dir=${dir}/src/logs
 procname=$(grep '"ProcessName":' ${dir}/src/config.py | awk '{print $2}' | awk -F \" '{print $2}'|head -1)
 pidfile=${log_dir}/${procname}.pid
 
-
 case $1 in
 start)
     if [ -f $pidfile ]; then

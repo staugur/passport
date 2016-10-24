@@ -79,3 +79,15 @@ MySQL-python     数据库模块
 > 1. GitHub Login
 > 2. User Center Page Update
 > 3. SSO Define and Client(https://github.com/saintic/passport.client)
+
+**v0.0.3**
+
+> 1. uc 修复当weibo 或 github 无协议(http)时跳转问题
+> 2. uc个人中心丰富信息，悬浮可见
+> 3. login 增加使用某类型账号登录提示
+> 4. update sql(gender)
+
+
+**v1.0.0**
+
+> 1. 基本SSO同步登录功能
