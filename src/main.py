@@ -15,7 +15,7 @@ __author__  = 'Mr.tao <staugur@saintic.com>'
 __doc__     = 'Unified authentication and single sign on system for SaintIC web applications.'
 __date__    = '2016-10-23'
 __org__     = 'SaintIC'
-__version__ = '1.0.1'
+__version__ = '1.0.0'
 
 app = Flask(__name__)
 
@@ -26,8 +26,7 @@ def before_request():
     g.sessionId = request.cookies.get("sessionId", "")
     g.expires   = request.cookies.get("time", "")
     g.credential= '.'.join([ g.username, g.expires, g.sessionId ])
-    g.signin = isLogged_in(g.credential)
-    logger.debug(app.url_map)
+    g.signin    = isLogged_in(g.credential)
     logger.info("Start Once Access, this requestId is %s, signin:%s" %(g.requestId, g.signin))
 
 @app.after_request
