@@ -16,7 +16,7 @@ GLOBAL={
     "LogLevel": os.getenv("passport_loglevel", "DEBUG"),
     #应用程序写日志级别，目前有DEBUG，INFO，WARNING，ERROR，CRITICAL
 
-    "ACL": ("Team.Front", "Team.Api", "test", "passport.client"),
+    "ACL": ("Team.Front", "Team.Api", "Interest.blog", "passport.client"),
     #Access Control List, 访问控制列表, 限定只有ACL定义中的应用可以访问某些资源。
 
 }
@@ -34,7 +34,7 @@ MODULES={
     "Session": {
         "type": "redis",
 
-        "host": "101.200.125.9",
+        "host": "127.0.0.1",
 
         "port": 16379,
 
@@ -49,7 +49,7 @@ MODULES={
     "Authentication": {
         "type": "mysql",
 
-        "Host": "101.200.125.9",
+        "Host": "127.0.0.1",
 
         "Port": 3306,
 
