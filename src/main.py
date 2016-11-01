@@ -68,10 +68,12 @@ def login():
     SSOProject  = request.args.get("sso_p")
     SSORedirect = request.args.get("sso_r")
     SSOToken    = request.args.get("sso_t")
+    SSOTokenMD5 = md5("%s:%s" %(SSOProject, SSORedirect))
     logger.debug(SSOToken)
-    logger.debug(md5("%s:%s" %(SSOProject, SSORedirect)))
+    logger.debug(SSOTokenMD5)
+    logger.debug(SSOTokenMD5==SSOToken)
     if g.signin:
-        if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and md5("%s:%s" %(SSOProject, SSORedirect)) == SSOToken:
+        if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and SSOTokenMD5 == SSOToken:
             returnURL = SSORedirect + "?ticket=" + g.credential
             logger.info("SSO(%s) request project is in acl, already landing, redirect to %s" %(SSOProject, returnURL))
             return redirect(returnURL)
@@ -91,7 +93,7 @@ def login():
                 sessionId   = md5('%s-%s-%s-%s' %(username, md5(password), expires, "COOKIE_KEY")).upper()
                 logger.debug("check user login successful, max_age_sec: %s, expire_time: %s, expires: %s" %(max_age_sec, expire_time, expires))
                 #No login on the passport, when the SSO request login success, passport is set to have logged in, return resp.
-                if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and md5("%s:%s" %(SSOProject, SSORedirect)) == SSOToken:
+                if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and SSOTokenMD5 == SSOToken:
                     logger.info("RequestURL:%s, SSORequest:%s, SSOProject:%s, SSORedirect:%s" %(request.url, SSORequest, SSOProject, SSORedirect))
                     ticket    = '.'.join([ username, expires, sessionId ])
                     returnURL = SSORedirect + "?ticket=" + ticket
