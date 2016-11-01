@@ -4,13 +4,6 @@ import re, time, hashlib, binascii, os, uuid, datetime, json
 from log import Syslog
 from config import MODULES
 from torndb import Connection as torndbConnection
-from redis import Redis
-from rediscluster import StrictRedisCluster
-from functools import wraps
-from flask import g, redirect, url_for
-
-MYSQL = MODULES.get("Authentication")
-REDIS = MODULES.get("Session")
 
 #公共正则表达式
 mail_check    = re.compile(r'([0-9a-zA-Z\_*\.*\-*]+)@([a-zA-Z0-9\-*\_*\.*]+)\.([a-zA-Z]+$)')
@@ -20,17 +13,15 @@ ip_pat        = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(
 #公共函数
 md5           = lambda pwd:hashlib.md5(pwd).hexdigest()
 logger        = Syslog.getLogger()
-gen_token     = lambda :binascii.b2a_base64(os.urandom(24))[:32]
 gen_requestId = lambda :str(uuid.uuid4())
 
-dms   = Redis(host=REDIS.get("host"), port=REDIS.get("port"), db=REDIS.get("db"), password=REDIS.get("pass"), socket_timeout=3, socket_connect_timeout=3, retry_on_timeout=3) if REDIS.get("type") == "redis" else StrictRedisCluster(startup_nodes=[{"host": REDIS.get("host"), "port": REDIS.get("port")}], decode_responses=True, socket_timeout=5)
 mysql = torndbConnection(
-                    host     = "%s:%s" %(MYSQL.get('Host'), MYSQL.get('Port', 3306)),
-                    database = MYSQL.get('Database'),
-                    user     = MYSQL.get('User', None),
-                    password = MYSQL.get('Passwd', None),
-                    time_zone= MYSQL.get('Timezone','+8:00'),
-                    charset  = MYSQL.get('Charset', 'utf8'),
+                    host     = "%s:%s" %(MODULES.get("Authentication").get('Host'), MODULES.get("Authentication").get('Port', 3306)),
+                    database = MODULES.get("Authentication").get('Database'),
+                    user     = MODULES.get("Authentication").get('User', None),
+                    password = MODULES.get("Authentication").get('Passwd', None),
+                    time_zone= MODULES.get("Authentication").get('Timezone','+8:00'),
+                    charset  = MODULES.get("Authentication").get('Charset', 'utf8'),
                     connect_timeout=3,
                     max_idle_time=2)
 

@@ -2,8 +2,7 @@
 
 import json
 import datetime
-from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
-from flask_restful import Api, Resource
+from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect
 from config import GLOBAL, PLUGINS
 from utils.tool import logger, gen_requestId, md5, mysql, isLogged_in, How_Much_Time
 from libs.AuthenticationManager import UserAuth_Login
@@ -13,9 +12,9 @@ from sso import sso_blueprint
 
 __author__  = 'Mr.tao <staugur@saintic.com>'
 __doc__     = 'Unified authentication and single sign on system for SaintIC web applications.'
-__date__    = '2016-10-23'
+__date__    = '2016-11-01'
 __org__     = 'SaintIC'
-__version__ = '1.0.0'
+__version__ = '1.0.1'
 
 app = Flask(__name__)
 
@@ -68,8 +67,11 @@ def login():
     SSORequest  = True if request.args.get("sso") in ("true", "True", True, "1", "on") else False
     SSOProject  = request.args.get("sso_p")
     SSORedirect = request.args.get("sso_r")
+    SSOToken    = request.args.get("sso_t")
+    logger.debug(SSOToken)
+    logger.debug(md5("%s:%s" %(SSOProject, SSORedirect)))
     if g.signin:
-        if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect:
+        if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and md5("%s:%s" %(SSOProject, SSORedirect)) == SSOToken:
             returnURL = SSORedirect + "?ticket=" + g.credential
             logger.info("SSO(%s) request project is in acl, already landing, redirect to %s" %(SSOProject, returnURL))
             return redirect(returnURL)
@@ -82,29 +84,30 @@ def login():
             username = request.form.get("username")
             password = request.form.get("password")
             remember = 30 if request.form.get("remember") in ("True", "true", True) else None
-            logger.debug("RequestURL:%s, SSORequest:%s, SSOProject:%s, SSORedirect:%s" %(request.url, SSORequest, SSOProject, SSORedirect))
             if username and password and UserAuth_Login(username, password):
                 max_age_sec = 3600 * 24 * remember if remember else None
                 expires     = How_Much_Time(max_age_sec)
                 expire_time = datetime.datetime.today() + datetime.timedelta(days=remember) if remember else None
                 sessionId   = md5('%s-%s-%s-%s' %(username, md5(password), expires, "COOKIE_KEY")).upper()
                 logger.debug("check user login successful, max_age_sec: %s, expire_time: %s, expires: %s" %(max_age_sec, expire_time, expires))
-                if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect:
+                #No login on the passport, when the SSO request login success, passport is set to have logged in, return resp.
+                if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and md5("%s:%s" %(SSOProject, SSORedirect)) == SSOToken:
+                    logger.info("RequestURL:%s, SSORequest:%s, SSOProject:%s, SSORedirect:%s" %(request.url, SSORequest, SSOProject, SSORedirect))
                     ticket    = '.'.join([ username, expires, sessionId ])
                     returnURL = SSORedirect + "?ticket=" + ticket
                     logger.info("SSO(%s) request project is in acl, will create a ticket, redirect to %s" %(SSOProject, returnURL))
-                    return redirect(returnURL)
+                    resp = make_response(redirect(returnURL))
                 else:
                     logger.info("Not SSO Auth, to local auth")
                     resp = make_response(redirect(url_for("uc")))
-                    resp.set_cookie(key='logged_in', value="yes", max_age=max_age_sec)
-                    resp.set_cookie(key='username',  value=username, max_age=max_age_sec)
-                    resp.set_cookie(key='sessionId', value=sessionId, max_age=max_age_sec)
-                    resp.set_cookie(key='time', value=expires, max_age=max_age_sec)
-                    resp.set_cookie(key='Azone', value="local", max_age=max_age_sec)
-                    #LogonCredentials: make_signed_cookie(username, md5(password), seconds=max_age_sec)
-                    #LogonCredentials: make_signed_cookie(username, openid/uid, seconds=max_age_sec)
-                    return resp
+                resp.set_cookie(key='logged_in', value="yes", max_age=max_age_sec)
+                resp.set_cookie(key='username',  value=username, max_age=max_age_sec)
+                resp.set_cookie(key='sessionId', value=sessionId, max_age=max_age_sec)
+                resp.set_cookie(key='time', value=expires, max_age=max_age_sec)
+                resp.set_cookie(key='Azone', value="local", max_age=max_age_sec)
+                #LogonCredentials: make_signed_cookie(username, md5(password), seconds=max_age_sec)
+                #LogonCredentials: make_signed_cookie(username, openid/uid, seconds=max_age_sec)
+                return resp
             else:
                 return redirect(url_for("login"))
 
