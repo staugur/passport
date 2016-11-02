@@ -57,42 +57,6 @@ def Callback_Returned_To_Dict(x):
     '''
     return json.loads(x[10:-3])
 
-def get_ip(getLanIp=False):
-    _WanIpCmd = "/sbin/ifconfig | grep -o '\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}' | grep -vE '192.168.|172.1[0-9]|172.2[0-9]|172.3[0-1]|10.[0-254]|255|127.0.0.1|0.0.0.0'"
-    _WanIp    = commands.getoutput(_WanIpCmd).replace("\n", ",")
-    if _WanIp:
-        logger.info("First get ip success, WanIp is %s with cmd(%s), enter LanIp." %(_WanIp, _WanIpCmd))
-    else:
-        _WanIp = requests.get("http://members.3322.org/dyndns/getip", timeout=3).text.strip()
-        if ip_check(_WanIp):
-            logger.info("Second get ip success, WanIp is %s with requests, enter LanIp." %_WanIp)
-        else:
-            logger.error("get_ip fail")
-            return ('', '')
-    if getLanIp == True:
-        _LanIpCmd = "/sbin/ifconfig | grep -o '\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}' | grep -vE '255|0.0.0.0|127.0.0.1' | sort -n -k 3 -t . | grep -E '192.168.|172.1[0-9]|172.2[0-9]|172.3[0-1]|10.[0-9]'"
-        _LanIp    = commands.getoutput(_LanIpCmd).replace("\n", ",") or 'Unknown'
-        logger.info("Get ip success, LanIp is %s with cmd(%s), over IP." %(_LanIp, _LanIpCmd))
-        Ips = (_WanIp, _LanIp)
-    else:
-        Ips = (_WanIp,)
-    return Ips
-
-def put2RedisSimple(RedisConnection, key, value):
-    if key and value:
-        try:
-            logger.debug(RedisConnection.ttl(key))
-            RedisConnection.set(key, value)
-            RedisConnection.expire(key, 30)
-            logger.info(RedisConnection.get(key))
-        except Exception,e:
-            logger.error(e)
-            return False
-        else:
-            return True
-    else:
-        return False
-
 # 计算加密cookie:
 def make_signed_cookie(username, flag, seconds=0, minutes=0, hours=0):
     '''
@@ -138,7 +102,7 @@ def parse_signed_cookie(cookie_str, flag):
 def isLogged_in(cookie_str):
     ''' check username is logged in '''
 
-    if cookie_str:
+    if cookie_str and not cookie_str == '...':
         username = cookie_str.split('.')[0]
         logger.info("check login request, cookie_str: %s, username: %s" %(cookie_str, username))
     else:        
