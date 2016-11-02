@@ -9,4 +9,4 @@ if __name__ == "__main__":
     Port = GLOBAL.get('Port')
     app.config['PROFILE'] = True
     app.wsgi_app = ProfilerMiddleware(app.wsgi_app, restrictions = [30])
-    app.run(debug=True, host=Host, port=int(Port))
+    app.run(host=Host, port=int(Port), debug=True)

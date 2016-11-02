@@ -134,5 +134,4 @@ app.register_blueprint(sso_blueprint)
 if __name__ == '__main__':
     Host  = GLOBAL.get('Host')
     Port  = GLOBAL.get('Port')
-    Debug = GLOBAL.get('Debug', True)
-    app.run(host = Host, port = int(Port), debug = Debug)
+    app.run(host=Host, port=int(Port), debug=True)
