@@ -111,7 +111,7 @@ def login():
                 #LogonCredentials: make_signed_cookie(username, openid/uid, seconds=max_age_sec)
                 return resp
             else:
-                return redirect(url_for("login"))
+                return redirect(url_for("login", sso=SSORequest, sso_p=SSOProject, sso_r=SSORedirect, sso_t=SSOToken))
 
 @app.route("/logout/")
 def logout():
