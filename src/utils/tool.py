@@ -102,7 +102,7 @@ def parse_signed_cookie(cookie_str, flag):
 def isLogged_in(cookie_str):
     ''' check username is logged in '''
 
-    if cookie_str and not cookie_str == '...':
+    if cookie_str and not cookie_str == '..':
         username = cookie_str.split('.')[0]
         logger.info("check login request, cookie_str: %s, username: %s" %(cookie_str, username))
     else:        
