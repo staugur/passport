@@ -247,20 +247,9 @@ class GitHub_Callback_Page(Resource):
         else:
             return redirect(url_for("login"))
 
-class SSO_Callback_Page(Resource):
-
-    def post(self):
-        username  = request.form.get("username", "")
-        sessionId = request.form.get("sessionId", "")
-        expires   = request.form.get("time", "")
-        signin    = isLogged_in('.'.join([ username, expires, sessionId ]))
-        logger.info("Request SSO %s" %signin)
-        return {"success": signin}
-     
 
 callback_blueprint = Blueprint(__name__, __name__)
 callback_page = Api(callback_blueprint)
 callback_page.add_resource(QQ_Callback_Page, '/qq', '/qq/', endpoint='qq')
 callback_page.add_resource(Weibo_Callback_Page, '/weibo', '/weibo/', endpoint='weibo')
 callback_page.add_resource(GitHub_Callback_Page, '/github', '/github/', endpoint='github')
-#callback_page.add_resource(SSO_Callback_Page, '/sso', '/sso/', endpoint='sso')

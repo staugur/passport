@@ -1,7 +1,7 @@
 Flask==0.10.1
-setproctitle==1.1.10
-gevent==1.1.1
-tornado==4.3
-torndb==0.3
-MySQL-python==1.2.3
+setproctitle
+gevent
+tornado
+torndb
+MySQL-python
 requests

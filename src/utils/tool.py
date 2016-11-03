@@ -4,13 +4,6 @@ import re, time, hashlib, binascii, os, uuid, datetime, json
 from log import Syslog
 from config import MODULES
 from torndb import Connection as torndbConnection
-from redis import Redis
-from rediscluster import StrictRedisCluster
-from functools import wraps
-from flask import g, redirect, url_for
-
-MYSQL = MODULES.get("Authentication")
-REDIS = MODULES.get("Session")
 
 #公共正则表达式
 mail_check    = re.compile(r'([0-9a-zA-Z\_*\.*\-*]+)@([a-zA-Z0-9\-*\_*\.*]+)\.([a-zA-Z]+$)')
@@ -20,17 +13,15 @@ ip_pat        = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(
 #公共函数
 md5           = lambda pwd:hashlib.md5(pwd).hexdigest()
 logger        = Syslog.getLogger()
-gen_token     = lambda :binascii.b2a_base64(os.urandom(24))[:32]
 gen_requestId = lambda :str(uuid.uuid4())
 
-dms   = Redis(host=REDIS.get("host"), port=REDIS.get("port"), db=REDIS.get("db"), password=REDIS.get("pass"), socket_timeout=3, socket_connect_timeout=3, retry_on_timeout=3) if REDIS.get("type") == "redis" else StrictRedisCluster(startup_nodes=[{"host": REDIS.get("host"), "port": REDIS.get("port")}], decode_responses=True, socket_timeout=5)
 mysql = torndbConnection(
-                    host     = "%s:%s" %(MYSQL.get('Host'), MYSQL.get('Port', 3306)),
-                    database = MYSQL.get('Database'),
-                    user     = MYSQL.get('User', None),
-                    password = MYSQL.get('Passwd', None),
-                    time_zone= MYSQL.get('Timezone','+8:00'),
-                    charset  = MYSQL.get('Charset', 'utf8'),
+                    host     = "%s:%s" %(MODULES.get("Authentication").get('Host'), MODULES.get("Authentication").get('Port', 3306)),
+                    database = MODULES.get("Authentication").get('Database'),
+                    user     = MODULES.get("Authentication").get('User', None),
+                    password = MODULES.get("Authentication").get('Passwd', None),
+                    time_zone= MODULES.get("Authentication").get('Timezone','+8:00'),
+                    charset  = MODULES.get("Authentication").get('Charset', 'utf8'),
                     connect_timeout=3,
                     max_idle_time=2)
 
@@ -47,17 +38,15 @@ def Parse_Access_Token(x):
     return dict( _.split('=') for _ in x.split('&') )
 
 def How_Much_Time(seconds=0, minutes=0, hours=0):
+    """ 将s、m、h后的时间转化为Y-m-d """
     dt = datetime.datetime.now() + datetime.timedelta(seconds=int(seconds), minutes=int(minutes), hours=int(hours))
     return dt.strftime("%Y-%m-%d")
 
-def ISOString2Time(s):
-    ''' 
-    convert a ISO format time to second
-    from:2006-04-12 to:23123123
-    '''
+def Date2Seconds(date):
+    """ 将Y-m-d后的时间转化为s(当前时间多少秒)  """
     import time
-    d = datetime.datetime.strptime(s,"%Y-%m-%d")
-    return time.mktime(d.timetuple())
+    d = datetime.datetime.strptime(date,"%Y-%m-%d")
+    return time.mktime(d.timetuple()) - time.time()
 
 def Callback_Returned_To_Dict(x):
     '''
@@ -65,42 +54,6 @@ def Callback_Returned_To_Dict(x):
         we can't just tell flask-oauthlib to treat it as json.
     '''
     return json.loads(x[10:-3])
-
-def get_ip(getLanIp=False):
-    _WanIpCmd = "/sbin/ifconfig | grep -o '\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}' | grep -vE '192.168.|172.1[0-9]|172.2[0-9]|172.3[0-1]|10.[0-254]|255|127.0.0.1|0.0.0.0'"
-    _WanIp    = commands.getoutput(_WanIpCmd).replace("\n", ",")
-    if _WanIp:
-        logger.info("First get ip success, WanIp is %s with cmd(%s), enter LanIp." %(_WanIp, _WanIpCmd))
-    else:
-        _WanIp = requests.get("http://members.3322.org/dyndns/getip", timeout=3).text.strip()
-        if ip_check(_WanIp):
-            logger.info("Second get ip success, WanIp is %s with requests, enter LanIp." %_WanIp)
-        else:
-            logger.error("get_ip fail")
-            return ('', '')
-    if getLanIp == True:
-        _LanIpCmd = "/sbin/ifconfig | grep -o '\([0-9]\{1,3\}\.\)\{3\}[0-9]\{1,3\}' | grep -vE '255|0.0.0.0|127.0.0.1' | sort -n -k 3 -t . | grep -E '192.168.|172.1[0-9]|172.2[0-9]|172.3[0-1]|10.[0-9]'"
-        _LanIp    = commands.getoutput(_LanIpCmd).replace("\n", ",") or 'Unknown'
-        logger.info("Get ip success, LanIp is %s with cmd(%s), over IP." %(_LanIp, _LanIpCmd))
-        Ips = (_WanIp, _LanIp)
-    else:
-        Ips = (_WanIp,)
-    return Ips
-
-def put2RedisSimple(RedisConnection, key, value):
-    if key and value:
-        try:
-            logger.debug(RedisConnection.ttl(key))
-            RedisConnection.set(key, value)
-            RedisConnection.expire(key, 30)
-            logger.info(RedisConnection.get(key))
-        except Exception,e:
-            logger.error(e)
-            return False
-        else:
-            return True
-    else:
-        return False
 
 # 计算加密cookie:
 def make_signed_cookie(username, flag, seconds=0, minutes=0, hours=0):
@@ -147,7 +100,7 @@ def parse_signed_cookie(cookie_str, flag):
 def isLogged_in(cookie_str):
     ''' check username is logged in '''
 
-    if cookie_str:
+    if cookie_str and not cookie_str == '..':
         username = cookie_str.split('.')[0]
         logger.info("check login request, cookie_str: %s, username: %s" %(cookie_str, username))
     else:        
