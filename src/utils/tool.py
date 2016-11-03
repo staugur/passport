@@ -38,17 +38,15 @@ def Parse_Access_Token(x):
     return dict( _.split('=') for _ in x.split('&') )
 
 def How_Much_Time(seconds=0, minutes=0, hours=0):
+    """ 将s、m、h后的时间转化为Y-m-d """
     dt = datetime.datetime.now() + datetime.timedelta(seconds=int(seconds), minutes=int(minutes), hours=int(hours))
     return dt.strftime("%Y-%m-%d")
 
-def ISOString2Time(s):
-    ''' 
-    convert a ISO format time to second
-    from:2006-04-12 to:23123123
-    '''
+def Date2Seconds(date):
+    """ 将Y-m-d后的时间转化为s(当前时间多少秒)  """
     import time
-    d = datetime.datetime.strptime(s,"%Y-%m-%d")
-    return time.mktime(d.timetuple())
+    d = datetime.datetime.strptime(date,"%Y-%m-%d")
+    return time.mktime(d.timetuple()) - time.time()
 
 def Callback_Returned_To_Dict(x):
     '''
