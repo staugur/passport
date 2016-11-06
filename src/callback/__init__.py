@@ -10,7 +10,7 @@ from flask_restful import Api, Resource
 from utils.tool import mysql, logger, How_Much_Time, Callback_Returned_To_Dict, Parse_Access_Token, md5, isLogged_in
 from SpliceURL import Splice
 from torndb import IntegrityError
-from config import PLUGINS
+from config import PLUGINS, GLOBAL
 from urllib import urlencode
 
 
@@ -29,7 +29,7 @@ def QQ_Login_Page_State(code, QQ_APP_ID, QQ_APP_KEY, QQ_REDIRECT_URI, timeout=5,
     if "refresh_token" in data:
         #access_token = data.get("access_token")
         #expires_in   = data.get("expires_in")
-        refresh_token= data.get("refresh_token")
+        refresh_token = data.get("refresh_token")
 
         '''Update some required parameters for OAuth2.0 API calls'''
         Update_Access_Token_Url = Splice(scheme="https", domain="graph.qq.com", path="/oauth2.0/token", query={"grant_type": "refresh_token", "client_id": QQ_APP_ID, "client_secret": QQ_APP_KEY, "refresh_token": refresh_token}).geturl
@@ -176,7 +176,13 @@ class QQ_Callback_Page(Resource):
     def get(self):
 
         code = request.args.get("code")
+        SSORequest  = True if request.args.get("sso") in ("true", "True", True, "1", "on") else False
+        SSOProject  = request.args.get("sso_p")
+        SSORedirect = request.args.get("sso_r")
+        SSOToken    = request.args.get("sso_t")
+        SSOTokenMD5 = md5("%s:%s" %(SSOProject, SSORedirect))
         logger.debug(request.args)
+        logger.debug(SSOTokenMD5==SSOToken)
         if g.signin:
             return redirect(url_for("uc"))
         elif code:
@@ -188,13 +194,21 @@ class QQ_Callback_Page(Resource):
                 expires_in  = int(data.get("expires_in"))
                 openid      = data.get("openid")
                 expire_time = How_Much_Time(expires_in) if expires_in else None
-
-                resp = make_response(redirect(url_for("uc")))
+                sessionId   = md5('%s-%s-%s-%s' %(username, openid, expire_time, "COOKIE_KEY")).upper()
+                if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and SSOTokenMD5 == SSOToken:
+                    logger.info("RequestURL:%s, SSORequest:%s, SSOProject:%s, SSORedirect:%s" %(request.url, SSORequest, SSOProject, SSORedirect))
+                    ticket    = '.'.join([ username, expire_time, sessionId ])
+                    returnURL = SSORedirect + "?ticket=" + ticket
+                    logger.info("SSO(%s) request project is in acl, will create a ticket, redirect to %s" %(SSOProject, returnURL))
+                    resp = make_response(redirect(returnURL))
+                else:
+                    logger.info("Not SSO Auth, to local auth")
+                    resp = make_response(redirect(url_for("uc")))
                 resp.set_cookie(key='logged_in', value="yes", max_age=expires_in)
                 resp.set_cookie(key='username',  value=username, max_age=expires_in)
                 resp.set_cookie(key='time', value=expire_time, max_age=expires_in)
                 resp.set_cookie(key='Azone', value="QQ", max_age=expires_in)
-                resp.set_cookie(key='sessionId', value=md5('%s-%s-%s-%s' %(username, openid, expire_time, "COOKIE_KEY")).upper(), max_age=expires_in)
+                resp.set_cookie(key='sessionId', value=sessionId, max_age=expires_in)
                 return resp
         else:
             return redirect(url_for("login"))

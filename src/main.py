@@ -70,8 +70,7 @@ def login():
     SSORedirect = request.args.get("sso_r")
     SSOToken    = request.args.get("sso_t")
     SSOTokenMD5 = md5("%s:%s" %(SSOProject, SSORedirect))
-    logger.debug(SSOToken)
-    logger.debug(SSOTokenMD5)
+    logger.debug(request.args)
     logger.debug(SSOTokenMD5==SSOToken)
     if g.signin:
         if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and SSOTokenMD5 == SSOToken:
