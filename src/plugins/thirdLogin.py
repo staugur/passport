@@ -30,7 +30,7 @@ class QQ_Login_Page(Resource):
         if g.signin:
             return redirect(url_for("uc"))
         else:
-            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['QQ']['REDIRECT_URI'], urlencode({"sso": request.args.get('sso'), "sso_r": request.args.get('sso_r') + "/sso/", "sso_p": request.args.get('sso_p'), "sso_t": request.args.get('sso_t')}))
+            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['QQ']['REDIRECT_URI'], urlencode({"sso": request.args.get('sso'), "sso_r": request.args.get('sso_r'), "sso_p": request.args.get('sso_p'), "sso_t": request.args.get('sso_t')}))
             logger.debug(SSOLoginURL)
             if PLUGINS['thirdLogin']['QQ']['ENABLE']:
                 return redirect(QQ_Login_Page_Url(PLUGINS['thirdLogin']['QQ']['APP_ID'], SSOLoginURL))

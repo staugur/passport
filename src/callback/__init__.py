@@ -180,7 +180,7 @@ class QQ_Callback_Page(Resource):
         if g.signin:
             return redirect(url_for("uc"))
         elif code:
-            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['QQ']['REDIRECT_URI'], urlencode({"sso": request.args.get('sso'), "sso_r": request.args.get('sso_r') + "/sso/", "sso_p": request.args.get('sso_p'), "sso_t": request.args.get('sso_t')}))
+            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['QQ']['REDIRECT_URI'], urlencode({"sso": request.args.get('sso'), "sso_r": request.args.get('sso_r'), "sso_p": request.args.get('sso_p'), "sso_t": request.args.get('sso_t')}))
             logger.debug(SSOLoginURL)
             data = QQ_Login_Page_State(code, PLUGINS['thirdLogin']['QQ']['APP_ID'], PLUGINS['thirdLogin']['QQ']['APP_KEY'], SSOLoginURL)
             if data:

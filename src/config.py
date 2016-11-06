@@ -72,7 +72,7 @@ PLUGINS = {
             "REDIRECT_URI": "https://passport.saintic.com/callback/qq/"
         },
         "GITHUB": {
-            "ENABLE": False,
+            "ENABLE": True,
             "APP_ID": '32d6eea53343476e62ac',
             "APP_KEY": "847b038ae547c41d0ba07f9641bef74309870224",
             "REDIRECT_URI": "https://passport.saintic.com/callback/github/"
