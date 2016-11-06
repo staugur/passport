@@ -186,7 +186,7 @@ class QQ_Callback_Page(Resource):
         if g.signin:
             return redirect(url_for("uc"))
         elif code:
-            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['QQ']['REDIRECT_URI'], urlencode({"sso": request.args.get('sso'), "sso_r": request.args.get('sso_r'), "sso_p": request.args.get('sso_p'), "sso_t": request.args.get('sso_t')}))
+            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['QQ']['REDIRECT_URI'], urlencode({"sso": SSORequest, "sso_r": SSORedirect, "sso_p": SSOProject, "sso_t": SSOToken}))
             logger.debug(SSOLoginURL)
             data = QQ_Login_Page_State(code, PLUGINS['thirdLogin']['QQ']['APP_ID'], PLUGINS['thirdLogin']['QQ']['APP_KEY'], SSOLoginURL)
             if data:
@@ -202,7 +202,7 @@ class QQ_Callback_Page(Resource):
                     logger.info("SSO(%s) request project is in acl, will create a ticket, redirect to %s" %(SSOProject, returnURL))
                     resp = make_response(redirect(returnURL))
                 else:
-                    logger.info("Not SSO Auth, to local auth")
+                    logger.info("Not SSO Auth, to QQ auth")
                     resp = make_response(redirect(url_for("uc")))
                 resp.set_cookie(key='logged_in', value="yes", max_age=expires_in)
                 resp.set_cookie(key='username',  value=username, max_age=expires_in)
@@ -218,18 +218,34 @@ class Weibo_Callback_Page(Resource):
     def get(self):
 
         code = request.args.get("code")
+        SSORequest  = True if request.args.get("sso") in ("true", "True", True, "1", "on") else False
+        SSOProject  = request.args.get("sso_p")
+        SSORedirect = request.args.get("sso_r")
+        SSOToken    = request.args.get("sso_t")
+        SSOTokenMD5 = md5("%s:%s" %(SSOProject, SSORedirect))
         logger.debug(request.args)
+        logger.debug(SSOTokenMD5==SSOToken)
         if g.signin:
             return redirect(url_for("uc"))
         elif code:
-            data = Weibo_Login_Page_State(code, PLUGINS['thirdLogin']['WEIBO']['APP_ID'], PLUGINS['thirdLogin']['WEIBO']['APP_KEY'], PLUGINS['thirdLogin']['WEIBO']['REDIRECT_URI'])
+            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['WEIBO']['REDIRECT_URI'], urlencode({"sso": SSORequest, "sso_r": SSORedirect, "sso_p": SSOProject, "sso_t": SSOToken}))
+            logger.debug(SSOLoginURL)
+            data = Weibo_Login_Page_State(code, PLUGINS['thirdLogin']['WEIBO']['APP_ID'], PLUGINS['thirdLogin']['WEIBO']['APP_KEY'], SSOLoginURL)
             if data:
                 username    = data.get("username")
                 expires_in  = int(data.get("expires_in"))
                 userid      = data.get("uid")
                 expire_time = How_Much_Time(seconds=expires_in) if expires_in else None
-
-                resp = make_response(redirect(url_for("uc")))
+                sessionId   = md5('%s-%s-%s-%s' %(username, userid, expire_time, "COOKIE_KEY")).upper()
+                if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and SSOTokenMD5 == SSOToken:
+                    logger.info("RequestURL:%s, SSORequest:%s, SSOProject:%s, SSORedirect:%s" %(request.url, SSORequest, SSOProject, SSORedirect))
+                    ticket    = '.'.join([ username, expire_time, sessionId ])
+                    returnURL = SSORedirect + "?ticket=" + ticket
+                    logger.info("SSO(%s) request project is in acl, will create a ticket, redirect to %s" %(SSOProject, returnURL))
+                    resp = make_response(redirect(returnURL))
+                else:
+                    logger.info("Not SSO Auth, to Weibo auth")
+                    resp = make_response(redirect(url_for("uc")))
                 resp.set_cookie(key='logged_in', value="yes", max_age=expires_in)
                 resp.set_cookie(key='username',  value=username, max_age=expires_in)
                 resp.set_cookie(key='time', value=expire_time, max_age=expires_in)
@@ -244,17 +260,34 @@ class GitHub_Callback_Page(Resource):
     def get(self):
 
         code = request.args.get("code")
+        SSORequest  = True if request.args.get("sso") in ("true", "True", True, "1", "on") else False
+        SSOProject  = request.args.get("sso_p")
+        SSORedirect = request.args.get("sso_r")
+        SSOToken    = request.args.get("sso_t")
+        SSOTokenMD5 = md5("%s:%s" %(SSOProject, SSORedirect))
+        logger.debug(request.args)
+        logger.debug(SSOTokenMD5==SSOToken)
         if g.signin:
             return redirect(url_for("uc"))
         elif code:
-            data = GitHub_Login_Page_State(code, PLUGINS['thirdLogin']['GITHUB']['APP_ID'], PLUGINS['thirdLogin']['GITHUB']['APP_KEY'], PLUGINS['thirdLogin']['GITHUB']['REDIRECT_URI'])
+            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['GITHUB']['REDIRECT_URI'], urlencode({"sso": SSORequest, "sso_r": SSORedirect, "sso_p": SSOProject, "sso_t": SSOToken}))
+            logger.debug(SSOLoginURL)
+            data = GitHub_Login_Page_State(code, PLUGINS['thirdLogin']['GITHUB']['APP_ID'], PLUGINS['thirdLogin']['GITHUB']['APP_KEY'],SSOLoginURL)
             if data:
                 username    = data.get("username")
                 expires_in  = 3600 * 24 * 30
                 userid      = data.get("uid")
                 expire_time = How_Much_Time(seconds=expires_in) if expires_in else None
-
-                resp = make_response(redirect(url_for("uc")))
+                sessionId   = md5('%s-%s-%s-%s' %(username, userid, expire_time, "COOKIE_KEY")).upper()
+                if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and SSOTokenMD5 == SSOToken:
+                    logger.info("RequestURL:%s, SSORequest:%s, SSOProject:%s, SSORedirect:%s" %(request.url, SSORequest, SSOProject, SSORedirect))
+                    ticket    = '.'.join([ username, expire_time, sessionId ])
+                    returnURL = SSORedirect + "?ticket=" + ticket
+                    logger.info("SSO(%s) request project is in acl, will create a ticket, redirect to %s" %(SSOProject, returnURL))
+                    resp = make_response(redirect(returnURL))
+                else:
+                    logger.info("Not SSO Auth, to local auth")
+                    resp = make_response(redirect(url_for("uc")))
                 resp.set_cookie(key='logged_in', value="yes", max_age=expires_in)
                 resp.set_cookie(key='username',  value=username, max_age=expires_in)
                 resp.set_cookie(key='time', value=expire_time, max_age=expires_in)

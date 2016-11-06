@@ -44,8 +44,10 @@ class Weibo_Login_Page(Resource):
         if g.signin:
             return redirect(url_for("uc"))
         else:
+            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['WEIBO']['REDIRECT_URI'], urlencode({"sso": request.args.get('sso'), "sso_r": request.args.get('sso_r'), "sso_p": request.args.get('sso_p'), "sso_t": request.args.get('sso_t')}))
+            logger.debug(SSOLoginURL)
             if PLUGINS['thirdLogin']['WEIBO']['ENABLE']:
-                return redirect(Weibo_Login_Page_Url(PLUGINS['thirdLogin']['WEIBO']['APP_ID'], PLUGINS['thirdLogin']['WEIBO']['REDIRECT_URI']))
+                return redirect(Weibo_Login_Page_Url(PLUGINS['thirdLogin']['WEIBO']['APP_ID'], SSOLoginURL))
             else:
                 return redirect(url_for("login"))
 
@@ -56,8 +58,10 @@ class GitHub_Login_Page(Resource):
         if g.signin:
             return redirect(url_for("uc"))
         else:
+            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['GITHUB']['REDIRECT_URI'], urlencode({"sso": request.args.get('sso'), "sso_r": request.args.get('sso_r'), "sso_p": request.args.get('sso_p'), "sso_t": request.args.get('sso_t')}))
+            logger.debug(SSOLoginURL)
             if PLUGINS['thirdLogin']['GITHUB']['ENABLE']:
-                return redirect(GitHub_Login_Page_Url(PLUGINS['thirdLogin']['GITHUB']['APP_ID'], PLUGINS['thirdLogin']['GITHUB']['REDIRECT_URI']))
+                return redirect(GitHub_Login_Page_Url(PLUGINS['thirdLogin']['GITHUB']['APP_ID'], SSOLoginURL))
             else:
                 return redirect(url_for("login"))
 
