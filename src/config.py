@@ -60,19 +60,19 @@ PLUGINS = {
     #Third party social account login plug-in, allowing developers to enable some of the third party application login, if disabled, then the login page does not appear the corresponding third party login icon.
     "thirdLogin": {
         "WEIBO": {
-            "ENABLE": False,
+            "ENABLE": True,
             "APP_ID": 1746902937,
             "APP_KEY": "8853e9ba5835e5a26fa0b4907c2995ce",
             "REDIRECT_URI": "https://passport.saintic.com/callback/weibo/"
         },
         "QQ": {
-            "ENABLE": False,
+            "ENABLE": True,
             "APP_ID": 100581101,
             "APP_KEY": "36b4136a30a1bcd126525baf9e815f1f",
             "REDIRECT_URI": "https://passport.saintic.com/callback/qq/"
         },
         "GITHUB": {
-            "ENABLE": False,
+            "ENABLE": True,
             "APP_ID": '32d6eea53343476e62ac',
             "APP_KEY": "847b038ae547c41d0ba07f9641bef74309870224",
             "REDIRECT_URI": "https://passport.saintic.com/callback/github/"

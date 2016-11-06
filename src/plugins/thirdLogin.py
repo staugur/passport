@@ -3,11 +3,12 @@
 # Web application with the third account login module
 #
 
-from flask import Blueprint, g, redirect, url_for
+from flask import Blueprint, g, redirect, url_for, request
 from flask_restful import Api, Resource
 from SpliceURL import Splice
 from utils.tool import logger, Parse_Access_Token, Callback_Returned_To_Dict, How_Much_Time
 from config import PLUGINS
+from urllib import urlencode
 
 
 def QQ_Login_Page_Url(QQ_APP_ID, QQ_REDIRECT_URI):
@@ -29,8 +30,10 @@ class QQ_Login_Page(Resource):
         if g.signin:
             return redirect(url_for("uc"))
         else:
+            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['QQ']['REDIRECT_URI'], urlencode({"sso": request.args.get('sso'), "sso_r": request.args.get('sso_r') + "/sso/", "sso_p": request.args.get('sso_p'), "sso_t": request.args.get('sso_t')}))
+            logger.debug(SSOLoginURL)
             if PLUGINS['thirdLogin']['QQ']['ENABLE']:
-                return redirect(QQ_Login_Page_Url(PLUGINS['thirdLogin']['QQ']['APP_ID'], PLUGINS['thirdLogin']['QQ']['REDIRECT_URI']))
+                return redirect(QQ_Login_Page_Url(PLUGINS['thirdLogin']['QQ']['APP_ID'], SSOLoginURL))
             else:
                 return redirect(url_for("login"))
 

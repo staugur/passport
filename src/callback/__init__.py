@@ -11,6 +11,7 @@ from utils.tool import mysql, logger, How_Much_Time, Callback_Returned_To_Dict, 
 from SpliceURL import Splice
 from torndb import IntegrityError
 from config import PLUGINS
+from urllib import urlencode
 
 
 def QQ_Login_Page_State(code, QQ_APP_ID, QQ_APP_KEY, QQ_REDIRECT_URI, timeout=5, verify=False):
@@ -179,7 +180,9 @@ class QQ_Callback_Page(Resource):
         if g.signin:
             return redirect(url_for("uc"))
         elif code:
-            data = QQ_Login_Page_State(code, PLUGINS['thirdLogin']['QQ']['APP_ID'], PLUGINS['thirdLogin']['QQ']['APP_KEY'], PLUGINS['thirdLogin']['QQ']['REDIRECT_URI'])
+            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['QQ']['REDIRECT_URI'], urlencode({"sso": request.args.get('sso'), "sso_r": request.args.get('sso_r') + "/sso/", "sso_p": request.args.get('sso_p'), "sso_t": request.args.get('sso_t')}))
+            logger.debug(SSOLoginURL)
+            data = QQ_Login_Page_State(code, PLUGINS['thirdLogin']['QQ']['APP_ID'], PLUGINS['thirdLogin']['QQ']['APP_KEY'], SSOLoginURL)
             if data:
                 username    = data.get("username")
                 expires_in  = int(data.get("expires_in"))
