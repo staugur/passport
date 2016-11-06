@@ -16,7 +16,7 @@ GLOBAL={
     "LogLevel": os.getenv("passport_loglevel", "DEBUG"),
     #应用程序写日志级别，目前有DEBUG，INFO，WARNING，ERROR，CRITICAL
 
-    "ACL": ("Team.Front", "Team.Api", "Interest.blog", "passport.client", "Open"),
+    "ACL": ("Team.Front", "Api", "Interest.blog", "passport.client", "Open"),
     #Access Control List, 访问控制列表, 限定只有ACL定义中的应用可以访问某些资源。
 
 }
@@ -72,7 +72,7 @@ PLUGINS = {
             "REDIRECT_URI": "https://passport.saintic.com/callback/qq/"
         },
         "GITHUB": {
-            "ENABLE": True,
+            "ENABLE": False,
             "APP_ID": '32d6eea53343476e62ac',
             "APP_KEY": "847b038ae547c41d0ba07f9641bef74309870224",
             "REDIRECT_URI": "https://passport.saintic.com/callback/github/"
