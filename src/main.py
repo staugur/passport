@@ -56,6 +56,7 @@ def index():
 @app.route("/ucenter/")
 def uc():
     if g.signin:
+        #return redirect("https://www.saintic.com/home/")
         sql = "SELECT cname, email, avatar, motto, weibo, github, url, time, gender, extra FROM User WHERE username=%s"
         data= mysql.get(sql, g.username)
         return render_template("home.html", data=data)
