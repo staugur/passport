@@ -3,7 +3,7 @@
 # The SSO Api
 #
 
-from flask import Blueprint, request, jsonify, make_response
+from flask import Blueprint, request, jsonify, make_response, g, redirect, url_for
 from flask_restful import Api, Resource
 from utils.tool import logger, isLogged_in
 
@@ -18,6 +18,7 @@ class SSO_Api(Resource):
         return {"success": signin}
 
     def delete(self):
+        logger.info("SSO Cookies1: %s, %s" %(g.credential, g.signin))
         username  = request.form.get("username", "")
         sessionId = request.form.get("sessionId", "")
         expires   = request.form.get("time", "")
@@ -25,6 +26,7 @@ class SSO_Api(Resource):
         logger.info("DELETE SSO %s" %signin)
         if signin:
             resp = make_response(jsonify(success=True))
+            resp = make_response(redirect(url_for("logout")))
             resp.set_cookie(key='logged_in', value='no', expires=None)
             resp.set_cookie(key='username',  value='', expires=0)
             resp.set_cookie(key='sessionId',  value='', expires=0)
@@ -32,6 +34,7 @@ class SSO_Api(Resource):
             resp.set_cookie(key='time',  value='', expires=0)
         else:
             resp = make_response(jsonify(success=False))
+        logger.info("SSO Cookies2: %s, %s" %(g.credential, g.signin))
         return resp
 
 sso_blueprint = Blueprint(__name__, __name__)
