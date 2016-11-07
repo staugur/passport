@@ -59,7 +59,7 @@ def Callback_Returned_To_Dict(x):
 def make_signed_cookie(username, flag, seconds=0, minutes=0, hours=0):
     '''
       ::param: username, global in g.
-      ::param: flag, it's password(local auth) or openid(qq auth) or userid(weibo auth).
+      ::param: flag, it's password(local auth) or openid(qq auth) or userid(weibo,github auth).
       ::param: seconds, minutes, hours, it's a day time, such as 2016-10-16.
     '''
     expires = How_Much_Time(seconds=seconds, minutes=minutes, hours=hours)
@@ -71,24 +71,21 @@ def parse_signed_cookie(cookie_str, flag):
     logger.info("parse signed cookie is %s, pivotal flag is %s" %(cookie_str, flag))
     try:
         L = cookie_str.split('.')
-        logger.debug(L)
 
         if len(L) != 3:
             return None
 
         username, expires, md5str = L
         if expires < How_Much_Time():
-            logger.debug(expires)
             return None
 
         if not username:
-            logger.debug(username)
             return None
 
         t = '%s-%s-%s-%s' %(username, flag, expires, "COOKIE_KEY")
         s = md5(t).upper()
-        logger.debug(t)
-        logger.debug(s)
+        #logger.debug(t)
+        #logger.debug(s)
         if md5str == s:
             return True
 

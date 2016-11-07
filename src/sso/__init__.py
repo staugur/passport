@@ -13,6 +13,9 @@ class SSO_Api(Resource):
         username  = request.form.get("username", "")
         sessionId = request.form.get("sessionId", "")
         expires   = request.form.get("time", "")
+        logger.debug(g.username)
+        logger.debug(g.sessionId)
+        logger.debug(g.expires)
         signin    = isLogged_in('.'.join([ username, expires, sessionId ]))
         logger.info("CREATE SSO %s" %signin)
         return {"success": signin}
@@ -35,6 +38,16 @@ class SSO_Api(Resource):
         else:
             resp = make_response(jsonify(success=False))
         logger.info("SSO Cookies2: %s, %s" %(g.credential, g.signin))
+        return resp
+
+    def get(self):
+        nextUrl = request.args.get("nextUrl") or url_for('login')
+        resp = make_response(redirect(nextUrl))
+        resp.set_cookie(key='logged_in', value='no', expires=None)
+        resp.set_cookie(key='username',  value='', expires=0)
+        resp.set_cookie(key='sessionId',  value='', expires=0)
+        resp.set_cookie(key='Azone',  value='', expires=0)
+        resp.set_cookie(key='time',  value='', expires=0)
         return resp
 
 sso_blueprint = Blueprint(__name__, __name__)

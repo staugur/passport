@@ -118,7 +118,8 @@ def login():
 
 @app.route("/logout/")
 def logout():
-    resp = make_response(redirect(url_for('login')))
+    nextUrl = request.args.get("nextUrl") or url_for('login')
+    resp = make_response(redirect(nextUrl))
     resp.set_cookie(key='logged_in', value='no', expires=None)
     resp.set_cookie(key='username',  value='', expires=0)
     resp.set_cookie(key='sessionId',  value='', expires=0)
