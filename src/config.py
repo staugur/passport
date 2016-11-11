@@ -35,7 +35,7 @@ MODULES={
     "Authentication": {
         "type": "mysql",
 
-        "Host": "101.200.125.9",
+        "Host": "127.0.0.1",
 
         "Port": 3306,
 
@@ -43,7 +43,7 @@ MODULES={
 
         "Passwd": "123456",
 
-        "Database": "passport",
+        "Database": "saintic",
 
         "Charset": "utf8",
 
