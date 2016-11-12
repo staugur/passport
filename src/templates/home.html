@@ -45,7 +45,6 @@
 						    {% if data.get('weibo') %}<a href="{% if 'http' in data.get('weibo') %}{{ data.get('weibo') }}{% else %}{{ 'http://' + data.get('weibo') }}{% endif %}" target="_blank">Weibo</a>{% endif %}
 						    {% if data.get('github') %}<a href="{% if 'http' in data.get('github') %}{{ data.get('github') }}{% else %}{{ 'http://' + data.get('github') }}{% endif %}" target="_blank">GitHub</a>{% endif %}
 						</p>
-						<p>If you <a href="{{ url_for('logout') }}">quit</a>, we are sad.</p>
 					</div>
 
 				</section>
