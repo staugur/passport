@@ -71,6 +71,7 @@ def login():
     SSOToken    = request.args.get("sso_t")
     SSOTokenMD5 = md5("%s:%s" %(SSOProject, SSORedirect))
     logger.debug(request.args)
+    logger.debug("remember: %s" %request.form)
     logger.debug(SSOTokenMD5==SSOToken)
     if g.signin:
         if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and SSOTokenMD5 == SSOToken:
@@ -87,7 +88,7 @@ def login():
             password = request.form.get("password")
             remember = 30 if request.form.get("remember") in ("True", "true", True) else None
             if username and password and UserAuth_Login(username, password):
-                max_age_sec = 3600 * 24 * remember if remember else None
+                max_age_sec = 3600 * 24 * remember if remember else 1
                 expires     = How_Much_Time(max_age_sec)
                 expire_time = datetime.datetime.today() + datetime.timedelta(days=remember) if remember else None
                 sessionId   = md5('%s-%s-%s-%s' %(username, md5(password), expires, "COOKIE_KEY")).upper()
