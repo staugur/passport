@@ -5,3 +5,4 @@ tornado
 torndb
 MySQL-python
 requests
+SpliceURL>=1.2

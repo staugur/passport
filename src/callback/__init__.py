@@ -16,7 +16,7 @@ from urllib import urlencode
 
 def QQ_Login_Page_State(code, QQ_APP_ID, QQ_APP_KEY, QQ_REDIRECT_URI, timeout=5, verify=False):
     ''' Authorization Code cannot repeat '''
-    QQ_Access_Token_Url = Splice(scheme="https", domain="graph.qq.com", path="/oauth2.0/token", query={"grant_type": "authorization_code", "client_id": QQ_APP_ID, "client_secret": QQ_APP_KEY, "code": code, "state": "P.passport", "redirect_uri": QQ_REDIRECT_URI}).geturl
+    QQ_Access_Token_Url = Splice(scheme="https", netloc="graph.qq.com", path="/oauth2.0/token", query={"grant_type": "authorization_code", "client_id": QQ_APP_ID, "client_secret": QQ_APP_KEY, "code": code, "state": "P.passport", "redirect_uri": QQ_REDIRECT_URI}).geturl
     access_token_data = requests.get(QQ_Access_Token_Url, timeout=timeout, verify=verify).text
 
     try:
@@ -32,7 +32,7 @@ def QQ_Login_Page_State(code, QQ_APP_ID, QQ_APP_KEY, QQ_REDIRECT_URI, timeout=5,
         refresh_token = data.get("refresh_token")
 
         '''Update some required parameters for OAuth2.0 API calls'''
-        Update_Access_Token_Url = Splice(scheme="https", domain="graph.qq.com", path="/oauth2.0/token", query={"grant_type": "refresh_token", "client_id": QQ_APP_ID, "client_secret": QQ_APP_KEY, "refresh_token": refresh_token}).geturl
+        Update_Access_Token_Url = Splice(scheme="https", netloc="graph.qq.com", path="/oauth2.0/token", query={"grant_type": "refresh_token", "client_id": QQ_APP_ID, "client_secret": QQ_APP_KEY, "refresh_token": refresh_token}).geturl
         access_token_data = requests.get(Update_Access_Token_Url, timeout=timeout, verify=verify).text
 
         try:
@@ -47,12 +47,12 @@ def QQ_Login_Page_State(code, QQ_APP_ID, QQ_APP_KEY, QQ_REDIRECT_URI, timeout=5,
         else:
             return False
 
-        getId  = Splice(scheme="https", domain="graph.qq.com", path="/oauth2.0/me", query={"access_token": access_token}).geturl
+        getId  = Splice(scheme="https", netloc="graph.qq.com", path="/oauth2.0/me", query={"access_token": access_token}).geturl
         data   = Callback_Returned_To_Dict(requests.get(getId, timeout=timeout, verify=verify).text)
         logger.debug(data)
         openid = data.get("openid")
         if openid:
-            User_Info_Url = Splice(scheme="https", domain="graph.qq.com", path="/user/get_user_info", query={"access_token": access_token, "oauth_consumer_key": QQ_APP_ID, "openid": openid}).geturl
+            User_Info_Url = Splice(scheme="https", netloc="graph.qq.com", path="/user/get_user_info", query={"access_token": access_token, "oauth_consumer_key": QQ_APP_ID, "openid": openid}).geturl
             UserQzoneInfo = requests.get(User_Info_Url, timeout=timeout, verify=verify).json()
             username   = "QQ_" + openid[:9]
             user_extra = "%s %s" %(UserQzoneInfo.get("province"), UserQzoneInfo.get("city"))
@@ -87,13 +87,13 @@ def QQ_Login_Page_State(code, QQ_APP_ID, QQ_APP_KEY, QQ_REDIRECT_URI, timeout=5,
 
 def Weibo_Login_Page_State(code, WEIBO_APP_ID, WEIBO_APP_KEY, WEIBO_REDIRECT_URI, timeout=5, verify=False):
     ''' Authorization Code cannot repeat '''
-    Access_Token_Url = Splice(scheme="https", domain="api.weibo.com", path="/oauth2/access_token", query={"grant_type": "authorization_code", "client_id": WEIBO_APP_ID, "client_secret": WEIBO_APP_KEY, "code": code, "redirect_uri": WEIBO_REDIRECT_URI}).geturl
+    Access_Token_Url = Splice(scheme="https", netloc="api.weibo.com", path="/oauth2/access_token", query={"grant_type": "authorization_code", "client_id": WEIBO_APP_ID, "client_secret": WEIBO_APP_KEY, "code": code, "redirect_uri": WEIBO_REDIRECT_URI}).geturl
     data = requests.post(Access_Token_Url, timeout=timeout, verify=verify).json()
     if "access_token" in data:
         access_token  = data.get("access_token")
         expires_in    = data.get("expires_in")
         uid           = requests.get("https://api.weibo.com/2/account/get_uid.json?access_token=%s" %access_token, timeout=timeout, verify=verify).json().get("uid", data.get("uid"))
-        User_Info_Url = Splice(scheme="https", domain="api.weibo.com", path="/2/users/show.json", query={"access_token": access_token, "uid": uid}).geturl
+        User_Info_Url = Splice(scheme="https", netloc="api.weibo.com", path="/2/users/show.json", query={"access_token": access_token, "uid": uid}).geturl
         data          = requests.get(User_Info_Url, timeout=timeout, verify=verify).json()
         logger.debug(data)
         username      = "Weibo_" + access_token[4:13]
@@ -130,13 +130,13 @@ def Weibo_Login_Page_State(code, WEIBO_APP_ID, WEIBO_APP_KEY, WEIBO_REDIRECT_URI
 
 def GitHub_Login_Page_State(code, GITHUB_APP_ID, GITHUB_APP_KEY, GITHUB_REDIRECT_URI, timeout=5, verify=False):
     ''' Authorization Code cannot repeat '''
-    Access_Token_Url = Splice(scheme="https", domain="github.com", path="/login/oauth/access_token", query={"client_id": GITHUB_APP_ID, "client_secret": GITHUB_APP_KEY, "code": code, "redirect_uri": GITHUB_REDIRECT_URI}).geturl
+    Access_Token_Url = Splice(scheme="https", netloc="github.com", path="/login/oauth/access_token", query={"client_id": GITHUB_APP_ID, "client_secret": GITHUB_APP_KEY, "code": code, "redirect_uri": GITHUB_REDIRECT_URI}).geturl
     data = requests.post(Access_Token_Url, timeout=timeout, verify=verify).text
     data = Parse_Access_Token(data)
 
     if "access_token" in data:
         access_token  = data.get("access_token")
-        User_Info_Url = Splice(scheme="https", domain="api.github.com", path="/user", query={"access_token": access_token}).geturl
+        User_Info_Url = Splice(scheme="https", netloc="api.github.com", path="/user", query={"access_token": access_token}).geturl
         data          = requests.get(User_Info_Url, timeout=timeout, verify=verify).json()
         username      = "GitHub_" + data.get("login")
         user_id       = data.get("id")
