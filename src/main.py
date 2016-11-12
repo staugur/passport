@@ -88,12 +88,11 @@ def login():
             password = request.form.get("password")
             remember = 30 if request.form.get("remember") in ("True", "true", True) else None
             if username and password and UserAuth_Login(username, password):
-                max_age_sec = 3600 * 24 * remember if remember else 1
-                expires     = How_Much_Time(max_age_sec)
-                expire_time = datetime.datetime.today() + datetime.timedelta(days=remember) if remember else None
+                max_age_sec = 3600 * 24 * remember if remember else None
+                expires     = How_Much_Time(max_age_sec) if max_age_sec else 'None'
+                #expire_time = datetime.datetime.today() + datetime.timedelta(days=remember) if remember else None
                 sessionId   = md5('%s-%s-%s-%s' %(username, md5(password), expires, "COOKIE_KEY")).upper()
-                logger.debug("check user login successful, max_age_sec: %s, expire_time: %s, expires: %s" %(max_age_sec, expire_time, expires))
-                #No login on the passport, when the SSO request login success, passport is set to have logged in, return resp.
+                logger.debug("check user login successful, max_age_sec: %s, expires: %s" %(max_age_sec, expires))
                 if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and SSOTokenMD5 == SSOToken:
                     logger.info("RequestURL:%s, SSORequest:%s, SSOProject:%s, SSORedirect:%s" %(request.url, SSORequest, SSOProject, SSORedirect))
                     ticket    = '.'.join([ username, expires, sessionId ])
