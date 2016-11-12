@@ -144,10 +144,11 @@ def GitHub_Login_Page_State(code, GITHUB_APP_ID, GITHUB_APP_KEY, GITHUB_REDIRECT
         user_cname    = data.get("name")
         user_avater   = data.get("avatar_url")
         user_email    = data.get("email")
-        user_extra    = "blog:%s, company:%s, location:%s" %(data.get("blog"), data.get("company"), data.get("location"))
+        user_url      = data.get("blog")
+        user_extra    = "company:%s, location:%s" %(data.get("company"), data.get("location"))
         try:
-            UserSQL  = "INSERT INTO User (username, cname, email, avatar, time, github, extra) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-            mysql.insert(UserSQL, username, user_cname, user_email, user_avater, How_Much_Time(), user_github, user_extra)
+            UserSQL  = "INSERT INTO User (username, cname, email, avatar, time, url, github, extra) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+            mysql.insert(UserSQL, username, user_cname, user_email, user_avater, How_Much_Time(), user_url, user_github, user_extra)
             OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
             mysql.insert(OAuthSQL, username, "GitHub", user_id, access_token, How_Much_Time())
         except IntegrityError, e:
@@ -158,8 +159,8 @@ def GitHub_Login_Page_State(code, GITHUB_APP_ID, GITHUB_APP_KEY, GITHUB_REDIRECT
                 UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
                 mysql.update(UpdateSQL, access_token, How_Much_Time(), user_id, username)
                 #update user profile
-                UpdateUserSQL = "UPDATE User SET cname=%s, avatar=%s, extra=%s WHERE username=%s"
-                mysql.update(UpdateUserSQL, user_cname, user_avater, user_extra, username)
+                UpdateUserSQL = "UPDATE User SET cname=%s, avatar=%s, url=%s, extra=%s WHERE username=%s"
+                mysql.update(UpdateUserSQL, user_cname, user_avater, user_url, user_extra, username)
                 return {"username": username, "uid": user_id}
         except Exception,e:
             logger.error(e, exc_info=True)
