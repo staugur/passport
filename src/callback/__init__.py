@@ -175,6 +175,7 @@ def GitHub_Login_Page_State(code, GITHUB_APP_ID, GITHUB_APP_KEY, GITHUB_REDIRECT
 def Instagram_Login_Page_State(code, INSTAGRAM_APP_ID, INSTAGRAM_APP_KEY, INSTAGRAM_REDIRECT_URI, timeout=5, verify=False):
     ''' Authorization Code cannot repeat '''
     Access_Token_Url = Splice(scheme="https", netloc="api.instagram.com", path="/oauth/access_token", query={"client_id": INSTAGRAM_APP_ID, "client_secret": INSTAGRAM_APP_KEY, "code": code, "redirect_uri": INSTAGRAM_REDIRECT_URI, "grant_type": "authorization_code"}).geturl
+    logger.debug(Access_Token_Url)
     data = requests.post(Access_Token_Url, timeout=timeout, verify=verify).json()
 
     if "access_token" in data:
