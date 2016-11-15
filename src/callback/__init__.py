@@ -174,7 +174,7 @@ def GitHub_Login_Page_State(code, GITHUB_APP_ID, GITHUB_APP_KEY, GITHUB_REDIRECT
 
 def Instagram_Login_Page_State(code, INSTAGRAM_APP_ID, INSTAGRAM_APP_KEY, INSTAGRAM_REDIRECT_URI, timeout=5, verify=False):
     ''' Authorization Code cannot repeat '''
-    Access_Token_Url = Splice(scheme="https", netloc="api.instagram.com", path="/oauth/access_token", query={"client_id": INSTAGRAM_APP_ID, "client_secret": INSTAGRAM_APP_KEY, "code": code, "redirect_uri": INSTAGRAM_REDIRECT_URI}).geturl
+    Access_Token_Url = Splice(scheme="https", netloc="api.instagram.com", path="/oauth/access_token", query={"client_id": INSTAGRAM_APP_ID, "client_secret": INSTAGRAM_APP_KEY, "code": code, "redirect_uri": INSTAGRAM_REDIRECT_URI, "grant_type": "authorization_code"}).geturl
     data = requests.post(Access_Token_Url, timeout=timeout, verify=verify).json()
 
     if "access_token" in data:
@@ -254,8 +254,7 @@ class QQ_Callback_Page(Resource):
                 resp.set_cookie(key='Azone', value="QQ", max_age=expires_in)
                 resp.set_cookie(key='sessionId', value=sessionId, max_age=expires_in)
                 return resp
-        else:
-            return redirect(url_for("login"))
+        return redirect(url_for("login"))
 
 class Weibo_Callback_Page(Resource):
 
@@ -296,8 +295,7 @@ class Weibo_Callback_Page(Resource):
                 resp.set_cookie(key='Azone', value="Weibo", max_age=expires_in)
                 resp.set_cookie(key='sessionId', value=sessionId, max_age=expires_in)
                 return resp
-        else:
-            return redirect(url_for("login"))
+        return redirect(url_for("login"))
 
 class GitHub_Callback_Page(Resource):
 
@@ -338,8 +336,7 @@ class GitHub_Callback_Page(Resource):
                 resp.set_cookie(key='Azone', value="GitHub", max_age=expires_in)
                 resp.set_cookie(key='sessionId', value=sessionId, max_age=expires_in)
                 return resp
-        else:
-            return redirect(url_for("login"))
+        return redirect(url_for("login"))
 
 class Instagram_Callback_Page(Resource):
 
@@ -358,7 +355,7 @@ class Instagram_Callback_Page(Resource):
         elif code:
             SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['INSTAGRAM']['REDIRECT_URI'], urlencode({"sso": SSORequest, "sso_r": SSORedirect, "sso_p": SSOProject, "sso_t": SSOToken}))
             logger.debug(SSOLoginURL)
-            data = Instagram_Login_Page_State(code, PLUGINS['thirdLogin']['INSTAGRAM']['APP_ID'], PLUGINS['thirdLogin']['INSTAGRAM']['APP_KEY'],SSOLoginURL)
+            data = Instagram_Login_Page_State(code, PLUGINS['thirdLogin']['INSTAGRAM']['APP_ID'], PLUGINS['thirdLogin']['INSTAGRAM']['APP_KEY'], SSOLoginURL)
             if data:
                 username    = data.get("username")
                 expires_in  = 3600 * 24 * 30
@@ -380,8 +377,7 @@ class Instagram_Callback_Page(Resource):
                 resp.set_cookie(key='Azone', value="Instagram", max_age=expires_in)
                 resp.set_cookie(key='sessionId', value=sessionId, max_age=expires_in)
                 return resp
-        else:
-            return redirect(url_for("login"))
+        return redirect(url_for("login"))
 
 callback_blueprint = Blueprint(__name__, __name__)
 callback_page = Api(callback_blueprint)
