@@ -25,7 +25,7 @@ def GitHub_Login_Page_Url(GITHUB_APP_ID, GITHUB_REDIRECT_URI):
 
 def Instagram_Login_Page_Url(INSTAGRAM_APP_ID, INSTAGRAM_REDIRECT_URI):
     ''' Redirect GitHub Landing Page URL '''
-    return Splice(scheme="https", netloc="api.instagram.com", path="/oauth/authorize/", query={"client_id": INSTAGRAM_APP_ID, "redirect_uri": INSTAGRAM_REDIRECT_URI}).geturl
+    return Splice(scheme="https", netloc="api.instagram.com", path="/oauth/authorize/", query={"client_id": INSTAGRAM_APP_ID, "redirect_uri": INSTAGRAM_REDIRECT_URI, "response_type": "code"}).geturl
 
 class QQ_Login_Page(Resource):
 
