@@ -29,6 +29,9 @@
                     {% if enable_github %}
                         <abbr title="使用GitHub账号登录"><a class="github" href="{{ url_for('plugins.thirdLogin.github', sso=request.args.get('sso'), sso_p=request.args.get('sso_p'), sso_r=request.args.get('sso_r'), sso_t=request.args.get('sso_t')) }}"></a></abbr>
                     {% endif %}
+                    {% if enable_instagram %}
+                        <abbr title="使用Instagram账号登录"><a class="instagram" href="{{ url_for('plugins.thirdLogin.instagram', sso=request.args.get('sso'), sso_p=request.args.get('sso_p'), sso_r=request.args.get('sso_r'), sso_t=request.args.get('sso_t')) }}"></a></abbr>
+                    {% endif %}
                 </p>
             </div>
         </form>
