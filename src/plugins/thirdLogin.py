@@ -23,6 +23,10 @@ def GitHub_Login_Page_Url(GITHUB_APP_ID, GITHUB_REDIRECT_URI):
     ''' Redirect GitHub Landing Page URL '''
     return Splice(scheme="https", netloc="github.com", path="/login/oauth/authorize", query={"client_id": GITHUB_APP_ID, "redirect_uri": GITHUB_REDIRECT_URI}).geturl
 
+def Instagram_Login_Page_Url(INSTAGRAM_APP_ID, INSTAGRAM_REDIRECT_URI):
+    ''' Redirect GitHub Landing Page URL '''
+    return Splice(scheme="https", netloc="api.instagram.com", path="/oauth/authorize/", query={"client_id": INSTAGRAM_APP_ID, "redirect_uri": INSTAGRAM_REDIRECT_URI}).geturl
+
 class QQ_Login_Page(Resource):
 
     def get(self):
@@ -65,9 +69,23 @@ class GitHub_Login_Page(Resource):
             else:
                 return redirect(url_for("login"))
 
+class Instagram_Login_Page(Resource):
+
+    def get(self):
+
+        if g.signin:
+            return redirect(url_for("uc"))
+        else:
+            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['INSTAGRAM']['REDIRECT_URI'], urlencode({"sso": request.args.get('sso'), "sso_r": request.args.get('sso_r'), "sso_p": request.args.get('sso_p'), "sso_t": request.args.get('sso_t')}))
+            logger.debug(SSOLoginURL)
+            if PLUGINS['thirdLogin']['INSTAGRAM']['ENABLE']:
+                return redirect(Instagram_Login_Page_Url(PLUGINS['thirdLogin']['INSTAGRAM']['APP_ID'], SSOLoginURL))
+            else:
+                return redirect(url_for("login"))
 
 login_blueprint = Blueprint(__name__, __name__)
 login_page = Api(login_blueprint)
 login_page.add_resource(QQ_Login_Page, '/qq', '/qq/', endpoint='qq')
 login_page.add_resource(Weibo_Login_Page, '/weibo', '/weibo/', endpoint='weibo')
 login_page.add_resource(GitHub_Login_Page, '/github', '/github/', endpoint='github')
+login_page.add_resource(Instagram_Login_Page, '/instagram', '/instagram/', endpoint='instagram')
