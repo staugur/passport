@@ -174,15 +174,19 @@ def GitHub_Login_Page_State(code, GITHUB_APP_ID, GITHUB_APP_KEY, GITHUB_REDIRECT
 
 def Instagram_Login_Page_State(code, INSTAGRAM_APP_ID, INSTAGRAM_APP_KEY, INSTAGRAM_REDIRECT_URI, timeout=5, verify=False):
     ''' Authorization Code cannot repeat '''
+    proxies = {
+        "http": "http://101.200.125.9:7071",
+        "https": "http://101.200.125.9:707",
+    }
     Access_Token_Url = Splice(scheme="https", netloc="api.instagram.com", path="/oauth/access_token", query={"client_id": INSTAGRAM_APP_ID, "client_secret": INSTAGRAM_APP_KEY, "code": code, "redirect_uri": INSTAGRAM_REDIRECT_URI, "grant_type": "authorization_code"}).geturl
     logger.debug(Access_Token_Url)
-    data = requests.post(Access_Token_Url, timeout=timeout, verify=verify).json()
+    data = requests.post(Access_Token_Url, timeout=timeout, verify=verify, proxies=proxies).json()
 
     if "access_token" in data:
         access_token  = data.get("access_token")
-        data          = requests.get(User_Info_Url, timeout=timeout, verify=verify).json()
+        data          = requests.get(User_Info_Url, timeout=timeout, verify=verify, proxies=proxies).json()
         User_Info_Url = Splice(scheme="https", netloc="api.instagram.com", path="/v1/users/self/", query={"access_token": access_token}).geturl
-        data          = requests.get(User_Info_Url, timeout=timeout, verify=verify).json()
+        data          = requests.get(User_Info_Url, timeout=timeout, verify=verify, proxies=proxies).json()
         username      = "Instagram_" + data.get("username")
         user_id       = data.get("id")
         user_cname    = data.get("full_name")
