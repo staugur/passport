@@ -176,7 +176,7 @@ def Instagram_Login_Page_State(code, INSTAGRAM_APP_ID, INSTAGRAM_APP_KEY, INSTAG
     ''' Authorization Code cannot repeat '''
     proxies = {
         "http": "http://101.200.125.9:7071",
-        "https": "http://101.200.125.9:707",
+        "https": "http://101.200.125.9:7071",
     }
     Access_Token_Url = Splice(scheme="https", netloc="api.instagram.com", path="/oauth/access_token", query={"client_id": INSTAGRAM_APP_ID, "client_secret": INSTAGRAM_APP_KEY, "code": code, "redirect_uri": INSTAGRAM_REDIRECT_URI, "grant_type": "authorization_code"}).geturl
     logger.debug(Access_Token_Url)

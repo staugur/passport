@@ -35,7 +35,7 @@ MODULES={
     "Authentication": {
         "type": "mysql",
 
-        "Host": "127.0.0.1",
+        "Host": "101.200.125.9",
 
         "Port": 3306,
 
