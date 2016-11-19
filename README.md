@@ -29,8 +29,9 @@ MySQL-python     数据库模块
 ```
 1. Requirement:
     1.0 yum install -y gcc gcc-c++ python-devel libffi-devel openssl-devel mysql-devel
-    1.1 pip install -r requirements.txt
-    1.2 MySQL, 导入sql/passport.sql数据库文件
+    1.1 git clone https://github.com/staugur/passport
+    1.2 pip install -r requirements.txt
+    1.3 MySQL, 导入sql/passport.sql数据库文件
 
 2. modify config.py or add environment variables(os.getenv key in the reference configuration item):
     2.1 修改GLOBAL全局配置项(主要是端口、日志级别)
