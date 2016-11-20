@@ -35,7 +35,11 @@
 					</div>
 				</section>
 				<section class="center">
-					<p><img src="{{ data.get('avatar') or url_for('static', filename='img/avatar/admin.jpg') }}" class="img-circle" style="max-width: 100px; max-height: 100px" title="{{ data.get('cname') or 'Oh' }}"></p>
+				    {%- if "http" in data.get('avatar', '')  %}
+					<p><img src="{{ data.get('avatar') or url_for('static', filename='img/avatar/default.jpg') }}" class="img-circle" style="max-width: 100px; max-height: 100px" title="{{ data.get('cname') or 'Oh' }}"></p>
+					{% else %}
+					<p><img src="http://www.saintic.com{{ data.get('avatar') or url_for('static', filename='img/avatar/default.jpg') }}" class="img-circle" style="max-width: 100px; max-height: 100px" title="{{ data.get('cname') or 'Oh' }}"></p>
+					{% endif -%}
 					<div class="secondary-slogan">
 						{% if data.get('cname') %}<p><attr title="{% if data.get('gender') == '男' %}A handsome boy{% elif data.get('gender') == '女' %}A pretty girl{% else %}{% endif %} Joined on {{ data.get('time') }}">{{ data.get('cname') }}</attr></p>{% endif %}
 						{% if data.get('motto') %}<p>{{ data.get('motto') }}</p>{% endif %}
