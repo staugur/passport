@@ -44,7 +44,6 @@ def How_Much_Time(seconds=0, minutes=0, hours=0):
 
 def Date2Seconds(date):
     """ 将Y-m-d后的时间转化为s(当前时间多少秒)  """
-    import time
     d = datetime.datetime.strptime(date,"%Y-%m-%d")
     return time.mktime(d.timetuple()) - time.time()
 
