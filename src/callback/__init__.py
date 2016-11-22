@@ -115,8 +115,12 @@ def Weibo_Login_Page_State(code, WEIBO_APP_ID, WEIBO_APP_KEY, WEIBO_REDIRECT_URI
                 UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
                 mysql.update(UpdateSQL, access_token, How_Much_Time(seconds=int(expires_in)), uid, username)
                 #update user profile
-                UpdateUserSQL = "UPDATE User SET cname=%s, avatar=%s, weibo=%s, gender=%s, extra=%s WHERE username=%s"
-                mysql.update(UpdateUserSQL, user_cname, user_avater, user_weibo, user_gender, user_extra, username)
+                if "http://" in user_avater or "https://" in user_avater:
+                    UpdateUserSQL = "UPDATE User SET cname=%s, avatar=%s, weibo=%s, gender=%s, extra=%s WHERE username=%s"
+                    mysql.update(UpdateUserSQL, user_cname, user_avater, user_weibo, user_gender, user_extra, username)
+                else:
+                    UpdateUserSQL = "UPDATE User SET cname=%s, weibo=%s, gender=%s, extra=%s WHERE username=%s"
+                    mysql.update(UpdateUserSQL, user_cname, user_weibo, user_gender, user_extra, username)
                 return {"username": username, "expires_in": expires_in, "uid": uid}
         except Exception,e:
             logger.error(e, exc_info=True)
@@ -159,8 +163,12 @@ def GitHub_Login_Page_State(code, GITHUB_APP_ID, GITHUB_APP_KEY, GITHUB_REDIRECT
                 UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
                 mysql.update(UpdateSQL, access_token, How_Much_Time(), user_id, username)
                 #update user profile
-                UpdateUserSQL = "UPDATE User SET cname=%s, avatar=%s, url=%s, extra=%s WHERE username=%s"
-                mysql.update(UpdateUserSQL, user_cname, user_avater, user_url, user_extra, username)
+                if "http://" in user_avater or "https://" in user_avater:
+                    UpdateUserSQL = "UPDATE User SET cname=%s, avatar=%s, url=%s, extra=%s WHERE username=%s"
+                    mysql.update(UpdateUserSQL, user_cname, user_avater, user_url, user_extra, username)
+                else:
+                    UpdateUserSQL = "UPDATE User SET cname=%s, url=%s, extra=%s WHERE username=%s"
+                    mysql.update(UpdateUserSQL, user_cname, user_url, user_extra, username)
                 return {"username": username, "uid": user_id}
         except Exception,e:
             logger.error(e, exc_info=True)
@@ -207,8 +215,12 @@ def Instagram_Login_Page_State(code, INSTAGRAM_APP_ID, INSTAGRAM_APP_KEY, INSTAG
                 UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
                 mysql.update(UpdateSQL, access_token, How_Much_Time(), user_id, username)
                 #update user profile
-                UpdateUserSQL = "UPDATE User SET cname=%s, avatar=%s, url=%s, motto=%s, extra=%s WHERE username=%s"
-                mysql.update(UpdateUserSQL, user_cname, user_avater, user_url, user_motto, user_extra, username)
+                if "http://" in user_avater or "https://" in user_avater:
+                    UpdateUserSQL = "UPDATE User SET cname=%s, avatar=%s, url=%s, motto=%s, extra=%s WHERE username=%s"
+                    mysql.update(UpdateUserSQL, user_cname, user_avater, user_url, user_motto, user_extra, username)
+                else:
+                    UpdateUserSQL = "UPDATE User SET cname=%s, url=%s, motto=%s, extra=%s WHERE username=%s"
+                    mysql.update(UpdateUserSQL, user_cname, user_url, user_motto, user_extra, username)
                 return {"username": username, "uid": user_id}
         except Exception,e:
             logger.error(e, exc_info=True)
