@@ -32,7 +32,7 @@ PRODUCT={
 
 MODULES={
     #账号认证模块
-    "Authentication": os.getenv("passport_authentication"),
+    "Authentication": os.getenv("passport_authentication", "mysql://127.0.0.1:3306:root:passport:password"),
 
     #权限管理模块
     "Authority": None,
@@ -41,10 +41,7 @@ MODULES={
 
 PLUGINS = {
 
-    """
-    Third party social account login plug-in, allowing developers to enable some of the third party application login.
-    If disabled one, then the login page does not appear the corresponding third party login icon.
-    """
+    #Third party social account login plug-in, allowing developers to enable some of the third party application login.If disabled one, then the login page does not appear the corresponding third party login icon.
     "thirdLogin": {
         "WEIBO": {
             "ENABLE": True,
@@ -69,6 +66,6 @@ PLUGINS = {
             "APP_ID": '05602bf1f7e648b89d50ea30d02dc295',
             "APP_KEY": "bcea24fd61434f78b9b28479e3ddcc75",
             "REDIRECT_URI": "https://passport.saintic.com/callback/instagram/"
-        }
+        },
     },
 }
