@@ -10,7 +10,7 @@ ADD requirements.txt /tmp
 
 ADD misc/supervisord.conf /etc/
 
-RUN pip install -r /tmp/requirements.txt
+RUN pip install --timeout 30 -r /tmp/requirements.txt
 
 WORKDIR /$PROJECT
 

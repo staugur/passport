@@ -32,23 +32,7 @@ PRODUCT={
 
 MODULES={
     #账号认证模块
-    "Authentication": {
-        "type": "mysql",
-
-        "Host": "101.200.125.9",
-
-        "Port": 3306,
-
-        "User": "root",
-
-        "Passwd": "123456",
-
-        "Database": "saintic",
-
-        "Charset": "utf8",
-
-        "Timezone": "+8:00",
-    },
+    "Authentication": os.getenv("passport_authentication")
 
     #权限管理模块
     "Authority": None,
