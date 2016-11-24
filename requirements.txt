@@ -1,6 +1,6 @@
 Flask==0.10.1
 setproctitle
-gevent
+#gevent
 tornado
 torndb
 MySQL-python

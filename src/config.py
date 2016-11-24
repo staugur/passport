@@ -41,7 +41,10 @@ MODULES={
 
 PLUGINS = {
 
-    #Third party social account login plug-in, allowing developers to enable some of the third party application login, if disabled, then the login page does not appear the corresponding third party login icon.
+    """
+    Third party social account login plug-in, allowing developers to enable some of the third party application login.
+    If disabled one, then the login page does not appear the corresponding third party login icon.
+    """
     "thirdLogin": {
         "WEIBO": {
             "ENABLE": True,
