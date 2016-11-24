@@ -20,7 +20,7 @@ else:
     logger.info("The process is %s" % ProcessName)
 
 try:
-    msg = '%s has been launched, %s:%d' %(ProcessName, Host, Port)
+    msg = '%s has been launched, %s:%s' %(ProcessName, Host, Port)
     print(msg)
     logger.info(msg)
     if ProductType == 'gevent':
