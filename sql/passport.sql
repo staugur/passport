@@ -32,7 +32,7 @@ CREATE TABLE `blog` (
   `editor` varchar(255) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT 'wangEditor',
   PRIMARY KEY (`id`),
   KEY `id` (`id`,`create_time`,`tag`,`catalog`,`sources`,`author`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=135 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for clickLog
@@ -49,7 +49,7 @@ CREATE TABLE `clickLog` (
   `referer` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=57458 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Table structure for LAuth
@@ -83,7 +83,7 @@ CREATE TABLE `OAuth` (
   PRIMARY KEY (`id`,`oauth_username`),
   UNIQUE KEY `openid` (`oauth_openid`) USING BTREE,
   UNIQUE KEY `id` (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Table structure for User
@@ -105,7 +105,7 @@ CREATE TABLE `User` (
   `isAdmin` varchar(255) COLLATE utf8_unicode_ci DEFAULT 'false',
   PRIMARY KEY (`id`,`username`),
   UNIQUE KEY `username` (`username`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=164 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of User
