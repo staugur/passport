@@ -17,6 +17,10 @@ __org__     = 'SaintIC'
 __version__ = '1.0.2'
 
 app = Flask(__name__)
+#register url rule(Blueprint), if get the result, please use app.url_map
+app.register_blueprint(callback_blueprint, url_prefix="/callback")
+app.register_blueprint(login_blueprint, url_prefix="/login")
+app.register_blueprint(sso_blueprint)
 
 @app.before_request
 def before_request():
@@ -126,11 +130,6 @@ def logout():
     resp.set_cookie(key='Azone',  value='', expires=0)
     resp.set_cookie(key='time',  value='', expires=0)
     return resp
-
-#register url rule(Blueprint), if get the result, please use app.url_map
-app.register_blueprint(callback_blueprint, url_prefix="/callback")
-app.register_blueprint(login_blueprint, url_prefix="/login")
-app.register_blueprint(sso_blueprint)
 
 if __name__ == '__main__':
     Host  = GLOBAL.get('Host')
