@@ -32,7 +32,7 @@ PRODUCT={
 
 MODULES={
     #账号认证模块
-    "Authentication": os.getenv("passport_authentication", "mysql://127.0.0.1:3306:root:passport:password"),
+    "Authentication": os.getenv("passport_authentication", ""),
 
     #权限管理模块
     "Authority": None,
