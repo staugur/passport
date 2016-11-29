@@ -67,7 +67,7 @@ CREATE TABLE `LAuth` (
 -- ----------------------------
 -- Records of LAuth
 -- ----------------------------
-INSERT INTO `LAuth` VALUES ('1', 'admin', '8879168cbf8a9e11c296530803e93308');
+INSERT INTO `LAuth` VALUES ('1', 'admin', '21232f297a57a5a743894a0e4a801fc3');
 
 -- ----------------------------
 -- Table structure for OAuth
@@ -106,3 +106,8 @@ CREATE TABLE `User` (
   PRIMARY KEY (`id`,`username`),
   UNIQUE KEY `username` (`username`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+
+-- ----------------------------
+-- Records of User
+-- ----------------------------
+INSERT INTO `User` VALUES ('1', 'admin', 'staugur@saintic.com', '管理员', '/static/img/avatar/ImageUploads/201611222314195132.jpeg', '原谅我一生放荡不羁爱自由', 'http://www.saintic.com', '2016-10-14', 'http://weibo.com/staugur', 'https://github.com/staugur', '男', 'Administrator', 'true');
