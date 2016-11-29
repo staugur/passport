@@ -106,8 +106,3 @@ CREATE TABLE `User` (
   PRIMARY KEY (`id`,`username`),
   UNIQUE KEY `username` (`username`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
-
--- ----------------------------
--- Records of User
--- ----------------------------
-INSERT INTO `User` VALUES ('1', 'admin', 'staugur@saintic.com', '管理员', '/static/img/avatar/admin.jpg', '原谅我一生放荡不羁爱自由', 'http://www.saintic.com', '2016-10-14', 'http://weibo.com/staugur', 'https://github.com/staugur', '男', 'Administrator', 'false');
