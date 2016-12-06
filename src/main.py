@@ -51,7 +51,9 @@ def after_request(response):
 
 @app.errorhandler(404)
 def page_not_found(e):
-    return render_template("404.html"), 404
+    return """<h1> 404 Not Found Page!</h1>
+    <p>I am sorry to inform you that I have not found this page in our system. Please return to the <a href="%s">home page.</a></p>
+    """ % url_for("index"), 404
 
 @app.route("/")
 def index():
@@ -60,10 +62,8 @@ def index():
 @app.route("/ucenter/")
 def uc():
     if g.signin:
-        return redirect("https://www.saintic.com/home/")
-        sql = "SELECT cname, email, avatar, motto, weibo, github, url, time, gender, extra FROM User WHERE username=%s"
-        data= mysql.get(sql, g.username)
-        return render_template("home.html", data=data)
+        #return redirect("https://www.saintic.com/home/")
+        return "SaintIC User Center"
     else:
         return redirect(url_for("login"))
 
@@ -86,7 +86,7 @@ def login():
             return redirect(url_for("uc"))
     else:
         if request.method == "GET":
-            return render_template("login.html", enable_qq=PLUGINS['thirdLogin']['QQ']['ENABLE'], enable_weibo=PLUGINS['thirdLogin']['WEIBO']['ENABLE'], enable_github=PLUGINS['thirdLogin']['GITHUB']['ENABLE'], enable_instagram=PLUGINS['thirdLogin']['INSTAGRAM']['ENABLE'])
+            return render_template("signin.html", enable_qq=PLUGINS['thirdLogin']['QQ']['ENABLE'], enable_weibo=PLUGINS['thirdLogin']['WEIBO']['ENABLE'], enable_github=PLUGINS['thirdLogin']['GITHUB']['ENABLE'], enable_instagram=PLUGINS['thirdLogin']['INSTAGRAM']['ENABLE'])
         else:
             username = request.form.get("username")
             password = request.form.get("password")

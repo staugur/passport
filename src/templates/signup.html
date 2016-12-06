@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block form %}
+            <h3>SaintIC Passport Sign Up</h3>
+            <form action="" method="get">
+                <input name="" type="text" class="kuang_txt phone" placeholder="手机号">
+                <input name="" type="text" class="kuang_txt email" placeholder="邮箱">
+                <input name="" type="text" class="kuang_txt possword" placeholder="密码">
+                <input name="" type="text" class="kuang_txt possword" placeholder="邀请码">
+                <input name="" type="text" class="kuang_txt yanzm" placeholder="验证码">
+                <div>
+                    <div class="hui_kuang"><img src="images/zc_22.jpg" width="92" height="31"></div>
+                    <div class="shuaxin"><a href="#"><img src="images/zc_25.jpg" width="13" height="14"></a></div>
+                </div>
+                <div>
+                    <input name="" type="checkbox" value=""><span>已阅读并同意<a href="#" target="_blank"><span class="lan">《XXXXX使用协议》</span></a></span>
+                </div>
+                <input name="注册" type="button" class="btn_zhuce" value="注册">
+            </form>
+{% endblock %}
+
+{% block third %}
+                <p>已有账号？<a href="#">立即登录</a></p>
+{% endblock %}
