@@ -62,7 +62,7 @@ def index():
 @app.route("/ucenter/")
 def uc():
     if g.signin:
-        #return redirect("https://www.saintic.com/home/")
+        return redirect("https://www.saintic.com/home/")
         return "SaintIC User Center"
     else:
         return redirect(url_for("login"))
