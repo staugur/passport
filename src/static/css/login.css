@@ -43,6 +43,11 @@ a[href^="http://tongji.baidu.com"]{display: none;}
 
 /*注册页面*/
 .login_bj{ background:url(/static/img/login/bj_zhuce.jpg) no-repeat top center;}
+@media only screen and (max-width: 767px) {
+  .login_bj {
+    background-image: url(/static/img/login/bj_zhuce_mobile.jpg) no-repeat top center;
+  }
+}
 .zhuce_body{ float:left; width:100%; height:auto;}
 .zhuce_body .logo{ width:114px; height:54px; margin:53px 0 0 65px;}
 .zhuce_body .zhuce_kong{ position:absolute; top:50%; left:50%; width:600px; height:478px; margin-left:-300px; margin-top:-239px;}
