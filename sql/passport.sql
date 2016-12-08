@@ -110,4 +110,4 @@ CREATE TABLE `User` (
 -- ----------------------------
 -- Records of User
 -- ----------------------------
-INSERT INTO `User` VALUES ('1', 'admin', 'staugur@saintic.com', '管理员', '/static/img/avatar/ImageUploads/201611222314195132.jpeg', '原谅我一生放荡不羁爱自由', 'http://www.saintic.com', '2016-10-14', 'http://weibo.com/staugur', 'https://github.com/staugur', '男', 'Administrator', 'true');
+INSERT INTO `User` VALUES ('1', 'admin', 'staugur@saintic.com', '管理员', '', '原谅我一生放荡不羁爱自由', 'http://www.saintic.com', '2016-10-14', 'http://weibo.com/staugur', 'https://github.com/staugur', '男', 'Administrator', 'true');

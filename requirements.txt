@@ -1,8 +1,10 @@
 Flask==0.10.1
 Flask-restful
 setproctitle
-#gevent
+gevent
 tornado
+#sh
+#uwsgi
 torndb
 MySQL-python
 requests

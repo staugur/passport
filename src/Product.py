@@ -36,6 +36,22 @@ try:
         http_server.listen(Port)
         IOLoop.instance().start()
 
+    elif ProductType == "uwsgi":
+        try:
+            import os
+            from sh import uwsgi
+            from multiprocessing import cpu_count
+            BASE_DIR= os.path.dirname(os.path.abspath(__file__))
+            logfile = os.path.join(BASE_DIR, 'logs', 'uwsgi.log')
+            if os.path.exists('uwsgi.ini'):
+                uwsgi("--ini", "uwsgi.ini")
+            else:
+                uwsgi("--http", "%s:%d"%(Host,Port), "--wsgi-file", "main.py", "--callable", "app", "--procname-master", ProcessName + ".master", "-p", cpu_count(), "--procname", ProcessName + ".worker", "--threads", cpu_count(), "--chdir", BASE_DIR, "-d", logfile, "-M")
+        except ImportError:
+            errmsg=r"Start Fail, maybe you did not install the `sh` module."
+            logger.error(errmsg)
+            raise ImportError(errmsg)
+
     else:
         msg = 'Start the program does not support with %s, abnormal exit!' %ProductType
         logger.error(msg)
