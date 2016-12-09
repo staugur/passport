@@ -26,7 +26,7 @@ PRODUCT={
     "ProcessName": "Passport",
     #Custom process, you can see it with "ps aux|grep ProcessName".
 
-    "ProductType": "tornado",
+    "ProductType": os.getenv("passport_producttype", "tornado"),
     #生产环境启动方法，可选`gevent`, `tornado`, `uwsgi`。
 }
 

@@ -3,9 +3,9 @@ Flask-restful
 setproctitle
 gevent
 tornado
-#sh
-#uwsgi
 torndb
 MySQL-python
 requests
 SpliceURL>=1.2
+sh
+uwsgi
