@@ -1,0 +1,9 @@
+Flask==0.10.1
+Flask-restful
+setproctitle
+#gevent
+tornado
+torndb
+MySQL-python
+requests
+SpliceURL>=1.2

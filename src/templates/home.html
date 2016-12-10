@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<!--[if IE 7 ]><html class="ie ie7 lte9 lte8 lte7" lang="en-US"><![endif]-->
+<!--[if IE 8]><html class="ie ie8 lte9 lte8" lang="en-US">	<![endif]-->
+<!--[if IE 9]><html class="ie ie9 lte9" lang="en-US"><![endif]-->
+<!--[if (gt IE 9)|!(IE)]><!-->
+<html class="noIE" lang="en-US">
+<!--<![endif]-->
+	<head>
+		<title>SaintIC Passport User Center</title>
+
+		<!-- meta -->
+		<meta http-equiv="X-UA-Compatible" content="IE=edge">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+		<meta name="viewport" content="width=device-width, initial-scale = 1.0, maximum-scale=1.0, user-scalable=no"/>
+   
+		<!-- css -->
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/bootstrap.min.css') }}">
+		<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}" media="screen"/>
+		<link href="{{ url_for('static', filename='img/public/favicon.ico') }}" rel="icon" type="image/x-icon" />
+        <link href="{{ url_for('static', filename='img/public/favicon.ico') }}" rel="shortcut icon" type="image/x-icon" />
+ 
+	</head>
+	
+	<body>
+
+		<div id="wrapper">
+			
+			<div id="header" class="content-block">
+				<section class="top clearfix">
+					<div class="pull-left">
+						<h1><a class="logo" href="{{ url_for('uc') }}">SaintIC User Center</a></h1>
+					</div>
+					<div class="pull-right">
+						<a class="toggleDrawer" href="#"><i class="fa fa-bars fa-2x"></i></a>
+					</div>
+				</section>
+				<section class="center">
+				    {%- if "http" in data.get('avatar', '')  %}
+					<p><img src="{{ data.get('avatar') or url_for('static', filename='img/avatar/default.jpg') }}" class="img-circle" style="max-width: 100px; max-height: 100px" title="{{ data.get('cname') or 'Oh' }}"></p>
+					{% else %}
+					<p><img src="http://www.saintic.com{{ data.get('avatar') or url_for('static', filename='img/avatar/default.jpg') }}" class="img-circle" style="max-width: 100px; max-height: 100px" title="{{ data.get('cname') or 'Oh' }}"></p>
+					{% endif -%}
+					<div class="secondary-slogan">
+						{% if data.get('cname') %}<p><attr title="{% if data.get('gender') == '男' %}A handsome boy{% elif data.get('gender') == '女' %}A pretty girl{% else %}{% endif %} Joined on {{ data.get('time') }}">{{ data.get('cname') }}</attr></p>{% endif %}
+						{% if data.get('motto') %}<p>{{ data.get('motto') }}</p>{% endif %}
+						<p>
+						    {% if data.get('url') %}<a href="{{ data.get('url') }}" target="_blank">My</a>{% endif %}
+						    {% if data.get('email') %}<a href="mailto:{{ data.get('email') }}">Email</a>{% endif %}
+						    {% if data.get('weibo') %}<a href="{% if 'http' in data.get('weibo') %}{{ data.get('weibo') }}{% else %}{{ 'http://' + data.get('weibo') }}{% endif %}" target="_blank">Weibo</a>{% endif %}
+						    {% if data.get('github') %}<a href="{% if 'http' in data.get('github') %}{{ data.get('github') }}{% else %}{{ 'http://' + data.get('github') }}{% endif %}" target="_blank">GitHub</a>{% endif %}
+						</p>
+					</div>
+
+				</section>
+				<section class="bottom">
+						<i>Copyright &copy; 2016 - 2016 SaintIC Team. All rights reserved. Originate by <a href="https://github.com/staugur/passport/" target="_blank">GitHub</a>.</i>
+				</section>
+
+			</div><!-- header -->
+
+		</div><!--/#wrapper-->
+
+		<script src="{{ url_for('static', filename='js/jquery-2.1.3.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/jquery.actual.min.js') }}"></script>
+		<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+
+	</body>
+</html>
