@@ -46,7 +46,7 @@ try:
             if os.path.exists('uwsgi.ini'):
                 uwsgi("--ini", "uwsgi.ini")
             else:
-                uwsgi("--http", "%s:%s"%(Host,Port), "--wsgi-file", "main.py", "--callable", "app", "--procname-master", ProcessName + ".master", "--procname", ProcessName + ".worker", "--workers", cpu_count(), "--chdir", BASE_DIR, "-d", logfile, "-M")
+                uwsgi("--http", "%s:%s"%(Host,Port), "--wsgi-file", "main.py", "--callable", "app", "--procname-master", ProcessName + ".master", "--procname", ProcessName + ".worker", "--workers", cpu_count(), "--chdir", BASE_DIR, "-M")
         except ImportError:
             errmsg=r"Start Fail, maybe you did not install the `sh` module."
             logger.error(errmsg)
