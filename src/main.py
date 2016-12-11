@@ -2,10 +2,10 @@
 
 import json
 import datetime
-from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect
+from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
 from config import GLOBAL, PLUGINS
 from utils.tool import logger, gen_requestId, md5, mysql, isLogged_in, How_Much_Time
-from libs.AuthenticationManager import UserAuth_Login
+from libs.AuthenticationManager import UserAuth_Login, UserAuth_Registry
 from plugins.thirdLogin import login_blueprint
 from callback import callback_blueprint
 from sso import sso_blueprint
@@ -61,9 +61,6 @@ def index():
 def uc():
     if g.signin:
         return redirect("https://www.saintic.com/home/")
-        sql = "SELECT cname, email, avatar, motto, weibo, github, url, time, gender, extra FROM User WHERE username=%s"
-        data= mysql.get(sql, g.username)
-        return render_template("home.html", data=data)
     else:
         return redirect(url_for("login"))
 
@@ -86,7 +83,7 @@ def login():
             return redirect(url_for("uc"))
     else:
         if request.method == "GET":
-            return render_template("login.html", enable_qq=PLUGINS['thirdLogin']['QQ']['ENABLE'], enable_weibo=PLUGINS['thirdLogin']['WEIBO']['ENABLE'], enable_github=PLUGINS['thirdLogin']['GITHUB']['ENABLE'], enable_instagram=PLUGINS['thirdLogin']['INSTAGRAM']['ENABLE'])
+            return render_template("signin.html", enable_qq=PLUGINS['thirdLogin']['QQ']['ENABLE'], enable_weibo=PLUGINS['thirdLogin']['WEIBO']['ENABLE'], enable_github=PLUGINS['thirdLogin']['GITHUB']['ENABLE'], enable_instagram=PLUGINS['thirdLogin']['INSTAGRAM']['ENABLE'])
         else:
             username = request.form.get("username")
             password = request.form.get("password")
@@ -130,6 +127,17 @@ def logout():
     resp.set_cookie(key='Azone',  value='', expires=0)
     resp.set_cookie(key='time',  value='', expires=0)
     return resp
+
+@app.route("/SignUp/", methods=["POST", "GET"])
+def SignUp():
+    if request.method == "POST":
+        logger.debug(request.form)
+        res = UserAuth_Registry(request.form)
+        return jsonify(res=res)
+    if g.signin:
+        return url_for("uc")
+    else:
+        return render_template("signup.html")
 
 if __name__ == '__main__':
     Host  = GLOBAL.get('Host')

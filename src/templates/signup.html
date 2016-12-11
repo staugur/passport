@@ -1,0 +1,49 @@
+{% extends "base.html" %}
+{% block form %}
+        <form action="{{ url_for('SignUp') }}" onsubmit="return SignUp()" method="post">
+            <input type="text" id="username" name="username" placeholder="用户名" maxlength="30" required>
+            <input type="password" id="password" name="password" placeholder="输入密码" maxlength="30" required>
+            <input type="password" id="repasswd" name="repasswd" placeholder="确认密码" maxlength="30" onkeydown="keydown(event)" required>
+            <input type="email" id="email" name="email" placeholder="用户邮箱">
+            <input type="submit" class="btn btn-primary btn-block btn-large" id="signup" value="注册">
+        </form>
+<script type="text/javascript">  
+    function SignUp(){
+        var username=document.getElementById("username").value;
+        var password=document.getElementById("password").value;
+        var repasswd=document.getElementById("repasswd").value;
+        var email=document.getElementById("email").value;
+        var matchResult=true;
+        if(username==""||password==""||repasswd==""){
+            alert("请确认是否有空缺项！");
+            matchResult=false;
+        }else if(username.length<6||username.length>20){
+            alert("用户名长度应在6到20个字符之间！");
+            matchResult=false;
+        }else if(username==password||username==repasswd){
+            alert("密码不能和用户名相同！");
+            matchResult=false;
+        }else if(password.length<6||password.length>30||repasswd.length<6||repasswd.length>30){
+            alert("密码长度应在6到30个字符之间！");
+            matchResult=false;
+        }else if(password!=repasswd){
+            alert("密码和重复密码不同，请重新输入！");
+            matchResult=false;
+        }else if(email){
+            var mailreg = /^\w+@\w+(\.\w+)+$/;
+            if(!email.match(mailreg)){
+                alert("邮箱格式不正确");
+                matchResult=false;
+            }
+        }
+        if(matchResult==true){
+            if(username.charAt(0)>=0&&username.charAt(0)<=9){
+                alert("用户名不能以数字字符开始！");
+                matchResult=false;
+            }
+        }
+        return matchResult;
+    }
+</script>  
+
+{% endblock %}

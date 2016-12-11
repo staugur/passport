@@ -1,25 +1,13 @@
-<!DOCTYPE html>
-<html >
-<head>
-    <meta charset="UTF-8">
-    <title>SaintIC Passport Center</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <link href="{{ url_for('static', filename='img/public/favicon.ico') }}" rel="icon" type="image/x-icon" />
-    <link href="{{ url_for('static', filename='img/public/favicon.ico') }}" rel="shortcut icon" type="image/x-icon" />
-    <link href="{{ url_for('static', filename='css/login.css') }}" rel="stylesheet" type="text/css" media="all"/>
-</head>
-<body>
-
-    <div class="login">
-        <h1>SaintIC Passport</h1>
+{% extends "base.html" %}
+{% block form %}
         <form action="{{ url_for('login', sso=request.args.get('sso'), sso_p=request.args.get('sso_p'), sso_r=request.args.get('sso_r'), sso_t=request.args.get('sso_t')) }}" method="post">
             <p style="color:red; text-align: center; width: auto" id="login_error"></p>
-            <input type="text" id="username" name="username" placeholder="username" required>
-            <input type="password" id="password" name="password" placeholder="password" required>
+            <input type="text" id="username" name="username" placeholder="用户名" required>
+            <input type="password" id="password" name="password" placeholder="登录密码" required>
             <p>Remember me for 30 days<input style="width: auto" type="checkbox" id="remember" name="remember" value='true' checked></p>
             <input type="submit" class="btn btn-primary btn-block btn-large" value="登录">
             <div class="connect">
-                <p>第三方社会化账号快捷登录:<br/>
+                <scan>第三方社会化账号快捷登录:<br/>
                     {% if enable_qq %}
                         <abbr title="使用QQ账号登录"><a class="qq" href="{{ url_for('plugins.thirdLogin.qq', sso=request.args.get('sso'), sso_p=request.args.get('sso_p'), sso_r=request.args.get('sso_r'), sso_t=request.args.get('sso_t')) }}"></a></abbr>
                     {% endif %}
@@ -32,15 +20,7 @@
                     {% if enable_instagram %}
                         <abbr title="使用Instagram账号登录"><a class="instagram" href="{{ url_for('plugins.thirdLogin.instagram', sso=request.args.get('sso'), sso_p=request.args.get('sso_p'), sso_r=request.args.get('sso_r'), sso_t=request.args.get('sso_t')) }}"></a></abbr>
                     {% endif %}
-                </p>
+                </scan>
             </div>
         </form>
-        <div style="text-align:center;">
-            <a href="http://www.saintic.com/" target="_blank">SaintIC</a>&nbsp;
-            <a href="http://github.com/staugur/passport" target="_blank">GitHub</a>&nbsp;
-            <p>Copyright &copy; 2016 - 2016<br/> SaintIC Team. All rights reserved.</p>
-        </div>
-    </div>
-
-</body>
-</html>
+{% endblock %}

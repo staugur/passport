@@ -1,5 +1,7 @@
 # -*- coding:utf8 -*-
 
+import requests
+from config import GLOBAL
 from utils.tool import logger, mysql, md5
 
 def UserAuth_Login(username, password):
@@ -14,5 +16,12 @@ def UserAuth_Login(username, password):
         logger.info("%s Sign in failed" %username)
         return False
 
-def UserAuth_Registry(username, password):
-    return False
+def UserAuth_Registry(kw):
+    data = dict(
+        username = kw.get("username"),
+        password = kw.get("password"),
+        email    = kw.get("email")
+    )
+    logger.info(data)
+    res = requests.post(GLOBAL["ApiUrl"].strip("/") + "/user/?action=SignUp", data=data, timeout=5).json()
+    logger.info(res)
