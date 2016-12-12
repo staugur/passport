@@ -88,7 +88,6 @@ MySQL-python     数据库模块
 > 3. login 增加使用某类型账号登录提示
 > 4. update sql(gender)
 
-
 **v1.0.0**
 
 > 1. 基本SSO同步登录功能
@@ -97,3 +96,14 @@ MySQL-python     数据库模块
 > 1. ACL allow Interest.blog, Open
 > 2. 修复当本地登录失败时跳转没有携带query的问题
 > 3. QQ Weibo Github SSO同步完成
+
+**v1.0.2
+
+> 1. 修复SSO同步注销的一些问题
+> 2. 修复remember不选择时的None bug
+> 3. 更新了sql语句
+> 3. 第三方登录增加了instagram
+> 4. 调整当用户头像不为网络图片时，第三方登录不更新头像
+> 5. 增加uwsgi生产环境启动方式
+> 6. 删除了UC页，改为直接跳转到interest.blog个人中心页
+> 7. 增加用户注册功能

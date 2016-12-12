@@ -12,9 +12,9 @@ from sso import sso_blueprint
 
 __author__  = 'Mr.tao <staugur@saintic.com>'
 __doc__     = 'Unified authentication and single sign on system for SaintIC web applications.'
-__date__    = '2016-11-01'
+__date__    = '2016-12-12'
 __org__     = 'SaintIC'
-__version__ = '1.0.2'
+__version__ = '1.0.3'
 
 app = Flask(__name__)
 #register url rule(Blueprint), if get the result, please use app.url_map
