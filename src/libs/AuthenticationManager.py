@@ -22,6 +22,9 @@ def UserAuth_Registry(kw):
         password = kw.get("password"),
         email    = kw.get("email")
     )
-    logger.info(data)
     res = requests.post(GLOBAL["ApiUrl"].strip("/") + "/user/?action=SignUp", data=data, timeout=5).json()
     logger.info(res)
+    if res.get("code") == 0 and res.get("success") == True:
+        return True
+    else:
+        return False

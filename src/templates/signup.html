@@ -1,5 +1,6 @@
 {% extends "base.html" %}
 {% block form %}
+        <p style="color:red; text-align: center; width: auto">{% if request.args.get("errmsg") %}{{ request.args.get("errmsg") }}{% endif %}</p>
         <form action="{{ url_for('SignUp') }}" onsubmit="return SignUp()" method="post">
             <input type="text" id="username" name="username" placeholder="用户名" maxlength="30" required>
             <input type="password" id="password" name="password" placeholder="输入密码" maxlength="30" required>
@@ -46,4 +47,7 @@
     }
 </script>  
 
+{% endblock %}
+{% block footer %}
+            <a href="{{ url_for('login') }}">返回登录</a>&nbsp;
 {% endblock %}

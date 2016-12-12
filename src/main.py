@@ -60,7 +60,7 @@ def index():
 @app.route("/ucenter/")
 def uc():
     if g.signin:
-        return redirect("https://www.saintic.com/home/")
+        return redirect(GLOBAL["Interest.blog.Url"])
     else:
         return redirect(url_for("login"))
 
@@ -131,10 +131,14 @@ def logout():
 @app.route("/SignUp/", methods=["POST", "GET"])
 def SignUp():
     if request.method == "POST":
-        logger.debug(request.form)
         res = UserAuth_Registry(request.form)
-        return jsonify(res=res)
-    if g.signin:
+        if res:
+            logger.info("SignUp Successfully")
+            return redirect(url_for("login"))
+        else:
+            logger.warn("SignUp Failed")
+            return redirect(url_for("SignUp", errmsg="SignUp Fail"))
+    elif g.signin:
         return url_for("uc")
     else:
         return render_template("signup.html")

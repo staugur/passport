@@ -19,7 +19,9 @@ GLOBAL={
     "ACL": ("Team.Front", "Api", "Interest.blog", "passport.client", "Open", "Deployer", "fss"),
     #Access Control List, 访问控制列表, 限定只有ACL定义中的应用可以访问某些资源。
 
-    "ApiUrl": os.getenv("passport_ApiUrl", "")
+    "ApiUrl": os.getenv("passport_ApiUrl", ""),
+
+    "Interest.blog.Url": os.getenv("passport_interest_blog_url", "https://www.saintic.com/home/")
 }
 
 PRODUCT={
