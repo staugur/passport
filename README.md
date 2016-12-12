@@ -93,11 +93,12 @@ MySQL-python     数据库模块
 > 1. 基本SSO同步登录功能
 
 **v1.0.1**
+
 > 1. ACL allow Interest.blog, Open
 > 2. 修复当本地登录失败时跳转没有携带query的问题
 > 3. QQ Weibo Github SSO同步完成
 
-**v1.0.2
+**v1.0.2**
 
 > 1. 修复SSO同步注销的一些问题
 > 2. 修复remember不选择时的None bug
