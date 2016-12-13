@@ -83,7 +83,7 @@ def login():
             return redirect(url_for("uc"))
     else:
         if request.method == "GET":
-            return render_template("signin.html", enable_qq=PLUGINS['thirdLogin']['QQ']['ENABLE'], enable_weibo=PLUGINS['thirdLogin']['WEIBO']['ENABLE'], enable_github=PLUGINS['thirdLogin']['GITHUB']['ENABLE'], enable_instagram=PLUGINS['thirdLogin']['INSTAGRAM']['ENABLE'])
+            return render_template("signin.html", enable_qq=PLUGINS['thirdLogin']['QQ']['ENABLE'], enable_weibo=PLUGINS['thirdLogin']['WEIBO']['ENABLE'], enable_github=PLUGINS['thirdLogin']['GITHUB']['ENABLE'], enable_instagram=PLUGINS['thirdLogin']['INSTAGRAM']['ENABLE'], enable_oschina=PLUGINS['thirdLogin']['OSCHINA']['ENABLE'])
         else:
             username = request.form.get("username")
             password = request.form.get("password")

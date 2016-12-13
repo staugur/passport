@@ -13,6 +13,7 @@ from torndb import IntegrityError
 from config import PLUGINS, GLOBAL
 from urllib import urlencode
 
+headers = {"User-Agent": "Interest.blog(passport:v1)/www.saintic.com"}
 
 def QQ_Login_Page_State(code, QQ_APP_ID, QQ_APP_KEY, QQ_REDIRECT_URI, timeout=5, verify=False):
     ''' Authorization Code cannot repeat '''
@@ -175,8 +176,8 @@ def GitHub_Login_Page_State(code, GITHUB_APP_ID, GITHUB_APP_KEY, GITHUB_REDIRECT
 def Instagram_Login_Page_State(code, INSTAGRAM_APP_ID, INSTAGRAM_APP_KEY, INSTAGRAM_REDIRECT_URI, timeout=5, verify=False):
     ''' Authorization Code cannot repeat '''
     proxies = {
-        "http": "http://101.200.125.9:7071",
-        "https": "http://101.200.125.9:7071",
+        "http": "http://ip:port",
+        "https": "http://ip:port",
     }
     Access_Token_Url = Splice(scheme="https", netloc="api.instagram.com", path="/oauth/access_token", query={"client_id": INSTAGRAM_APP_ID, "client_secret": INSTAGRAM_APP_KEY, "code": code, "redirect_uri": INSTAGRAM_REDIRECT_URI, "grant_type": "authorization_code"}).geturl
     logger.debug(Access_Token_Url)
@@ -216,6 +217,50 @@ def Instagram_Login_Page_State(code, INSTAGRAM_APP_ID, INSTAGRAM_APP_KEY, INSTAG
         else:
             logger.info("insert into User and OAuth, %s" %username)
             return {"username": username, "uid": user_id}
+    else:
+        logger.error(data)
+        return False
+
+def OSChina_Login_Page_State(code, OSCHINA_APP_ID, OSCHINA_APP_KEY, OSCHINA_REDIRECT_URI, timeout=5, verify=False):
+    ''' Authorization Code cannot repeat '''
+    Access_Token_Url = Splice(scheme="https", netloc="www.oschina.net", path="/action/openapi/token", query={"grant_type": "authorization_code", "client_id": OSCHINA_APP_ID, "client_secret": OSCHINA_APP_KEY, "code": code, "redirect_uri": OSCHINA_REDIRECT_URI}).geturl
+    data = requests.post(Access_Token_Url, timeout=timeout, verify=verify, headers=headers).json()
+    if "access_token" in data:
+        access_token  = data.get("access_token")
+        refresh_token = data.get("refresh_token")
+        expires_in    = data.get("expires_in")
+        uid           = data.get("uid")
+        User_Info_Url = Splice(scheme="https", netloc="www.oschina.net/", path="/action/openapi/user", query={"access_token": access_token}).geturl
+        data          = requests.get(User_Info_Url, timeout=timeout, verify=verify, headers=headers).json()
+        logger.debug(data)
+        username      = "OSChina_" + access_token[4:13]
+        user_cname    = data.get("name")
+        user_avater   = data.get("avatar")
+        user_extra    = data.get("location")
+        user_gender   = u"男" if data.get("gender") == "male" else u"女"
+        user_url      = data.get("url")
+        try:
+            UserSQL  = "INSERT INTO User (username, cname, avatar, time, url, gender, extra) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            mysql.insert(UserSQL, username, user_cname, user_avater, How_Much_Time(), user_url, user_gender, user_extra)
+            OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
+            mysql.insert(OAuthSQL, username, "OSChina", uid, access_token, How_Much_Time(seconds=int(expires_in)))
+        except IntegrityError, e:
+            logger.debug(e, exc_info=True)
+            #Check if it has been registered
+            CheckSQL = "SELECT oauth_username FROM OAuth WHERE oauth_username=%s"
+            if mysql.get(CheckSQL, username):
+                UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
+                mysql.update(UpdateSQL, access_token, How_Much_Time(seconds=int(expires_in)), uid, username)
+                #update user profile
+                UpdateUserSQL = "UPDATE User SET cname=%s, url=%s, gender=%s, extra=%s WHERE username=%s"
+                mysql.update(UpdateUserSQL, user_cname, user_url, user_gender, user_extra, username)
+                return {"username": username, "expires_in": expires_in, "uid": uid}
+        except Exception,e:
+            logger.error(e, exc_info=True)
+            return False
+        else:
+            logger.info("insert into User and OAuth, %s" %username)
+            return {"username": username, "expires_in": expires_in, "uid": uid}
     else:
         logger.error(data)
         return False
@@ -384,9 +429,51 @@ class Instagram_Callback_Page(Resource):
                 return resp
         return redirect(url_for("login"))
 
+class OSChina_Callback_Page(Resource):
+
+    def get(self):
+
+        code = request.args.get("code")
+        SSORequest  = True if request.args.get("sso") in ("true", "True", True, "1", "on") else False
+        SSOProject  = request.args.get("sso_p")
+        SSORedirect = request.args.get("sso_r")
+        SSOToken    = request.args.get("sso_t")
+        SSOTokenMD5 = md5("%s:%s" %(SSOProject, SSORedirect))
+        logger.debug(request.args)
+        logger.debug(SSOTokenMD5==SSOToken)
+        if g.signin:
+            return redirect(url_for("uc"))
+        elif code:
+            SSOLoginURL = "%s?%s" %(PLUGINS['thirdLogin']['OSCHINA']['REDIRECT_URI'], urlencode({"sso": SSORequest, "sso_r": SSORedirect, "sso_p": SSOProject, "sso_t": SSOToken}))
+            logger.debug(SSOLoginURL)
+            data = OSChina_Login_Page_State(code, PLUGINS['thirdLogin']['OSCHINA']['APP_ID'], PLUGINS['thirdLogin']['OSCHINA']['APP_KEY'], SSOLoginURL)
+            if data:
+                username    = data.get("username")
+                expires_in  = int(data.get("expires_in"))
+                userid      = data.get("uid")
+                expire_time = How_Much_Time(seconds=expires_in) if expires_in else None
+                sessionId   = md5('%s-%s-%s-%s' %(username, userid, expire_time, "COOKIE_KEY")).upper()
+                if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and SSOTokenMD5 == SSOToken:
+                    logger.info("RequestURL:%s, SSORequest:%s, SSOProject:%s, SSORedirect:%s" %(request.url, SSORequest, SSOProject, SSORedirect))
+                    ticket    = '.'.join([ username, expire_time, sessionId ])
+                    returnURL = SSORedirect + "?ticket=" + ticket
+                    logger.info("SSO(%s) request project is in acl, will create a ticket, redirect to %s" %(SSOProject, returnURL))
+                    resp = make_response(redirect(returnURL))
+                else:
+                    logger.info("Not SSO Auth, to Weibo auth")
+                    resp = make_response(redirect(url_for("uc")))
+                resp.set_cookie(key='logged_in', value="yes", max_age=expires_in)
+                resp.set_cookie(key='username',  value=username, max_age=expires_in)
+                resp.set_cookie(key='time', value=expire_time, max_age=expires_in)
+                resp.set_cookie(key='Azone', value="OSChina", max_age=expires_in)
+                resp.set_cookie(key='sessionId', value=sessionId, max_age=expires_in)
+                return resp
+        return redirect(url_for("login"))
+
 callback_blueprint = Blueprint(__name__, __name__)
 callback_page = Api(callback_blueprint)
 callback_page.add_resource(QQ_Callback_Page, '/qq', '/qq/', endpoint='qq')
 callback_page.add_resource(Weibo_Callback_Page, '/weibo', '/weibo/', endpoint='weibo')
 callback_page.add_resource(GitHub_Callback_Page, '/github', '/github/', endpoint='github')
 callback_page.add_resource(Instagram_Callback_Page, '/instagram', '/instagram/', endpoint='instagram')
+callback_page.add_resource(OSChina_Callback_Page, '/oschina', '/oschina/', endpoint='oschina')

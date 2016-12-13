@@ -20,6 +20,9 @@
                     {% if enable_instagram %}
                         <abbr title="使用Instagram账号登录"><a class="instagram" href="{{ url_for('plugins.thirdLogin.instagram', sso=request.args.get('sso'), sso_p=request.args.get('sso_p'), sso_r=request.args.get('sso_r'), sso_t=request.args.get('sso_t')) }}"></a></abbr>
                     {% endif %}
+                    {% if enable_oschina %}
+                        <abbr title="使用OSChina账号登录"><a class="oschina" href="{{ url_for('plugins.thirdLogin.oschina', sso=request.args.get('sso'), sso_p=request.args.get('sso_p'), sso_r=request.args.get('sso_r'), sso_t=request.args.get('sso_t')) }}"></a></abbr>
+                    {% endif %}
                 </scan>
             </div>
         </form>

@@ -85,4 +85,5 @@ Login with third applications
 .connect a.fb { background: url(/static/img/public/Connect_facebook.png) center center no-repeat; }
 .connect a.github { background: url(/static/img/public/Connect_github.png) center center no-repeat; }
 .connect a.instagram { background: url(/static/img/public/Connect_instagram.png) center center no-repeat; }
+.connect a.oschina { background: url(/static/img/public/Connect_OSChina.png) center center no-repeat; }
 .connect a:hover { background-position: center bottom; }
