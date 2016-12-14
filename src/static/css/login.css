@@ -87,3 +87,17 @@ Login with third applications
 .connect a.instagram { background: url(/static/img/public/Connect_instagram.png) center center no-repeat; }
 .connect a.oschina { background: url(/static/img/public/Connect_OSChina.png) center center no-repeat; }
 .connect a:hover { background-position: center bottom; }
+
+.code {
+/*background-image: url(code.jpg);*/
+font-family: Arial;
+font-style: italic;
+color: Red;
+border: 0;
+padding: 2px 3px;
+letter-spacing: 3px;
+font-weight: bolder;
+}
+.unchanged {
+border: 0;
+}

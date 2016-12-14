@@ -4,11 +4,45 @@
         <form action="{{ url_for('SignUp') }}" onsubmit="return SignUp()" method="post">
             <input type="text" id="username" name="username" placeholder="用户名" maxlength="30" required>
             <input type="password" id="password" name="password" placeholder="输入密码" maxlength="30" required>
-            <input type="password" id="repasswd" name="repasswd" placeholder="确认密码" maxlength="30" onkeydown="keydown(event)" required>
+            <input type="password" id="repasswd" name="repasswd" placeholder="确认密码" maxlength="30" required>
             <input type="email" id="email" name="email" placeholder="用户邮箱">
+            <input type="text" id="getCode" placeholder="请输入验证码" />
+            <input type="text" onclick="createCode()" readonly="readonly" id="checkCode" class="unchanged" style="width: 80px; float: left" /><br />
             <input type="submit" class="btn btn-primary btn-block btn-large" id="signup" value="注册">
         </form>
-<script type="text/javascript">  
+<script type="text/javascript">
+    var code; //在全局 定义验证码   
+    function createCode() {
+        code = "";
+        var codeLength = 6;//验证码的长度   
+        var checkCode = document.getElementById("checkCode");
+        var selectChar = new Array(0, 1, 2, 3, 4, 5, 6, 7, 8, 9,'A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z');//所有候选组成验证码的字符，当然也可以用中文的   
+
+        for (var i = 0; i < codeLength; i++) {
+            var charIndex = Math.floor(Math.random() * 36);
+            code += selectChar[charIndex];
+        }
+        //alert(code);
+        if (checkCode) {
+            checkCode.className = "code";
+            checkCode.value = code;
+        }
+    }
+
+    function validate() {
+        var inputCode = document.getElementById("getCode").value.toUpperCase();//取得输入的验证码并转化为大写
+        if (inputCode.length <= 0) {
+            alert("请输入验证码！");
+            return false;
+        } else if (inputCode != code) {
+            alert("验证码输入错误！");
+            //createCode();//刷新验证码
+            return false;
+        } else {
+            return true;
+        }
+    }
+
     function SignUp(){
         var username=document.getElementById("username").value;
         var password=document.getElementById("password").value;
@@ -36,6 +70,10 @@
                 alert("邮箱格式不正确");
                 matchResult=false;
             }
+        }
+        console.log(matchResult);
+        if (matchResult==true) {
+            matchResult = validate();
         }
         if(matchResult==true){
             if(username.charAt(0)>=0&&username.charAt(0)<=9){
