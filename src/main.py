@@ -139,7 +139,7 @@ def SignUp():
             logger.warn("SignUp Failed")
             return redirect(url_for("SignUp", errmsg="SignUp Fail"))
     elif g.signin:
-        return url_for("uc")
+        return redirect(url_for("uc"))
     else:
         return render_template("signup.html")
 
