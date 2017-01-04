@@ -65,13 +65,13 @@ PLUGINS = {
             "REDIRECT_URI": "https://passport.saintic.com/callback/github/"
         },
         "INSTAGRAM": {
-            "ENABLE": True,
+            "ENABLE": False,
             "APP_ID": '05602bf1f7e648b89d50ea30d02dc295',
             "APP_KEY": "bcea24fd61434f78b9b28479e3ddcc75",
             "REDIRECT_URI": "https://passport.saintic.com/callback/instagram/"
         },
         "OSCHINA": {
-            "ENABLE": True,
+            "ENABLE": False,
             "APP_ID": 'QCU8KM1DilI6KOh9St1M',
             "APP_KEY": "q5xjAxnuWvCgJVCeXNIp2Jgdi89dcfL8",
             "REDIRECT_URI": "https://passport.saintic.com/callback/oschina/"
