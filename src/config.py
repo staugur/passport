@@ -3,7 +3,6 @@
 import os
 
 GLOBAL={
-
     "Host": os.getenv("passport_host", "0.0.0.0"),
     #Application run network address, you can set it `0.0.0.0`, `127.0.0.1`, ``;
 
@@ -19,13 +18,14 @@ GLOBAL={
     "ACL": ("Team.Front", "Api", "Interest.blog", "passport.client", "Open", "Deployer", "fss", "SwarmOps"),
     #Access Control List, 访问控制列表, 限定只有ACL定义中的应用可以访问某些资源。
 
-    "ApiUrl": os.getenv("passport_ApiUrl", ""),
+    "ApiUrl": os.getenv("passport_ApiUrl", "https://api.sainti.com"),
+    #接口地址
 
-    "Interest.blog.Url": os.getenv("passport_interest_blog_url", "https://www.saintic.com/home/")
+    "Interest.blog.Url": os.getenv("passport_interest_blog_url", "https://www.saintic.com/home/"),
+    #博客地址
 }
 
 PRODUCT={
-
     "ProcessName": "Passport",
     #Custom process, you can see it with "ps aux|grep ProcessName".
 
@@ -41,9 +41,7 @@ MODULES={
     "Authority": None,
 }
 
-
 PLUGINS = {
-
     #Third party social account login plug-in, allowing developers to enable some of the third party application login.If disabled one, then the login page does not appear the corresponding third party login icon.
     "thirdLogin": {
         "WEIBO": {

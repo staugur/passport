@@ -33,7 +33,7 @@ CREATE TABLE `blog` (
   `top` varchar(5) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT 'false',
   PRIMARY KEY (`id`),
   KEY `id` (`id`,`create_time`,`tag`,`catalog`,`sources`,`author`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=217 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1000 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Records of blog
@@ -56,7 +56,7 @@ CREATE TABLE `clickLog` (
   `referer` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `id` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=163419 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of clickLog
@@ -94,7 +94,7 @@ CREATE TABLE `OAuth` (
   PRIMARY KEY (`id`,`oauth_username`),
   UNIQUE KEY `openid` (`oauth_openid`) USING BTREE,
   UNIQUE KEY `id` (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of OAuth
@@ -120,7 +120,7 @@ CREATE TABLE `User` (
   `isAdmin` varchar(255) COLLATE utf8_unicode_ci DEFAULT 'false',
   PRIMARY KEY (`id`,`username`),
   UNIQUE KEY `username` (`username`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=164 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
 -- ----------------------------
 -- Records of User
