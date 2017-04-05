@@ -116,14 +116,14 @@ def isLogged_in(cookie_str):
     else:        
         return False
 
-    sql1 = "SELECT lauth_password FROM LAuth WHERE lauth_username=%s"
+    sql1 = "SELECT lauth_password FROM user_lauth WHERE lauth_username=%s"
     flag = mysql.get(sql1, username)
     if flag:
         logger.info("LAuth check logged successfully")
         flag = flag.get("lauth_password")
     else:
         logger.info("LAuth check logged fail, OAuth check logged")
-        sql2 = "SELECT oauth_openid FROM OAuth WHERE oauth_username=%s"
+        sql2 = "SELECT oauth_openid FROM user_oauth WHERE oauth_username=%s"
         flag = mysql.get(sql2, username)
         if flag:
             logger.info("OAuth check logged successfully")

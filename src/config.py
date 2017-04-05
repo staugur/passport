@@ -15,7 +15,7 @@ GLOBAL={
     "LogLevel": os.getenv("passport_loglevel", "DEBUG"),
     #应用程序写日志级别，目前有DEBUG，INFO，WARNING，ERROR，CRITICAL
 
-    "ACL": ("Team.Front", "Api", "Interest.blog", "passport.client", "Open", "Deployer", "fss", "SwarmOps", "Breezes", "BlueSky"),
+    "ACL": ("Team.Front", "Api", "Interest.blog", "passport.client", "Open", "Deployer", "fss", "SwarmOps", "Breezes", "BlueSky", "EauDouce"),
     #Access Control List, 访问控制列表, 限定只有ACL定义中的应用可以访问某些资源。
 
     "ApiUrl": os.getenv("passport_ApiUrl", "https://api.sainti.com"),
