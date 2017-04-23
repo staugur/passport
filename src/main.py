@@ -60,7 +60,7 @@ def index():
 @app.route("/ucenter/")
 def uc():
     if g.signin:
-        return redirect(GLOBAL["Interest.blog.Url"])
+        return redirect(GLOBAL["Blog.Url"])
     else:
         return redirect(url_for("login"))
 

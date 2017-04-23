@@ -59,26 +59,26 @@ def QQ_Login_Page_State(code, QQ_APP_ID, QQ_APP_KEY, QQ_REDIRECT_URI, timeout=5,
             user_extra = "%s %s" %(UserQzoneInfo.get("province"), UserQzoneInfo.get("city"))
             logger.info(UserQzoneInfo)
             try:
-                UserSQL  = "INSERT INTO User (username, cname, avatar, time, gender, extra) VALUES (%s, %s, %s, %s, %s, %s)"
+                UserSQL  = "INSERT INTO user_profile (username, cname, avatar, time, gender, extra) VALUES (%s, %s, %s, %s, %s, %s)"
                 mysql.insert(UserSQL, username, UserQzoneInfo.get("nickname"), UserQzoneInfo.get("figureurl_qq_1"), How_Much_Time(), UserQzoneInfo.get("gender"), user_extra)
-                OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
+                OAuthSQL = "INSERT INTO user_oauth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
                 mysql.insert(OAuthSQL, username, "QQ", openid, access_token, How_Much_Time(seconds=int(expires_in)))
             except IntegrityError,e:
                 logger.debug(e, exc_info=True)
                 #Check if it has been registered
-                CheckSQL = "SELECT oauth_username FROM OAuth WHERE oauth_username=%s"
+                CheckSQL = "SELECT oauth_username FROM user_oauth WHERE oauth_username=%s"
                 if mysql.get(CheckSQL, username):
-                    UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s WHERE oauth_username=%s"
+                    UpdateSQL = "UPDATE user_oauth SET oauth_access_token=%s, oauth_expires=%s WHERE oauth_username=%s"
                     mysql.update(UpdateSQL, access_token, How_Much_Time(seconds=int(expires_in)), username)
                     #update user profile
-                    UpdateUserSQL = "UPDATE User SET cname=%s,gender=%s,extra=%s WHERE username=%s"
+                    UpdateUserSQL = "UPDATE user_profile SET cname=%s,gender=%s,extra=%s WHERE username=%s"
                     mysql.update(UpdateUserSQL, UserQzoneInfo.get("nickname"), UserQzoneInfo.get("gender"), user_extra, username)
                     return {"username": username, "expires_in": expires_in, "openid": openid}
             except Exception,e:
                 logger.error(e, exc_info=True)
                 return False
             else:
-                logger.info("insert into User and OAuth, %s" %username)
+                logger.info("insert into user_profile and user_oauth, %s" %username)
                 return {"username": username, "expires_in": expires_in, "openid": openid}
         else:
             return False
@@ -104,26 +104,26 @@ def Weibo_Login_Page_State(code, WEIBO_APP_ID, WEIBO_APP_KEY, WEIBO_REDIRECT_URI
         user_extra    = data.get("description")
         user_gender   = u"男" if data.get("gender") == "m" else u"女"
         try:
-            UserSQL  = "INSERT INTO User (username, cname, avatar, time, weibo, gender, extra) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            UserSQL  = "INSERT INTO user_profile (username, cname, avatar, time, weibo, gender, extra) VALUES (%s, %s, %s, %s, %s, %s, %s)"
             mysql.insert(UserSQL, username, user_cname, user_avater, How_Much_Time(), user_weibo, user_gender, user_extra)
-            OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
+            OAuthSQL = "INSERT INTO user_oauth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
             mysql.insert(OAuthSQL, username, "Weibo", uid, access_token, How_Much_Time(seconds=int(expires_in)))
         except IntegrityError, e:
             logger.debug(e, exc_info=True)
             #Check if it has been registered
-            CheckSQL = "SELECT oauth_username FROM OAuth WHERE oauth_username=%s"
+            CheckSQL = "SELECT oauth_username FROM user_oauth WHERE oauth_username=%s"
             if mysql.get(CheckSQL, username):
-                UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
+                UpdateSQL = "UPDATE user_oauth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
                 mysql.update(UpdateSQL, access_token, How_Much_Time(seconds=int(expires_in)), uid, username)
                 #update user profile
-                UpdateUserSQL = "UPDATE User SET cname=%s, weibo=%s, gender=%s, extra=%s WHERE username=%s"
+                UpdateUserSQL = "UPDATE user_profile SET cname=%s, weibo=%s, gender=%s, extra=%s WHERE username=%s"
                 mysql.update(UpdateUserSQL, user_cname, user_weibo, user_gender, user_extra, username)
                 return {"username": username, "expires_in": expires_in, "uid": uid}
         except Exception,e:
             logger.error(e, exc_info=True)
             return False
         else:
-            logger.info("insert into User and OAuth, %s" %username)
+            logger.info("insert into user_profile and user_oauth, %s" %username)
             return {"username": username, "expires_in": expires_in, "uid": uid}
     else:
         logger.error(data)
@@ -148,26 +148,26 @@ def GitHub_Login_Page_State(code, GITHUB_APP_ID, GITHUB_APP_KEY, GITHUB_REDIRECT
         user_url      = data.get("blog")
         user_extra    = "company:%s, location:%s" %(data.get("company"), data.get("location"))
         try:
-            UserSQL  = "INSERT INTO User (username, cname, email, avatar, time, url, github, extra) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+            UserSQL  = "INSERT INTO user_profile (username, cname, email, avatar, time, url, github, extra) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
             mysql.insert(UserSQL, username, user_cname, user_email, user_avater, How_Much_Time(), user_url, user_github, user_extra)
-            OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
+            OAuthSQL = "INSERT INTO user_oauth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
             mysql.insert(OAuthSQL, username, "GitHub", user_id, access_token, How_Much_Time())
         except IntegrityError, e:
             logger.debug(e, exc_info=True)
             #Check if it has been registered
-            CheckSQL = "SELECT oauth_username FROM OAuth WHERE oauth_username=%s"
+            CheckSQL = "SELECT oauth_username FROM user_oauth WHERE oauth_username=%s"
             if mysql.get(CheckSQL, username):
-                UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
+                UpdateSQL = "UPDATE user_oauth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
                 mysql.update(UpdateSQL, access_token, How_Much_Time(), user_id, username)
                 #update user profile
-                UpdateUserSQL = "UPDATE User SET cname=%s, url=%s, extra=%s WHERE username=%s"
+                UpdateUserSQL = "UPDATE user_profile SET cname=%s, url=%s, extra=%s WHERE username=%s"
                 mysql.update(UpdateUserSQL, user_cname, user_url, user_extra, username)
                 return {"username": username, "uid": user_id}
         except Exception,e:
             logger.error(e, exc_info=True)
             return False
         else:
-            logger.info("insert into User and OAuth, %s" %username)
+            logger.info("insert into user_profile and user_oauth, %s" %username)
             return {"username": username, "uid": user_id}
     else:
         logger.error(data)
@@ -196,26 +196,26 @@ def Instagram_Login_Page_State(code, INSTAGRAM_APP_ID, INSTAGRAM_APP_KEY, INSTAG
         user_motto    = data.get("bio")
         user_extra    = data.get("counts")
         try:
-            UserSQL  = "INSERT INTO User (username, cname, motto, avatar, time, url, extra) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            UserSQL  = "INSERT INTO user_profile (username, cname, motto, avatar, time, url, extra) VALUES (%s, %s, %s, %s, %s, %s, %s)"
             mysql.insert(UserSQL, username, user_cname, user_motto, user_avater, How_Much_Time(), user_url, user_extra)
-            OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
+            OAuthSQL = "INSERT INTO user_oauth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
             mysql.insert(OAuthSQL, username, "Instagram", user_id, access_token, How_Much_Time())
         except IntegrityError, e:
             logger.debug(e, exc_info=True)
             #Check if it has been registered
-            CheckSQL = "SELECT oauth_username FROM OAuth WHERE oauth_username=%s"
+            CheckSQL = "SELECT oauth_username FROM user_oauth WHERE oauth_username=%s"
             if mysql.get(CheckSQL, username):
-                UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
+                UpdateSQL = "UPDATE user_oauth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
                 mysql.update(UpdateSQL, access_token, How_Much_Time(), user_id, username)
                 #update user profile
-                UpdateUserSQL = "UPDATE User SET cname=%s, url=%s, motto=%s, extra=%s WHERE username=%s"
+                UpdateUserSQL = "UPDATE user_profile SET cname=%s, url=%s, motto=%s, extra=%s WHERE username=%s"
                 mysql.update(UpdateUserSQL, user_cname, user_url, user_motto, user_extra, username)
                 return {"username": username, "uid": user_id}
         except Exception,e:
             logger.error(e, exc_info=True)
             return False
         else:
-            logger.info("insert into User and OAuth, %s" %username)
+            logger.info("insert into user_profile and user_oauth, %s" %username)
             return {"username": username, "uid": user_id}
     else:
         logger.error(data)
@@ -240,26 +240,26 @@ def OSChina_Login_Page_State(code, OSCHINA_APP_ID, OSCHINA_APP_KEY, OSCHINA_REDI
         user_gender   = u"男" if data.get("gender") == "male" else u"女"
         user_url      = data.get("url")
         try:
-            UserSQL  = "INSERT INTO User (username, cname, avatar, time, url, gender, extra) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+            UserSQL  = "INSERT INTO user_profile (username, cname, avatar, time, url, gender, extra) VALUES (%s, %s, %s, %s, %s, %s, %s)"
             mysql.insert(UserSQL, username, user_cname, user_avater, How_Much_Time(), user_url, user_gender, user_extra)
-            OAuthSQL = "INSERT INTO OAuth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
+            OAuthSQL = "INSERT INTO user_oauth (oauth_username, oauth_type, oauth_openid, oauth_access_token, oauth_expires) VALUES (%s, %s, %s, %s, %s)"
             mysql.insert(OAuthSQL, username, "OSChina", uid, access_token, How_Much_Time(seconds=int(expires_in)))
         except IntegrityError, e:
             logger.debug(e, exc_info=True)
             #Check if it has been registered
-            CheckSQL = "SELECT oauth_username FROM OAuth WHERE oauth_username=%s"
+            CheckSQL = "SELECT oauth_username FROM user_oauth WHERE oauth_username=%s"
             if mysql.get(CheckSQL, username):
-                UpdateSQL = "UPDATE OAuth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
+                UpdateSQL = "UPDATE user_oauth SET oauth_access_token=%s, oauth_expires=%s, oauth_openid=%s WHERE oauth_username=%s"
                 mysql.update(UpdateSQL, access_token, How_Much_Time(seconds=int(expires_in)), uid, username)
                 #update user profile
-                UpdateUserSQL = "UPDATE User SET cname=%s, url=%s, gender=%s, extra=%s WHERE username=%s"
+                UpdateUserSQL = "UPDATE user_profile SET cname=%s, url=%s, gender=%s, extra=%s WHERE username=%s"
                 mysql.update(UpdateUserSQL, user_cname, user_url, user_gender, user_extra, username)
                 return {"username": username, "expires_in": expires_in, "uid": uid}
         except Exception,e:
             logger.error(e, exc_info=True)
             return False
         else:
-            logger.info("insert into User and OAuth, %s" %username)
+            logger.info("insert into user_profile and user_oauth, %s" %username)
             return {"username": username, "expires_in": expires_in, "uid": uid}
     else:
         logger.error(data)

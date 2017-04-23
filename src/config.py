@@ -21,7 +21,7 @@ GLOBAL={
     "ApiUrl": os.getenv("passport_ApiUrl", "https://api.sainti.com"),
     #接口地址
 
-    "Interest.blog.Url": os.getenv("passport_interest_blog_url", "https://www.saintic.com/home/"),
+    "Blog.Url": os.getenv("passport_Blog_Url", "https://www.saintic.com/"),
     #博客地址
 }
 
