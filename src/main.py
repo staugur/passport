@@ -130,6 +130,10 @@ def logout():
 
 @app.route("/SignUp/", methods=["POST", "GET"])
 def SignUp():
+    if g.signin:
+        return redirect(url_for("uc"))
+    else:
+        return "暂不支持注册"
     if request.method == "POST":
         res = UserAuth_Registry(request.form)
         if res:
