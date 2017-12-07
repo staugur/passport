@@ -1,5 +1,6 @@
 # -*- coding: utf8 -*-
 
+import sys
 import json
 import datetime
 from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
@@ -9,6 +10,8 @@ from libs.AuthenticationManager import UserAuth_Login, UserAuth_Registry
 from plugins.thirdLogin import login_blueprint
 from callback import callback_blueprint
 from sso import sso_blueprint
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 __author__  = 'Mr.tao <staugur@saintic.com>'
 __doc__     = 'Unified authentication and single sign on system for SaintIC web applications.'
