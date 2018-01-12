@@ -1,3 +1,2 @@
-# -*- coding:utf8 -*-
-#modules open interface
-
+# -*- coding: utf8 -*-
+# modules open interface

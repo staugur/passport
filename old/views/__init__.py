@@ -1,2 +1,2 @@
 # -*- coding: utf8 -*-
-# Plugins Package
+# Something Blueprint

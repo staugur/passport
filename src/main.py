@@ -1,156 +1,184 @@
-# -*- coding: utf8 -*-
+# -*- coding: utf-8 -*-
+"""
+    passport.main
+    ~~~~~~~~~~~~~~
 
-import sys
-import json
-import datetime
-from flask import Flask, request, g, render_template, url_for, abort, make_response, redirect, jsonify
-from config import GLOBAL, PLUGINS
-from utils.tool import logger, gen_requestId, md5, mysql, isLogged_in, How_Much_Time
-from libs.AuthenticationManager import UserAuth_Login, UserAuth_Registry
-from plugins.thirdLogin import login_blueprint
-from callback import callback_blueprint
-from sso import sso_blueprint
-reload(sys)
-sys.setdefaultencoding('utf-8')
+    Entrance
 
-__author__  = 'Mr.tao <staugur@saintic.com>'
-__doc__     = 'Unified authentication and single sign on system for SaintIC web applications.'
-__date__    = '2016-12-12'
-__org__     = 'SaintIC'
-__version__ = '1.0.3'
+    Docstring conventions:
+    http://flask.pocoo.org/docs/0.10/styleguide/#docstrings
 
+    Comments:
+    http://flask.pocoo.org/docs/0.10/styleguide/#comments
+
+    :copyright: (c) 2017 by staugur.
+    :license: MIT, see LICENSE for more details.
+"""
+
+import config, json, datetime, jinja2, os
+from version import __version__
+from flask import Flask, request, g, jsonify, redirect, make_response, url_for, render_template, flash
+from utils.tool import logger, gen_requestId, create_redis_engine, create_mysql_engine
+from urllib import urlencode
+from libs.plugins import PluginManager
+
+
+__author__  = 'staugur'
+__email__   = 'staugur@saintic.com'
+__doc__     = '统一认证与单点登录系统'
+__date__    = '2018-01-09'
+
+
+#初始化定义application
 app = Flask(__name__)
-#register url rule(Blueprint), if get the result, please use app.url_map
-app.register_blueprint(callback_blueprint, url_prefix="/callback")
-app.register_blueprint(login_blueprint, url_prefix="/login")
-app.register_blueprint(sso_blueprint)
+app.config.from_object(config)
+app.config.update(
+    SECRET_KEY=os.urandom(24)
+)
+
+#初始化插件管理器(自动扫描并加载运行)
+plugin = PluginManager()
+
+#注册多模板文件夹
+loader = jinja2.ChoiceLoader([
+    app.jinja_loader,
+    jinja2.FileSystemLoader([ p.get("plugin_tpl_path") for p in plugin.get_enabled_plugins if os.path.isdir(os.path.join(app.root_path, p["plugin_tpl_path"])) ]),
+])
+app.jinja_loader = loader
+
+#注册全局模板扩展点
+for tep_name,tep_func in plugin.get_all_tep.iteritems():
+    app.add_template_global(tep_func, tep_name)
+
+# 注册蓝图扩展点
+for bep in plugin.get_all_bep:
+    prefix = bep["prefix"]
+    app.register_blueprint(bep["blueprint"], url_prefix=prefix)
+
+# 模板中重写覆盖url_for函数
+def static_url_for(endpoint, **values):
+    if endpoint == 'static':
+        STATIC_URL_ROOT = app.config["GLOBAL"].get("STATIC_URL_ROOT")
+        LAST_URL = STATIC_URL_ROOT.strip("/") + url_for(endpoint, **values) if STATIC_URL_ROOT else url_for(endpoint, **values)
+        logger.debug(LAST_URL)
+        return LAST_URL
+    else:
+        return url_for(endpoint, **values)
+
+# 添加模板上下文变量
+@app.context_processor  
+def GlobalTemplateVariables():  
+    data = {"Version": __version__, "Author": __author__, "Email": __email__, "Doc": __doc__, "url_for": static_url_for}
+    return data
 
 @app.before_request
 def before_request():
-    g.requestId = gen_requestId()
-    g.username  = request.cookies.get("username", "")
-    g.sessionId = request.cookies.get("sessionId", "")
-    g.expires   = request.cookies.get("time", "")
-    g.credential= '.'.join([ g.username, g.expires, g.sessionId ])
-    g.signin    = isLogged_in(g.credential)
-    logger.info("Start Once Access, this requestId is %s, signin:%s" %(g.requestId, g.signin))
+    g.redis = create_redis_engine(app.config["REDIS"])
+    g.mysql = create_mysql_engine(app.config["MYSQL"])
+    g.signin = True
+    g.ref = request.referrer
+    g.redirect_uri = g.ref or url_for('index') if request.endpoint and request.endpoint in ("logout", ) else request.url
+    #上下文扩展点之请求后(返回前)
+    before_request_hook = plugin.get_all_cep.get("before_request_hook")
+    for cep_func in before_request_hook():
+        cep_func(request=request, g=g)
 
 @app.after_request
 def after_request(response):
-    response.headers["X-SaintIC-Request-Id"] = g.requestId
-    logger.info(json.dumps({
-        "AccessLog": {
-            "status_code": response.status_code,
-            "method": request.method,
-            "ip": request.headers.get('X-Real-Ip', request.remote_addr),
-            "url": request.url,
-            "referer": request.headers.get('Referer'),
-            "agent": request.headers.get("User-Agent"),
-            "requestId": g.requestId,
-            }
-        }
-    ))
+    data = {
+        "status_code": response.status_code,
+        "method": request.method,
+        "ip": request.headers.get('X-Real-Ip', request.remote_addr),
+        "url": request.url,
+        "referer": request.headers.get('Referer'),
+        "agent": request.headers.get("User-Agent"),
+        "signin": g.signin
+    }
+    logger.info(data)
+    #上下文扩展点之请求后(返回前)
+    after_request_hook = plugin.get_all_cep.get("after_request_hook")
+    for cep_func in after_request_hook():
+        cep_func(request=request, response=response, data=data)
     return response
 
+@app.teardown_request
+def teardown_request(exception):
+    if hasattr(g, "redis"):
+        g.redis.connection_pool.disconnect()
+    if hasattr(g, "mysql"):
+        g.mysql.close()
+
+@app.errorhandler(500)
+def server_error(error=None):
+    message = {
+        "msg": "Server Error",
+        "code": 500
+    }
+    return jsonify(message), 500
+
 @app.errorhandler(404)
-def page_not_found(e):
-    return render_template("404.html"), 404
-
-@app.route("/")
-def index():
-    return redirect(url_for("login"))
-
-@app.route("/ucenter/")
-def uc():
-    if g.signin:
-        return redirect(GLOBAL["Blog.Url"])
-    else:
-        return redirect(url_for("login"))
-
-@app.route("/login/", methods=["POST", "GET"])
-def login():
-    SSORequest  = True if request.args.get("sso") in ("true", "True", True, "1", "on") else False
-    SSOProject  = request.args.get("sso_p")
-    SSORedirect = request.args.get("sso_r")
-    SSOToken    = request.args.get("sso_t")
-    SSOTokenMD5 = md5("%s:%s" %(SSOProject, SSORedirect))
-    logger.debug(request.args)
-    logger.debug("remember: %s" %request.form)
-    logger.debug(SSOTokenMD5==SSOToken)
-    if g.signin:
-        if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and SSOTokenMD5 == SSOToken:
-            returnURL = SSORedirect + "?ticket=" + g.credential
-            logger.info("SSO(%s) request project is in acl, already landing, redirect to %s" %(SSOProject, returnURL))
-            return redirect(returnURL)
-        else:
-            return redirect(url_for("uc"))
-    else:
-        if request.method == "GET":
-            return render_template("signin.html", enable_qq=PLUGINS['thirdLogin']['QQ']['ENABLE'], enable_weibo=PLUGINS['thirdLogin']['WEIBO']['ENABLE'], enable_github=PLUGINS['thirdLogin']['GITHUB']['ENABLE'], enable_instagram=PLUGINS['thirdLogin']['INSTAGRAM']['ENABLE'], enable_oschina=PLUGINS['thirdLogin']['OSCHINA']['ENABLE'])
-        else:
-            username = request.form.get("username")
-            password = request.form.get("password")
-            remember = 30 if request.form.get("remember") in ("True", "true", True) else None
-            if username and password and UserAuth_Login(username, password):
-                max_age_sec = 3600 * 24 * remember if remember else None
-                expires     = How_Much_Time(max_age_sec) if max_age_sec else 'None'
-                #expire_time = datetime.datetime.today() + datetime.timedelta(days=remember) if remember else None
-                sessionId   = md5('%s-%s-%s-%s' %(username, md5(password), expires, "COOKIE_KEY")).upper()
-                logger.debug("check user login successful, max_age_sec: %s, expires: %s" %(max_age_sec, expires))
-                if SSOProject in GLOBAL.get("ACL") and SSORequest and SSORedirect and SSOTokenMD5 == SSOToken:
-                    logger.info("RequestURL:%s, SSORequest:%s, SSOProject:%s, SSORedirect:%s" %(request.url, SSORequest, SSOProject, SSORedirect))
-                    ticket    = '.'.join([ username, expires, sessionId ])
-                    returnURL = SSORedirect + "?ticket=" + ticket
-                    logger.info("SSO(%s) request project is in acl, will create a ticket, redirect to %s" %(SSOProject, returnURL))
-                    resp = make_response(redirect(returnURL))
-                else:
-                    logger.info("Not SSO Auth, to local auth")
-                    resp = make_response(redirect(url_for("uc")))
-                resp.set_cookie(key='logged_in', value="yes", max_age=max_age_sec)
-                resp.set_cookie(key='username',  value=username, max_age=max_age_sec)
-                resp.set_cookie(key='sessionId', value=sessionId, max_age=max_age_sec)
-                resp.set_cookie(key='time', value=expires, max_age=max_age_sec)
-                resp.set_cookie(key='Azone', value="local", max_age=max_age_sec)
-                #LogonCredentials: make_signed_cookie(username, md5(password), seconds=max_age_sec)
-                #LogonCredentials: make_signed_cookie(username, openid/uid, seconds=max_age_sec)
-                return resp
-            else:
-                if SSORequest:
-                    return redirect(url_for("login", sso=SSORequest, sso_p=SSOProject, sso_r=SSORedirect, sso_t=SSOToken))
-                else:
-                    return redirect(url_for("login"))
-
-@app.route("/logout/")
-def logout():
-    nextUrl = request.args.get("nextUrl") or url_for('login')
-    resp = make_response(redirect(nextUrl))
-    resp.set_cookie(key='logged_in', value='no', expires=None)
-    resp.set_cookie(key='username',  value='', expires=0)
-    resp.set_cookie(key='sessionId',  value='', expires=0)
-    resp.set_cookie(key='Azone',  value='', expires=0)
-    resp.set_cookie(key='time',  value='', expires=0)
+def not_found(error=None):
+    message = {
+        'code': 404,
+        'msg': 'Not Found: ' + request.url,
+    }
+    resp = jsonify(message)
+    resp.status_code = 404
     return resp
 
-@app.route("/SignUp/", methods=["POST", "GET"])
-def SignUp():
-    if g.signin:
-        return redirect(url_for("uc"))
-    else:
-        return "暂不支持注册"
-    if request.method == "POST":
-        res = UserAuth_Registry(request.form)
-        if res:
-            logger.info("SignUp Successfully")
-            return redirect(url_for("login"))
+@app.errorhandler(403)
+def Permission_denied(error=None):
+    message = {
+        "msg": "Authentication failed, permission denied.",
+        "code": 403
+    }
+    return jsonify(message), 403
+
+@app.route('/')
+def index():
+    return "index"
+
+@app.route('/signUp')
+def signUp():
+    return render_template("auth/signUp.html")
+
+@app.route('/signIn', methods=['GET', 'POST'])
+def signIn():
+    if request.method == 'POST':
+        token = request.form.get("token")
+        challenge = request.form.get("challenge")
+        user_id = request.form.get("user_id")
+        password = request.form.get("password")
+        if token and challenge and _validate(challenge, token):
+            if user_id and password and str(user_id) == "admin" and str(password) == "admin":
+                return redirect(url_for('index'))
+            else:
+                flash(u"无效的登录凭证")
         else:
-            logger.warn("SignUp Failed")
-            return redirect(url_for("SignUp", errmsg="SignUp Fail"))
-    elif g.signin:
-        return redirect(url_for("uc"))
-    else:
-        return render_template("signup.html")
+            flash(u"人机验证失败")
+        return redirect(url_for('signIn'))
+    return render_template("auth/signIn.html")
+
+
+from vaptchasdk import vaptcha
+vid='5a55a721a48617214c19dc49'
+key='56bb055bfbb84f949e30a9f145ba6372'
+_vaptcha=vaptcha(vid, key)
+@app.route("/getVaptcha")
+def getVaptcha():
+    sceneid = request.args.get("sceneid") or ""
+    return jsonify(json.loads(_vaptcha.get_challenge(sceneid)))
+
+@app.route("/getDowTime")
+def getDowTime():
+    return jsonify(json.loads(_vaptcha.downtime(data)))
+
+def _validate(challenge,token):
+    return _vaptcha.validate(challenge, token)
+
+@app.route("/test")
+def test():
+    return render_template("auth/test.html")
 
 if __name__ == '__main__':
-    Host  = GLOBAL.get('Host')
-    Port  = GLOBAL.get('Port')
-    app.run(host=Host, port=int(Port), debug=True)
+    app.run(host=app.config["GLOBAL"]["Host"], port=int(app.config["GLOBAL"]["Port"]), debug=True)

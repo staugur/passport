@@ -1,41 +1,58 @@
-# -*- coding:utf8 -*-
+# -*- coding: utf-8 -*-
+"""
+    passport.utils.log
+    ~~~~~~~~~~~~~~
+
+    Define logging base class.
+
+    :copyright: (c) 2017 by staugur.
+    :license: MIT, see LICENSE for more details.
+"""
 
 import os
-import logging.handlers
+import logging, logging.handlers
 from config import GLOBAL
 
-loglevel  = GLOBAL.get('LogLevel', "INFO")
-CODE_HOME = os.path.dirname(os.path.abspath(__file__))
-class Syslog:
+class Logger: 
 
-    logger = None
-    levels = {
-        "DEBUG" : logging.DEBUG,
-        "INFO" : logging.INFO,
-        "WARNING" : logging.WARNING,
-        "ERROR" : logging.ERROR,
-        "CRITICAL" : logging.CRITICAL}
+    def __init__(self, logName, backupCount=10):
+        self.logName = logName
+        self.log_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'logs')
+        self.logFile = os.path.join(self.log_dir, '{0}.log'.format(self.logName))
+        self._levels = {
+            "DEBUG" : logging.DEBUG,
+            "INFO" : logging.INFO,
+            "WARNING" : logging.WARNING,
+            "ERROR" : logging.ERROR,
+            "CRITICAL" : logging.CRITICAL
+        }
+        self._logfmt = '%Y-%m-%d %H:%M:%S'
+        self._logger = logging.getLogger(self.logName)
+        if not os.path.exists(self.log_dir): os.mkdir(self.log_dir)
 
-    log_level = loglevel
-    log_dir = os.path.join(os.path.dirname(CODE_HOME), 'logs')
-    if not os.path.exists(log_dir): os.mkdir(log_dir)
-    log_file = os.path.join(log_dir, 'sys.log')
-    log_backup_count = 10
-    log_datefmt = '%Y-%m-%d %H:%M:%S'
+        handler = logging.handlers.TimedRotatingFileHandler(filename=self.logFile,
+                              backupCount=backupCount,
+                              when="midnight")
+        handler.suffix = "%Y%m%d"
+        formatter = logging.Formatter('[ %(levelname)s ] %(asctime)s %(filename)s:%(threadName)s:%(lineno)d %(message)s', datefmt=self._logfmt)
+        handler.setFormatter(formatter)
+        self._logger.addHandler(handler)
+        self._logger.setLevel(self._levels.get(GLOBAL.get('LogLevel', "INFO")))
 
-    @staticmethod
-    def getLogger():
-        if Syslog.logger is not None:
-            return Syslog.logger
+    @property
+    def getLogger(self):
+        return self._logger
 
-        Syslog.logger = logging.Logger("loggingmodule.Syslog")
-        log_handler = logging.handlers.TimedRotatingFileHandler(filename = Syslog.log_file,
-                              backupCount = Syslog.log_backup_count,
-                              when = "midnight")
-        log_handler.suffix = "%Y%m%d"
-        log_fmt = logging.Formatter('[ %(levelname)s ] %(asctime)s %(filename)s:%(threadName)s:%(lineno)d %(message)s', datefmt=Syslog.log_datefmt)
-        log_handler.setFormatter(log_fmt)
-        Syslog.logger.addHandler(log_handler)
-        Syslog.logger.setLevel(Syslog.levels.get(Syslog.log_level))
-        return Syslog.logger
+if __name__ == "__main__":
+        syslog = Logger("sys").getLogger
+        reqlog = Logger("req").getLogger
 
+        syslog.info("sys hello info")
+        syslog.debug("sys hello debug")
+        syslog.error("sys hello error")
+        syslog.warning("sys hello warning")
+
+        reqlog.info("req hello info")
+        reqlog.debug("req hello debug")
+        reqlog.error("req hello error")
+        reqlog.warning("req hello warning")

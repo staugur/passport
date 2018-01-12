@@ -1,9 +1,10 @@
 Flask==0.10.1
-Flask-restful
+requests
 setproctitle
-#gevent
-tornado
+redis
 torndb
 MySQL-python
-requests
-SpliceURL>=1.2
+gevent
+gunicorn
+vaptchasdk
+shortuuid
