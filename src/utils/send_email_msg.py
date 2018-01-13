@@ -30,8 +30,8 @@ class SendMail(object):
     """发送邮件类"""
 
     def __init__(self):
-        self.useraddr = "taochengwei@starokay.com"
-        self.password = "v1Gr_2gZG21%"
+        self.useraddr = ""
+        self.password = ""
         self.from_addr = self._format_addr("SaintIC Passport <{}>".format(self.useraddr))
         self.smtp_server = "smtp.ym.163.com"
 
