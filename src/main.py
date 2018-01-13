@@ -18,10 +18,9 @@
 import config, json, datetime, jinja2, os
 from version import __version__
 from flask import Flask, request, g, jsonify, redirect, make_response, url_for, render_template, flash
-from utils.tool import logger, gen_requestId, create_redis_engine, create_mysql_engine
-from urllib import urlencode
+from utils.tool import logger, gen_requestId, create_redis_engine, create_mysql_engine, generate_verification_code, email_check, phone_check, email_tpl
+from utils.send_email_msg import SendMail
 from libs.plugins import PluginManager
-
 
 __author__  = 'staugur'
 __email__   = 'staugur@saintic.com'
@@ -35,6 +34,7 @@ app.config.from_object(config)
 app.config.update(
     SECRET_KEY=os.urandom(24)
 )
+sendmail = SendMail()
 
 #初始化插件管理器(自动扫描并加载运行)
 plugin = PluginManager()
@@ -60,7 +60,6 @@ def static_url_for(endpoint, **values):
     if endpoint == 'static':
         STATIC_URL_ROOT = app.config["GLOBAL"].get("STATIC_URL_ROOT")
         LAST_URL = STATIC_URL_ROOT.strip("/") + url_for(endpoint, **values) if STATIC_URL_ROOT else url_for(endpoint, **values)
-        logger.debug(LAST_URL)
         return LAST_URL
     else:
         return url_for(endpoint, **values)
@@ -136,9 +135,10 @@ def Permission_denied(error=None):
 
 @app.route('/')
 def index():
+    #首页
     return "index"
 
-@app.route('/signUp')
+@app.route('/signUp', methods=['GET', 'POST'])
 def signUp():
     return render_template("auth/signUp.html")
 
@@ -159,6 +159,36 @@ def signIn():
         return redirect(url_for('signIn'))
     return render_template("auth/signIn.html")
 
+@app.route('/miscellaneous/_sendVcode', methods=['POST'])
+def misc_sendVcode():
+    """发送验证码：邮箱、手机"""
+    res = dict(msg=None, success=False)
+    account = request.form.get("account")
+    if email_check(account):
+        email = account
+        key = "passport:signUp:vcode:{}".format(email)
+        if g.redis.exists(key):
+            res.update(msg=u"已发送过验证码，请查收邮箱")
+        else:
+            vcode = generate_verification_code()
+            result = sendmail.SendMessage(to_addr=email, subject=u"Passport邮箱注册验证码", formatType="html", message=email_tpl %(email, u"注册", vcode))
+            if result["success"]:
+                try:
+                    g.redis.set(key, vcode)
+                    g.redis.expire(key, 300)
+                except Exception,e:
+                    logger.error(e, exc_info=True)
+                    res.update(msg=u"系统异常，请稍后重试")
+                else:
+                    res.update(msg=u"已发送验证码，有效期300秒", success=True)
+            else:
+                res.update(msg=u"邮件系统故障，请稍后重试")
+    elif phone_check(account):
+        res.update(msg=u"暂不支持手机注册")
+    else:
+        res.update(msg=u"无效账号")
+    logger.debug(res)
+    return jsonify(res)
 
 from vaptchasdk import vaptcha
 vid='5a55a721a48617214c19dc49'
@@ -175,10 +205,6 @@ def getDowTime():
 
 def _validate(challenge,token):
     return _vaptcha.validate(challenge, token)
-
-@app.route("/test")
-def test():
-    return render_template("auth/test.html")
 
 if __name__ == '__main__':
     app.run(host=app.config["GLOBAL"]["Host"], port=int(app.config["GLOBAL"]["Port"]), debug=True)

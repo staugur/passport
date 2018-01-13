@@ -10,21 +10,26 @@
 			<p>已有账号？<a href="{{ url_for('signIn') }}">立即登录</a></p>
 		</div>
 		<div class="form-body">
+            <p class="err-msg" id="err-msg">
             {%- with messages = get_flashed_messages() %}
             {%- if messages %}
-            <p class="err-msg">{{ " ".join(messages) }}</p>
+            {{ " ".join(messages) }}
             {%- endif %}
             {%- endwith %}
+            </p>
 			<div class="ui-input">
-				<input type="text" placeholder="手机号">
+				<input type="text" placeholder="邮箱号" name="account" id="account">
 			</div>
 			<div class="ui-input narrow-input">
-				<input type="text" placeholder="短信验证码">
-				<a class="sms-button" href="javascript:">获取验证码</a>
+				<input type="text" placeholder="验证码" name="vcode" id="vcode">
+				<a class="sms-button" href="javascript:sendCode(this)" id="sms-tip-msg">获取验证码</a>
 			</div>
 			<div class="ui-input">
-				<input type="password" placeholder="密码，6-16位，区分大小写">
+				<input type="password" placeholder="密码，6-16位，区分大小写" name="password" id="password">
 			</div>
+            <div class="ui-input">
+                <input type="password" placeholder="确认密码，6-16位，区分大小写" name="repassword" id="repassword">
+            </div>
             <div id="vaptcha_container">
                 <div class="vaptcha-init-loading">
                     <a><img src="{{ url_for('static', filename='images/vaptcha-loading.gif') }}"/></a>
@@ -40,8 +45,8 @@
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 <script src="https://cdn.vaptcha.com/v.js"></script>
 <script type="text/javascript">
-    //这里使用到验证场景，传过去的参数即为对应的编号，比如之前登录的对应的编号即为01
     $.get('/getVaptcha?sceneid=02', function(res){
+        //这里使用到验证场景，传过去的参数即为对应的编号，比如之前登录的对应的编号即为01
         console.log(res);
         var options={
             vid: res.vid, //验证单元id, string, 必填
@@ -68,5 +73,43 @@
             obj.init();
         });
     });
+    function sendCode(that) {
+        var wait = 300;
+        var account = $('#account').val();
+        console.log(account);
+        if (account) {
+            $.ajax({
+                type: 'post',
+                url: '{{ url_for("misc_sendVcode") }}',
+                data: {"account": account},
+                success: function (res) {
+                    console.log(res);
+                    if (res.success==true) {
+                        check();
+                    } else {
+                        alert(res.msg);
+                    }
+                }
+            });
+        } else {
+            alert("请填写账号");
+        }
+        function check() {
+            if (wait == 0) {
+                $('#sms-tip-msg').removeAttr("disabled");
+                $('#sms-tip-msg').attr('href','javascript:sendCode(this)');
+                $('#sms-tip-msg').text("点击发送验证码");
+                wait = 300;
+            } else {
+                $('#sms-tip-msg').attr("disabled", true);
+                $('#sms-tip-msg').removeAttr('href');
+                $('#sms-tip-msg').text(wait+"秒后可重新获取");
+                wait--;
+                setTimeout(function() {
+                    check();
+                }, 1000)
+            }
+        }
+    }
 </script>
 {% endblock %}
