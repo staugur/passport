@@ -3,7 +3,7 @@
 {% block title %}注册{% endblock %}
 
 {% block container %}
-	<form action="" class="form">
+    <form action="{{ url_for('signUp') }}" method="post" class="form" onsubmit="return checkSubmit();">
 		<div class="form-head">
 			<h2>新用户注册</h2>
 			<!--<p class="form-notice">注册即送888元礼包，还可享3折套餐优惠</p>-->
@@ -18,25 +18,27 @@
             {%- endwith %}
             </p>
 			<div class="ui-input">
-				<input type="text" placeholder="邮箱号" name="account" id="account">
+				<input type="text" placeholder="邮箱号" name="account" id="account" required="required">
 			</div>
 			<div class="ui-input narrow-input">
-				<input type="text" placeholder="验证码" name="vcode" id="vcode">
+				<input type="text" placeholder="验证码" name="vcode" id="vcode" required="required">
 				<a class="sms-button" href="javascript:sendCode(this)" id="sms-tip-msg">获取验证码</a>
 			</div>
 			<div class="ui-input">
-				<input type="password" placeholder="密码，6-16位，区分大小写" name="password" id="password">
+				<input type="password" placeholder="密码，6-16位，区分大小写" name="password" id="password" required="required">
 			</div>
             <div class="ui-input">
-                <input type="password" placeholder="确认密码，6-16位，区分大小写" name="repassword" id="repassword">
+                <input type="password" placeholder="确认密码，6-16位，区分大小写" name="repassword" id="repassword" required="required">
             </div>
+            <input type="hidden" name="token" id="token">
+            <input type="hidden" name="challenge" id="challenge">
             <div id="vaptcha_container">
                 <div class="vaptcha-init-loading">
                     <a><img src="{{ url_for('static', filename='images/vaptcha-loading.gif') }}"/></a>
                     <span class="vaptcha-text">VAPTCHA启动中...</span>
                 </div>
             </div>
-			<button class="ui-button ui-button--primary" disabled="disabled" id="signUpButton">注册</button>
+			<input type="submit" class="ui-button ui-button--primary" disabled="disabled" id="signUpButton" value="注册">
 		</div>
 	</form>
 {% endblock %}
@@ -59,6 +61,8 @@
             success:function(token,challenge){//验证成功回调函数, 参数token, challenge 为string, 必填
                 //todo:执行人机验证成功后的操作
                 console.log(token,challenge);
+                $('#token').val(token);
+                $('#challenge').val(challenge);
                 $('#signUpButton').removeAttr("disabled");
                 $('#signUpButton').removeClass("ui-button--primary");
                 $('#signUpButton').addClass("ui-button--success");
@@ -73,6 +77,20 @@
             obj.init();
         });
     });
+    function checkSubmit() {
+        console.log("checkSubmit");
+        var password = $('#password').val();
+        var repassword = $('#repassword').val();
+        if(password!=repassword){
+            alert("密码和重复密码不同，请重新输入！");
+            return false;
+        }
+        if(password.length<6||password.length>30||repassword.length<6||repassword.length>30){
+            alert("密码长度应在6到30个字符之间！");
+            return false;
+        }
+        return true;
+    }
     function sendCode(that) {
         var wait = 300;
         var account = $('#account').val();
@@ -98,12 +116,12 @@
             if (wait == 0) {
                 $('#sms-tip-msg').removeAttr("disabled");
                 $('#sms-tip-msg').attr('href','javascript:sendCode(this)');
-                $('#sms-tip-msg').text("点击发送验证码");
+                $('#sms-tip-msg').text("重发验证码");
                 wait = 300;
             } else {
                 $('#sms-tip-msg').attr("disabled", true);
                 $('#sms-tip-msg').removeAttr('href');
-                $('#sms-tip-msg').text(wait+"秒后可重新获取");
+                $('#sms-tip-msg').text(wait+"秒后可重新发送");
                 wait--;
                 setTimeout(function() {
                     check();

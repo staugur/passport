@@ -24,7 +24,7 @@ CREATE TABLE `user_auth` (
   `uid` char(22) NOT NULL COMMENT '用户id',
   `identity_type` tinyint(4) unsigned NOT NULL COMMENT '1手机号 2邮箱 3GitHub 4qq 5微信 6腾讯微博 7新浪微博',
   `identifier` varchar(50) NOT NULL DEFAULT '' COMMENT '手机号、邮箱或第三方应用的唯一标识(openid、union_id)',
-  `certificate` varchar(20) NOT NULL DEFAULT '' COMMENT '密码凭证(站内的保存密码，站外的不保存或保存token)',
+  `certificate` varchar(106) NOT NULL DEFAULT '' COMMENT '密码凭证(站内的保存密码，站外的不保存或保存token)',
   `verified` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否已验证 0-未验证 1-已验证',
   `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '绑定时间',
   `update_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '更新绑定时间',

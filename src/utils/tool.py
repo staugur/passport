@@ -23,6 +23,7 @@ Universal_pat   = re.compile(r"[a-zA-Z\_][0-9a-zA-Z\_]*")
 comma_pat       = re.compile(r"\s*,\s*")
 logger          = Logger("sys").getLogger
 plugin_logger   = Logger("plugin").getLogger
+access_logger   = Logger("access").getLogger
 md5             = lambda pwd:hashlib.md5(pwd).hexdigest()
 hmac_sha256     = lambda message: hmac.new(key="273d32c8d797fa715190c7408ad73811", msg=message, digestmod=hashlib.sha256).hexdigest()
 gen_token       = lambda n=32:b32encode(uuid4().hex)[:n]

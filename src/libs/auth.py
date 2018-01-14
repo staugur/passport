@@ -14,11 +14,12 @@ from torndb import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 
-class Auth(object):
+class Authentication(object):
     """ 登陆注册类 """
 
-    def __init__(self, db):
-        self.db = db
+    def __init__(self, mysql, redis):
+        self.db = mysql
+        self.rc = redis
 
     def __check_hasUser(self, uid):
         """检查是否存在账号"""
@@ -56,8 +57,8 @@ class Auth(object):
         """
         if email_check(email) and vcode and scene in ("signUp", "signIn", "forgot"):
             key = "passport:{}:vcode:{}".format(scene, email)
-            if g.redis.exists(key):
-                return g.redis.get(key) == vcode
+            if self.rc.exists(key):
+                return self.rc.get(key) == vcode
         return False
 
     def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified, register_ip, register_source):
@@ -84,7 +85,7 @@ class Auth(object):
             verified and \
             register_ip and \
             register_source and \
-            instance(guid, (str, unicode)) and \
+            isinstance(guid, (str, unicode)) and \
             len(guid) == 22 and \
             identity_type in (1, 2) and \
             verified in (1, 0) and \
@@ -165,3 +166,9 @@ class Auth(object):
         logger.info(res)
         return res
 
+    def signIn(self, account, passport):
+        """登录认证
+        @param account str, 邮箱、手机
+        @
+        """
+        pass

@@ -18,9 +18,10 @@
 import config, json, datetime, jinja2, os
 from version import __version__
 from flask import Flask, request, g, jsonify, redirect, make_response, url_for, render_template, flash
-from utils.tool import logger, gen_requestId, create_redis_engine, create_mysql_engine, generate_verification_code, email_check, phone_check, email_tpl
+from utils.tool import logger, access_logger, gen_requestId, create_redis_engine, create_mysql_engine, generate_verification_code, email_check, phone_check, email_tpl
 from utils.send_email_msg import SendMail
 from libs.plugins import PluginManager
+from libs.auth import Authentication
 
 __author__  = 'staugur'
 __email__   = 'staugur@saintic.com'
@@ -93,7 +94,7 @@ def after_request(response):
         "agent": request.headers.get("User-Agent"),
         "signin": g.signin
     }
-    logger.info(data)
+    access_logger.info(data)
     #上下文扩展点之请求后(返回前)
     after_request_hook = plugin.get_all_cep.get("after_request_hook")
     for cep_func in after_request_hook():
@@ -140,6 +141,24 @@ def index():
 
 @app.route('/signUp', methods=['GET', 'POST'])
 def signUp():
+    if request.method == 'POST':
+        token = request.form.get("token")
+        challenge = request.form.get("challenge")
+        if token and challenge and _validate(challenge, token):
+            account = request.form.get("account")
+            vcode = request.form.get("vcode")
+            password = request.form.get("password")
+            repassword = request.form.get("repassword")
+            register_ip = request.headers.get('X-Real-Ip', request.remote_addr)
+            auth = Authentication(g.mysql, g.redis)
+            res = auth.signUp(account=account, vcode=vcode, password=password, repassword=repassword, register_ip=register_ip)
+            if res["success"]:
+                return redirect(url_for('index'))
+            else:
+                flash(res["msg"])
+        else:
+            flash(u"人机验证失败")
+        return redirect(url_for('signUp'))
     return render_template("auth/signUp.html")
 
 @app.route('/signIn', methods=['GET', 'POST'])
