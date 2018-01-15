@@ -9,9 +9,11 @@
     :license: MIT, see LICENSE for more details.
 """
 
+import json
 from utils.tool import logger, get_current_timestamp, gen_uniqueId, email_check, phone_check
 from torndb import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
+from user_agents import parse as user_agents_parse
 
 
 class Authentication(object):
@@ -24,7 +26,7 @@ class Authentication(object):
     def __check_hasUser(self, uid):
         """检查是否存在账号"""
         if uid and len(uid) == 22:
-            sql = "SELECT uid FROM user_auth WHERE uid=%s"
+            sql = "SELECT count(uid) FROM user_auth WHERE uid=%s"
             try:
                 data = self.db.get(sql, uid)
             except Exception,e:
@@ -32,7 +34,7 @@ class Authentication(object):
             else:
                 logger.debug(data)
                 if data and isinstance(data, dict):
-                    return "uid" in data
+                    return True if data.get('count(uid)', 0) > 0 else False
         return False
 
     def __check_hasEmail(self, email):
@@ -50,10 +52,10 @@ class Authentication(object):
         return False
 
     def __check_sendEmailVcode(self, email, vcode, scene="signUp"):
-        """校验邮箱验证码
+        """校验发送给邮箱的验证码
         @param email str: 邮箱账号
         @param vcode str: 验证码
-        @param scene int: 校验场景 signUp-注册 signIn-登录 forgot-忘记密码
+        @param scene str: 校验场景 signUp-注册 signIn-登录 forgot-忘记密码
         """
         if email_check(email) and vcode and scene in ("signUp", "signIn", "forgot"):
             key = "passport:{}:vcode:{}".format(scene, email)
@@ -95,8 +97,8 @@ class Authentication(object):
                 logger.debug("transaction, start")
                 self.db._db.begin()
                 try:
-                    sql_1 = "INSERT INTO user_auth (uid, identity_type, identifier, certificate, verified, create_time) VALUES (%s, %s, %s, %s, %s, %s)"
-                    info = self.db.insert(sql_1, guid, identity_type, identifier, certificate, verified, ctime)
+                    sql_1 = "INSERT INTO user_auth (uid, identity_type, identifier, certificate, verified, status, create_time) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                    info = self.db.insert(sql_1, guid, identity_type, identifier, certificate, verified, 1, ctime)
                     logger.debug("sql_1 info: {}".format(info))
                 except IntegrityError:
                     res.update(msg=u"账户已存在")
@@ -104,8 +106,8 @@ class Authentication(object):
                     logger.error(e, exc_info=True)
                     res.update(msg=u"系统异常")
                 else:
-                    sql_2 = "INSERT INTO user_profile (uid, register_source, register_ip, status, create_time, is_realname, is_admin) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-                    info = self.db.insert(sql_2, guid, register_source, register_ip, 1, ctime, 0, 0)
+                    sql_2 = "INSERT INTO user_profile (uid, register_source, register_ip, create_time, is_realname, is_admin) VALUES (%s, %s, %s, %s, %s, %s)"
+                    info = self.db.insert(sql_2, guid, register_source, register_ip, ctime, 0, 0)
                     logger.debug("sql_2 info: {}".format(info))
                     logger.debug('transaction, commit')
                     self.db._db.commit()
@@ -166,9 +168,66 @@ class Authentication(object):
         logger.info(res)
         return res
 
-    def signIn(self, account, passport):
-        """登录认证
-        @param account str, 邮箱、手机
-        @
+    def signIn(self, account, password):
+        """登录接口，面向前端
+        参数：
+            @param account str: 注册时的账号，邮箱/手机号
+            @param password str: 密码
+        流程：
+            1. 判断账号类型，仅支持邮箱、手机号两种本地账号。
+            2. 校验账号(是否合法、启用状态等)。
+            3. 校验密码(是否合格、正确)。
         """
-        pass
+        res = dict(msg=None, success=False)
+        # NO.1 检查账号类型
+        if email_check(account):
+            # 账号类型：邮箱
+            identity_type = 2
+            # NO.2 检查账号
+            if password and 6 <= len(password) < 30:
+                sql = "SELECT uid,certificate FROM user_auth WHERE identity_type=%s AND identifier=%s AND status=1"
+                try:
+                    data = self.db.get(sql, identity_type, account)
+                except Exception,e:
+                    logger.error(e, exc_info=True)
+                    res.update(msg=u"系统异常")
+                else:
+                    if data and isinstance(data, dict):
+                        uid = data["uid"]
+                        certificate = data["certificate"]
+                        if check_password_hash(certificate, password):
+                            res.update(success=True, uid=uid, identity_type=identity_type)
+                        else:
+                            res.update(msg=u"密码错误")
+                    else:
+                        res.update(msg=u"无效的账号：不存在或已禁用")
+            else:
+                res.update(msg=u"无效的密码：长度不合格")
+        elif phone_check(account):
+            # 账号类型：手机
+            res.update(msg=u"暂不支持手机号登录")
+        else:
+            # 账号类型：非法，拒绝
+            res.update(msg=u"无效的账号")
+        logger.info(res)
+        return res
+
+    def brush_loginlog(self, signInResult, login_ip, user_agent):
+        """ 将登录日志写入redis，需有定时任务每分钟解析入库
+        @param signInResult dict: 登录接口返回
+            @param uid str: 用户全局唯一标识id
+            @param identity_type int: 登录类型，1手机号 2邮箱 3GitHub 4qq 5微信 6腾讯微博 7新浪微博
+        @param login_ip str: 登录IP
+        @param user_agent str: 用户代理
+        """
+        if isinstance(signInResult, dict):
+            if signInResult["success"]:
+                data = dict(
+                    uid = signInResult["uid"],
+                    identity_type = signInResult["identity_type"],
+                    login_ip = login_ip,
+                    user_agent = user_agent,
+                    login_time = get_current_timestamp()
+                )
+                key = "passport:loginlog"
+                return self.rc.rpush(key, json.dumps(data))

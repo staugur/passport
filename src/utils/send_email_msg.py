@@ -24,16 +24,17 @@ from email.header import Header
 from email.mime.text import MIMEText
 from email.utils import parseaddr, formataddr
 from .tool import email_check, logger
+from config import EMAIL
 
 
 class SendMail(object):
     """发送邮件类"""
 
     def __init__(self):
-        self.useraddr = ""
-        self.password = ""
+        self.useraddr = EMAIL["useraddr"]
+        self.password = EMAIL["userpass"]
+        self.smtp_server = EMAIL["smtpServer"]
         self.from_addr = self._format_addr("SaintIC Passport <{}>".format(self.useraddr))
-        self.smtp_server = "smtp.ym.163.com"
 
     def _format_addr(self, s):
         name, addr = parseaddr(s)

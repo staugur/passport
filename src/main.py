@@ -18,7 +18,8 @@
 import config, json, datetime, jinja2, os
 from version import __version__
 from flask import Flask, request, g, jsonify, redirect, make_response, url_for, render_template, flash
-from utils.tool import logger, access_logger, gen_requestId, create_redis_engine, create_mysql_engine, generate_verification_code, email_check, phone_check, email_tpl
+from utils.tool import logger, access_logger, gen_requestId, create_redis_engine, create_mysql_engine, generate_verification_code, email_check, phone_check
+from utils.web import email_tpl
 from utils.send_email_msg import SendMail
 from libs.plugins import PluginManager
 from libs.auth import Authentication
@@ -153,7 +154,8 @@ def signUp():
             auth = Authentication(g.mysql, g.redis)
             res = auth.signUp(account=account, vcode=vcode, password=password, repassword=repassword, register_ip=register_ip)
             if res["success"]:
-                return redirect(url_for('index'))
+                # 写登陆日志
+                return redirect(url_for('signIn'))
             else:
                 flash(res["msg"])
         else:
@@ -166,13 +168,18 @@ def signIn():
     if request.method == 'POST':
         token = request.form.get("token")
         challenge = request.form.get("challenge")
-        user_id = request.form.get("user_id")
-        password = request.form.get("password")
         if token and challenge and _validate(challenge, token):
-            if user_id and password and str(user_id) == "admin" and str(password) == "admin":
+            account = request.form.get("account")
+            password = request.form.get("password")
+            login_ip = request.headers.get('X-Real-Ip', request.remote_addr)
+            auth = Authentication(g.mysql, g.redis)
+            res = auth.signIn(account=account, password=password)
+            # 记录登录日志
+            auth.brush_loginlog(res, login_ip=login_ip, user_agent=request.headers.get("User-Agent"))
+            if res["success"]:
                 return redirect(url_for('index'))
             else:
-                flash(u"无效的登录凭证")
+                flash(res["msg"])
         else:
             flash(u"人机验证失败")
         return redirect(url_for('signIn'))
@@ -201,7 +208,7 @@ def misc_sendVcode():
                 else:
                     res.update(msg=u"已发送验证码，有效期300秒", success=True)
             else:
-                res.update(msg=u"邮件系统故障，请稍后重试")
+                res.update(msg=u"邮件发送失败，请稍后重试")
     elif phone_check(account):
         res.update(msg=u"暂不支持手机注册")
     else:

@@ -3,23 +3,25 @@
 {% block title %}登录{% endblock %}
 
 {% block container %}
-	<form action="{{ url_for('signIn') }}" method="POST" class="form">
+    <form action="{{ url_for('signIn') }}" method="post" class="form" onsubmit="return checkSubmit();">
 		<div class="form-head">
 			<h2>登录</h2>
             <!--<p class="form-notice">注册即送888元礼包，还可享3折套餐优惠</p>-->
 			<p>还没有账号？<a href="{{ url_for('signUp') }}">立即注册</a></p>
 		</div>
 		<div class="form-body">
+            <p class="err-msg" id="err-msg">
             {%- with messages = get_flashed_messages() %}
             {%- if messages %}
-            <p class="err-msg">{{ " ".join(messages) }}</p>
+            {{ " ".join(messages) }}
             {%- endif %}
             {%- endwith %}
+            </p>
 			<div class="ui-input">
-				<input type="text" placeholder="邮箱/手机号" name="user_id">
+				<input type="text" placeholder="邮箱" name="account" id="account">
 			</div>
 			<div class="ui-input">
-				<input type="password" placeholder="密码" name="password">
+				<input type="password" placeholder="密码" name="password" id="password">
 			</div>
             <input type="hidden" name="token" id="token">
             <input type="hidden" name="challenge" id="challenge">
@@ -29,7 +31,7 @@
                     <span class="vaptcha-text">VAPTCHA启动中...</span>
                 </div>
             </div>
-			<button type="submit" class="ui-button ui-button--primary" disabled="disabled" id="signInButton">登录</button>
+            <input type="submit" class="ui-button ui-button--primary" disabled="disabled" id="signInButton" value="登录">
 			<hr>
 			<p class="forget-password">
 				<a href="forget.html">忘记密码？</a>
@@ -61,7 +63,6 @@
             outage:"/getDowTime", //服务器端配置的宕机模式接口地址
             success:function(token,challenge){//验证成功回调函数, 参数token, challenge 为string, 必填
                 //todo:执行人机验证成功后的操作
-                console.log(token,challenge);
                 $('#token').val(token);
                 $('#challenge').val(challenge);
                 $('#signInButton').removeAttr("disabled");
@@ -78,5 +79,13 @@
             obj.init();
         });
     });
+    function checkSubmit() {
+        var password = $('#password').val();
+        if(password.length<6||password.length>30){
+            alert("密码长度应在6到30个字符之间！");
+            return false;
+        }
+        return true;
+    }
 </script>
 {% endblock %}

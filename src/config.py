@@ -29,7 +29,20 @@ GLOBAL={
     #静态资源根地址，如果引用CDN等第三方css、js、image等文件，请填写资源域名，否则留空
 }
 
-SSO={}
+
+# 邮箱配置段
+EMAIL = {
+
+    "useraddr": os.getenv("passport_email_useraddr"),
+    # 邮箱用户：发件人
+
+    "userpass": os.getenv("passport_email_userpass"),
+    # 用户邮箱密码
+
+    "smtpServer": os.getenv("passport_email_smtpserver"),
+    # 邮箱服务器地址
+}
+
 
 MYSQL=os.getenv("passport_mysql_url")
 #MYSQL数据库连接信息

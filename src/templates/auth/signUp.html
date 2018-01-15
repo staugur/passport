@@ -60,7 +60,6 @@
             outage:"/getDowTime", //服务器端配置的宕机模式接口地址
             success:function(token,challenge){//验证成功回调函数, 参数token, challenge 为string, 必填
                 //todo:执行人机验证成功后的操作
-                console.log(token,challenge);
                 $('#token').val(token);
                 $('#challenge').val(challenge);
                 $('#signUpButton').removeAttr("disabled");
@@ -78,7 +77,6 @@
         });
     });
     function checkSubmit() {
-        console.log("checkSubmit");
         var password = $('#password').val();
         var repassword = $('#repassword').val();
         if(password!=repassword){
@@ -94,7 +92,6 @@
     function sendCode(that) {
         var wait = 300;
         var account = $('#account').val();
-        console.log(account);
         if (account) {
             $.ajax({
                 type: 'post',
