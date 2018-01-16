@@ -25,10 +25,10 @@
 				<a class="sms-button" href="javascript:sendCode(this)" id="sms-tip-msg">获取验证码</a>
 			</div>
 			<div class="ui-input">
-				<input type="password" placeholder="设置密码，6-30位，请尽量保持复杂" name="password" id="password" required="required" maxlength="30">
+				<input type="password" placeholder="设置密码，6-30位，请尽量保持复杂" name="password" id="password" required="required" maxlength="30" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,30}$">
 			</div>
             <div class="ui-input">
-                <input type="password" placeholder="确认密码" name="repassword" id="repassword" required="required" maxlength="30">
+                <input type="password" placeholder="确认密码" name="repassword" id="repassword" required="required">
             </div>
             <input type="hidden" name="token" id="token">
             <input type="hidden" name="challenge" id="challenge">

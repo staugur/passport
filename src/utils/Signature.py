@@ -18,18 +18,20 @@ class Signature(object):
     """ 接口签名认证 """
 
     def __init__(self):
-        super(Signature, self).__init__()
-        # Api版本
         self._version = "v1"
+        self._accessKeys = [
+            {"accesskey_id": "U2JpQXBp", "accesskey_secret": "GBRDOOBSGIZGIZBZHE2TINJYGZQTKY3B"}
+        ]
         # 时间戳有效时长，单位秒
-        self._timestamp_expiration = 15
+        self._timestamp_expiration = 30
 
-    @property
-    def _accessKeys(self):
-        """动态密钥列表"""
-        data = self._list_accesskeys()
-        logger.debug(data)
-        return data
+    def get_signer_name(self):
+        """获取签名算法"""
+        return "MD5"
+
+    def get_singer_version(self):
+        """获取签名版本"""
+        return self._version
 
     def _check_req_timestamp(self, req_timestamp):
         """ 校验时间戳
@@ -110,6 +112,7 @@ class Signature(object):
         return res
 
     def signature_required(self, f):
+        logger.debug("start login_required")
         @wraps(f)
         def decorated_function(*args, **kwargs):
             params = request.args.to_dict()
@@ -119,47 +122,3 @@ class Signature(object):
             else:
                 return res
         return decorated_function
-
-
-class RequestClient(object):
-    """ 接口签名客户端示例 """
-
-    def __init__(self):
-        self._version = "v1"
-        self._accesskey_id = "U2JpQXBp"
-        self._accesskey_secret = "GBRDOOBSGIZGIZBZHE2TINJYGZQTKY3B"
-
-    def _sign(self, parameters):
-        """ 签名
-        @param parameters dict: uri请求参数(包含除signature外的公共参数)
-        """
-        if "signature" in parameters:
-            parameters.pop("signature")
-        # NO.1 参数排序
-        _my_sorted = sorted(parameters.items(), key=lambda parameters: parameters[0])
-        # NO.2 排序后拼接字符串
-        canonicalizedQueryString = ''
-        for (k, v) in _my_sorted:
-            canonicalizedQueryString += '{}={}&'.format(k,v)
-        canonicalizedQueryString += self._accesskey_secret
-        # NO.3 加密返回签名: signature
-        return md5(canonicalizedQueryString).upper()
-
-    def make_url(self, params={}):
-        """生成请求参数
-        @param params dict: uri请求参数(不包含公共参数)
-        """
-        if not isinstance(params, dict):
-            raise TypeError("params is not a dict")
-        # 获取当前时间戳
-        timestamp = get_current_timestamp() - 4
-        # 设置公共参数
-        publicParams = dict(accesskey_id=self._accesskey_id, version=self._version, timestamp=timestamp)
-        # 添加加公共参数
-        for k,v in publicParams.iteritems():
-            params[k] = v
-        uri = ''
-        for k,v in params.iteritems():
-            uri += '{}={}&'.format(k,v)
-        uri += 'signature=' + self._sign(params)
-        return uri
