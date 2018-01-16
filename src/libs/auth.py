@@ -101,10 +101,10 @@ class Authentication(object):
                     info = self.db.insert(sql_1, guid, identity_type, identifier, certificate, verified, 1, ctime)
                     logger.debug("sql_1 info: {}".format(info))
                 except IntegrityError:
-                    res.update(msg=u"账户已存在")
+                    res.update(msg="Account already exists")
                 except Exception,e:
                     logger.error(e, exc_info=True)
-                    res.update(msg=u"系统异常")
+                    res.update(msg="System is abnormal")
                 else:
                     sql_2 = "INSERT INTO user_profile (uid, register_source, register_ip, create_time, is_realname, is_admin) VALUES (%s, %s, %s, %s, %s, %s)"
                     info = self.db.insert(sql_2, guid, register_source, register_ip, ctime, 0, 0)
@@ -117,11 +117,11 @@ class Authentication(object):
             else:
                 logger.debug("transaction, over")
                 if self.__check_hasUser(guid):
-                    res.update(msg=u"注册成功", success=True)
+                    res.update(msg="Registration success", success=True)
                 else:
-                    res.update(msg=u"注册失败")
+                    res.update(msg="Registration failed")
         else:
-            res.update(msg=u"校验失败")
+            res.update(msg="Check failed")
         logger.info(res)
         return res
 
@@ -144,27 +144,27 @@ class Authentication(object):
         if email_check(account):
             # 账号类型：邮箱
             # NO.2 检查密码、验证码
-            if password and repassword and password == repassword and 6 <= len(password) < 30:
+            if password and repassword and password == repassword and 6 <= len(password) <= 30:
                 certificate = generate_password_hash(password)
                 if vcode and len(vcode) == 6 and self.__check_sendEmailVcode(account, vcode, scene="signUp"):
                     # NO.3 检查账号是否存在
                     if self.__check_hasEmail(account):
-                        res.update(msg=u"邮箱已存在")
+                        res.update(msg="Email already exists")
                     else:
                         guid = gen_uniqueId()
                         upts = self.__signUp_transacion(guid=guid, identifier=account, identity_type=2, certificate=certificate, verified=1, register_ip=register_ip, register_source=2)
                         logger.debug(upts)
                         res.update(upts)
                 else:
-                    res.update(msg=u"无效的验证码")
+                    res.update(msg="Invalid verification code")
             else:
-                res.update(msg=u"无效的密码：两次密码不一致或长度不合格")
+                res.update(msg="Invalid password: Inconsistent password or length failed twice")
         elif phone_check(account):
             # 账号类型：手机
-            res.update(msg=u"暂不支持手机号注册")
+            res.update(msg="Not support phone number registration")
         else:
             # 账号类型：非法，拒绝
-            res.update(msg=u"无效的账号")
+            res.update(msg="Invalid account")
         logger.info(res)
         return res
 
@@ -190,7 +190,7 @@ class Authentication(object):
                     data = self.db.get(sql, identity_type, account)
                 except Exception,e:
                     logger.error(e, exc_info=True)
-                    res.update(msg=u"系统异常")
+                    res.update(msg="System is abnormal")
                 else:
                     if data and isinstance(data, dict):
                         uid = data["uid"]
@@ -198,17 +198,17 @@ class Authentication(object):
                         if check_password_hash(certificate, password):
                             res.update(success=True, uid=uid, identity_type=identity_type)
                         else:
-                            res.update(msg=u"密码错误")
+                            res.update(msg="Wrong password")
                     else:
-                        res.update(msg=u"无效的账号：不存在或已禁用")
+                        res.update(msg="Invalid account: does not exist or has been disabled")
             else:
-                res.update(msg=u"无效的密码：长度不合格")
+                res.update(msg="Invalid password: length unqualified")
         elif phone_check(account):
             # 账号类型：手机
-            res.update(msg=u"暂不支持手机号登录")
+            res.update(msg="Temporarily do not support phone number login")
         else:
             # 账号类型：非法，拒绝
-            res.update(msg=u"无效的账号")
+            res.update(msg="Invalid account")
         logger.info(res)
         return res
 

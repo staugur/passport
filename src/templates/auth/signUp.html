@@ -18,17 +18,17 @@
             {%- endwith %}
             </p>
 			<div class="ui-input">
-				<input type="text" placeholder="邮箱号" name="account" id="account" required="required">
+				<input type="text" placeholder="邮箱/手机号" name="account" id="account" required="required" maxlength="50" autofocus="autofocus">
 			</div>
 			<div class="ui-input narrow-input">
-				<input type="text" placeholder="验证码" name="vcode" id="vcode" required="required">
+				<input type="text" placeholder="验证码" name="vcode" id="vcode" required="required" maxlength="6">
 				<a class="sms-button" href="javascript:sendCode(this)" id="sms-tip-msg">获取验证码</a>
 			</div>
 			<div class="ui-input">
-				<input type="password" placeholder="密码，6-16位，区分大小写" name="password" id="password" required="required">
+				<input type="password" placeholder="设置密码，6-30位，请尽量保持复杂" name="password" id="password" required="required" maxlength="30">
 			</div>
             <div class="ui-input">
-                <input type="password" placeholder="确认密码，6-16位，区分大小写" name="repassword" id="repassword" required="required">
+                <input type="password" placeholder="确认密码" name="repassword" id="repassword" required="required" maxlength="30">
             </div>
             <input type="hidden" name="token" id="token">
             <input type="hidden" name="challenge" id="challenge">
@@ -47,9 +47,7 @@
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 <script src="https://cdn.vaptcha.com/v.js"></script>
 <script type="text/javascript">
-    $.get('/getVaptcha?sceneid=02', function(res){
-        //这里使用到验证场景，传过去的参数即为对应的编号，比如之前登录的对应的编号即为01
-        console.log(res);
+    $.get("{{ url_for('misc_getChallenge', sceneid='02') }}", function(res){
         var options={
             vid: res.vid, //验证单元id, string, 必填
             challenge: res.challenge, //验证流水号, string, 必填
@@ -57,7 +55,7 @@
             type:"click", //必填，表示点击式验证模式,
             effect:'popup', //验证图显示方式, string, 可选择float, popup, 默认float
             color:"#57ABFF", //按钮颜色, string
-            outage:"/getDowTime", //服务器端配置的宕机模式接口地址
+            outage:"{{ url_for('misc_getDownTime') }}", //服务器端配置的宕机模式接口地址
             success:function(token,challenge){//验证成功回调函数, 参数token, challenge 为string, 必填
                 //todo:执行人机验证成功后的操作
                 $('#token').val(token);
@@ -80,16 +78,17 @@
         var password = $('#password').val();
         var repassword = $('#repassword').val();
         if(password!=repassword){
-            alert("密码和重复密码不同，请重新输入！");
+            layer.msg("密码和重复密码不同，请重新输入！");
             return false;
         }
         if(password.length<6||password.length>30||repassword.length<6||repassword.length>30){
-            alert("密码长度应在6到30个字符之间！");
+            layer.msg("密码长度应在6到30个字符之间！");
             return false;
         }
         return true;
     }
     function sendCode(that) {
+        disable_sendCode();
         var wait = 300;
         var account = $('#account').val();
         if (account) {
@@ -102,22 +101,28 @@
                     if (res.success==true) {
                         check();
                     } else {
-                        alert(res.msg);
+                        layer.msg(res.msg);
+                        enable_sendCode();
                     }
                 }
             });
         } else {
-            alert("请填写账号");
+            layer.msg("请填写邮箱或手机账号");
+        }
+        function disable_sendCode() {
+            $('#sms-tip-msg').attr("disabled", true);
+            $('#sms-tip-msg').removeAttr('href');
+        }
+        function enable_sendCode() {
+            $('#sms-tip-msg').removeAttr("disabled");
+            $('#sms-tip-msg').attr('href','javascript:sendCode(this)');
         }
         function check() {
             if (wait == 0) {
-                $('#sms-tip-msg').removeAttr("disabled");
-                $('#sms-tip-msg').attr('href','javascript:sendCode(this)');
+                enable_sendCode();
                 $('#sms-tip-msg').text("重发验证码");
                 wait = 300;
             } else {
-                $('#sms-tip-msg').attr("disabled", true);
-                $('#sms-tip-msg').removeAttr('href');
                 $('#sms-tip-msg').text(wait+"秒后可重新发送");
                 wait--;
                 setTimeout(function() {

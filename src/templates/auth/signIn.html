@@ -18,10 +18,10 @@
             {%- endwith %}
             </p>
 			<div class="ui-input">
-				<input type="text" placeholder="邮箱" name="account" id="account">
+				<input type="text" placeholder="邮箱/手机号" name="account" id="account" autofocus="autofocus">
 			</div>
 			<div class="ui-input">
-				<input type="password" placeholder="密码" name="password" id="password">
+				<input type="password" placeholder="登录密码" name="password" id="password">
 			</div>
             <input type="hidden" name="token" id="token">
             <input type="hidden" name="challenge" id="challenge">
@@ -51,8 +51,7 @@
 <script src="https://cdn.vaptcha.com/v.js"></script>
 <script type="text/javascript">
     //这里使用到验证场景，传过去的参数即为对应的编号，比如之前登录的对应的编号即为01
-    $.get('/getVaptcha?sceneid=01', function(res){
-        console.log(res);
+    $.get("{{ url_for('misc_getChallenge', sceneid='01') }}", function(res){
         var options={
             vid: res.vid, //验证单元id, string, 必填
             challenge: res.challenge, //验证流水号, string, 必填
@@ -60,7 +59,7 @@
             type:"click", //必填，表示点击式验证模式,
             effect:'popup', //验证图显示方式, string, 可选择float, popup, 默认float
             color:"#57ABFF", //按钮颜色, string
-            outage:"/getDowTime", //服务器端配置的宕机模式接口地址
+            outage:"{{ url_for('misc_getDownTime') }}", //服务器端配置的宕机模式接口地址
             success:function(token,challenge){//验证成功回调函数, 参数token, challenge 为string, 必填
                 //todo:执行人机验证成功后的操作
                 $('#token').val(token);
@@ -82,7 +81,7 @@
     function checkSubmit() {
         var password = $('#password').val();
         if(password.length<6||password.length>30){
-            alert("密码长度应在6到30个字符之间！");
+            layer.msg("密码长度应在6到30个字符之间！");
             return false;
         }
         return true;

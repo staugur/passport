@@ -34,6 +34,8 @@ class SendMail(object):
         self.useraddr = EMAIL["useraddr"]
         self.password = EMAIL["userpass"]
         self.smtp_server = EMAIL["smtpServer"]
+        self.smtp_port = EMAIL["smtpPort"]
+        self.smtp_ssl = True if EMAIL["smtpSSL"] in ("true", "True", True) else False
         self.from_addr = self._format_addr("SaintIC Passport <{}>".format(self.useraddr))
 
     def _format_addr(self, s):
@@ -59,7 +61,10 @@ class SendMail(object):
             msg['To'] = to_addr
             msg['Subject'] = Header(subject, 'utf-8').encode()
             try:
-                server = smtplib.SMTP(self.smtp_server, 25)
+                if self.smtp_ssl is True:
+                    server = smtplib.SMTP_SSL(self.smtp_server, port=self.smtp_port)
+                else:
+                    server = smtplib.SMTP(self.smtp_server, port=self.smtp_port)
                 # server.set_debuglevel(1)
                 server.login(self.useraddr, self.password)
                 server.sendmail(self.useraddr, to_addrs, msg.as_string())

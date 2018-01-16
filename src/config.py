@@ -25,8 +25,23 @@ GLOBAL={
     "LogLevel": os.getenv("passport_loglevel", "DEBUG"),
     #Application to write the log level, currently has DEBUG, INFO, WARNING, ERROR, CRITICAL.
 
-    "STATIC_URL_ROOT": os.getenv("passport_static_url_root")
+    "STATIC_URL_ROOT": os.getenv("passport_static_url_root"),
     #静态资源根地址，如果引用CDN等第三方css、js、image等文件，请填写资源域名，否则留空
+
+    "AES_CBC_KEY": os.getenv("passport_aes_cbc_key", "YRRGBRYQqrV1gv5A"),
+    # utils.aes_cbc.CBC类中所用加密key
+
+    "JWT_SECRET_KEY": os.getenv("passport_jwt_secret_key", "WBlE7_#qDf2vRb@vM!Zw#lqrg@rdd3A6")
+    # utils.jwt.JWTUtil类中所用加密key
+}
+
+#手势验证码配置段
+VAPTCHA = {
+    "vid": os.getenv("passport_vaptcha_vid"),
+    #验证单元id
+
+    "key": os.getenv("passport_vaptcha_key")
+    #验证单元key
 }
 
 
@@ -41,6 +56,12 @@ EMAIL = {
 
     "smtpServer": os.getenv("passport_email_smtpserver"),
     # 邮箱服务器地址
+
+    "smtpPort": os.getenv("passport_email_smtpport", 25),
+    # 邮箱服务器端口
+
+    "smtpSSL": os.getenv("passport_email_smtpssl", False)
+    # 是否使用SSL加密
 }
 
 
