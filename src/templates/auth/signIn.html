@@ -38,9 +38,16 @@
 			</p>
             <p class="socialLogin">
             	<sup>第三方社会化账号登录：</sup>
-           	    <a href="#" title="使用QQ账号登录"><img src="/static/images/qq.jpg" /></a>
-           	    <a href="#" title="使用新浪微博账号登录"><img src="/static/images/weibo.jpg" /></a>
-         	    <a href="#" title="使用GitHub账号登录"><img src="/static/images/github.png" /></a>
+                {% if auth_signIn_socialLogin_include %}
+                    {% for ai in auth_signIn_socialLogin_include() %}
+                        {% include ai %}
+                    {% endfor %}
+                {% endif %}
+                {% if auth_signIn_socialLogin_string %}
+                    {% for as in auth_signIn_socialLogin_string() %}
+                        {{ as|safe }}
+                    {% endfor %}
+                {% endif %}
             </p>
 		</div>
 	</form>

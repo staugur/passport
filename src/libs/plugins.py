@@ -172,24 +172,24 @@ class PluginManager(object):
     def get_all_tep(self):
         """模板扩展点, Template extension point, 更多扩展点自己定义.
         #No1. 自定义在模板中的扩展点:
-        TEP: base_front_header_include
-        TEP: base_front_header_string
+        TEP: auth_signIn_socialLogin_include
+        TEP: auth_signIn_socialLogin_string
         定义方法： key = lambda function(返回list)
         #No2. 模板中启用自定义的扩展点:
-        {% if base_front_header_include %}
-            {% for hi in base_front_header_include() %}
-                {% include hi %}
+        {% if auth_signIn_socialLogin_include %}
+            {% for ai in auth_signIn_socialLogin_include() %}
+                {% include ai %}
             {% endfor %}
         {% endif %}
-        {% if base_front_header_string %}
-            {% for hs in base_front_header_string() %}
-                {{ hs|safe }}
+        {% if auth_signIn_socialLogin_string %}
+            {% for as in auth_signIn_socialLogin_string() %}
+                {{ as|safe }}
             {% endfor %}
         {% endif %}
         """
         return dict(
-            base_front_header_include=lambda: [plugin["plugin_tep"].get("base_front_header_include") for plugin in self.get_enabled_plugins if plugin["plugin_tep"].get("base_front_header_include")],
-            base_front_header_string=lambda: [plugin["plugin_tep"].get("base_front_header_string") for plugin in self.get_enabled_plugins if plugin["plugin_tep"].get("base_front_header_string")],
+            auth_signIn_socialLogin_include=lambda: [plugin["plugin_tep"].get("auth_signIn_socialLogin_include") for plugin in self.get_enabled_plugins if plugin["plugin_tep"].get("auth_signIn_socialLogin_include")],
+            auth_signIn_socialLogin_string=lambda: [plugin["plugin_tep"].get("auth_signIn_socialLogin_string") for plugin in self.get_enabled_plugins if plugin["plugin_tep"].get("auth_signIn_socialLogin_string")],
         )
 
     @property
