@@ -5,8 +5,8 @@
 {% block container %}
     <form action="{{ url_for('signUp') }}" method="post" class="form" onsubmit="return checkSubmit();">
 		<div class="form-head">
-			<h2>新用户注册</h2>
-			<!--<p class="form-notice">注册即送888元礼包，还可享3折套餐优惠</p>-->
+			<h2>注册</h2>
+			<!--<p class="form-notice"></p>-->
 			<p>已有账号？<a href="{{ url_for('signIn') }}">立即登录</a></p>
 		</div>
 		<div class="form-body">
@@ -25,7 +25,7 @@
 				<a class="sms-button" href="javascript:sendCode(this)" id="sms-tip-msg">获取验证码</a>
 			</div>
 			<div class="ui-input">
-				<input type="password" placeholder="设置密码，6-30位，请尽量保持复杂" name="password" id="password" required="required" maxlength="30" pattern="^(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{6,30}$">
+				<input type="password" placeholder="设置密码，6-30位，请尽量保持复杂" name="password" id="password" required="required" maxlength="30">
 			</div>
             <div class="ui-input">
                 <input type="password" placeholder="确认密码" name="repassword" id="repassword" required="required">

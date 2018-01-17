@@ -158,13 +158,18 @@ def signUp():
             repassword = request.form.get("repassword")
             register_ip = request.headers.get('X-Real-Ip', request.remote_addr)
             auth = Authentication(g.mysql, g.redis)
-            res = auth.signUp(account=account, vcode=vcode, password=password, repassword=repassword, register_ip=register_ip)
-            res = dfr(res)
-            if res["success"]:
-                # 写登陆日志
-                return redirect(url_for('signIn'))
+            try:
+                res = auth.signUp(account=account, vcode=vcode, password=password, repassword=repassword, register_ip=register_ip)
+            except Exception,e:
+                logger.error(e, exc_info=True)
+                flash(u"系统异常，请稍后再试")
             else:
-                flash(res["msg"])
+                res = dfr(res)
+                if res["success"]:
+                    # 写登陆日志
+                    return redirect(url_for('signIn'))
+                else:
+                    flash(res["msg"])
         else:
             flash(u"人机验证失败")
         return redirect(url_for('signUp'))
@@ -216,22 +221,28 @@ def misc_sendVcode():
     if email_check(account):
         email = account
         key = "passport:signUp:vcode:{}".format(email)
-        if g.redis.exists(key):
-            res.update(msg="Have sent the verification code, please check the mailbox")
+        try:
+            hasKey = g.redis.exists(key)
+        except Exception,e:
+            logger.error(e, exc_info=True)
+            res.update(msg="System is abnormal")
         else:
-            vcode = generate_verification_code()
-            result = sendmail.SendMessage(to_addr=email, subject=u"Passport邮箱注册验证码", formatType="html", message=email_tpl %(email, u"注册", vcode))
-            if result["success"]:
-                try:
-                    g.redis.set(key, vcode)
-                    g.redis.expire(key, 300)
-                except Exception,e:
-                    logger.error(e, exc_info=True)
-                    res.update(msg="System is abnormal")
-                else:
-                    res.update(msg="Sent verification code, valid for 300 seconds", success=True)
+            if hasKey:
+                res.update(msg="Have sent the verification code, please check the mailbox")
             else:
-                res.update(msg="Mail delivery failed, please try again later")
+                vcode = generate_verification_code()
+                result = sendmail.SendMessage(to_addr=email, subject=u"Passport邮箱注册验证码", formatType="html", message=email_tpl %(email, u"注册", vcode))
+                if result["success"]:
+                    try:
+                        g.redis.set(key, vcode)
+                        g.redis.expire(key, 300)
+                    except Exception,e:
+                        logger.error(e, exc_info=True)
+                        res.update(msg="System is abnormal")
+                    else:
+                        res.update(msg="Sent verification code, valid for 300 seconds", success=True)
+                else:
+                    res.update(msg="Mail delivery failed, please try again later")
     elif phone_check(account):
         res.update(msg="Not support phone number registration")
     else:

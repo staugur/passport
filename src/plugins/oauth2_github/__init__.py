@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    passport.plugins.PluginDemo
+    passport.plugins.oauth2_github
     ~~~~~~~~~~~~~~
 
     This is a demo for plugin.
@@ -20,10 +20,10 @@ from libs.base import PluginBase
 
 #：Your plug-in name must be consistent with the plug-in directory name.
 #：你的插件名称，必须和插件目录名称等保持一致.
-__name__        = "PluginDemo"
+__name__        = "oauth2_github"
 #: Plugin describes information. What does it do?
 #: 插件描述信息,什么用处.
-__description__ = "A demo"
+__description__ = "Connection GitHub with OAuth2"
 #: Plugin Author
 #: 插件作者
 __author__      = "Mr.tao <staugur@saintic.com>"
@@ -44,26 +44,15 @@ __license_file__= "LICENSE"
 __readme_file__ = "README"
 #: Plugin state, enabled or disabled, default: enabled
 #: 插件状态, enabled、disabled, 默认enabled
-__state__       = "disabled"
+__state__       = "enabled"
 
-"""
+
 from flask import Blueprint, request
-from flask_restful import Api, Resource
 
-#: Example No.1
 plugin_blueprint = Blueprint("PluginDemo", "PluginDemo")
 @plugin_blueprint.route("/plugin/")
 def plugin():
     return "plugin demo"
-
-#: Example No.2
-class ApiDemo(Resource):
-    def get(self):
-        return True
-pluginApi_blueprint = Blueprint("PluginDemo", "PluginDemo")
-api = Api(pluginApi_blueprint)
-api.add_resource(ApiDemo, '/api', '/api/', endpoint='ApiDemoPoint')
-"""
 
 #: 返回插件主类
 def getPluginClass():
