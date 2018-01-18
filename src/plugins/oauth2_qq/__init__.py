@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    passport.plugins.oauth2_github
+    passport.plugins.oauth2_qq
     ~~~~~~~~~~~~~~
 
-    使用GitHub登录
+    使用qq登录
 
     :copyright: (c) 2017 by staugur.
     :license: MIT, see LICENSE for more details.
@@ -21,10 +21,10 @@ from config import PLUGINS
 
 #：Your plug-in name must be consistent with the plug-in directory name.
 #：你的插件名称，必须和插件目录名称等保持一致.
-__name__        = "oauth2_github"
+__name__        = "oauth2_qq"
 #: Plugin describes information. What does it do?
 #: 插件描述信息,什么用处.
-__description__ = "Connection GitHub with OAuth2"
+__description__ = "Connection QQ with OAuth2"
 #: Plugin Author
 #: 插件作者
 __author__      = "Mr.tao <staugur@saintic.com>"
@@ -47,31 +47,31 @@ __readme_file__ = "README"
 #: 插件状态, enabled、disabled, 默认enabled
 __state__       = "enabled"
 
-name = "github"
-github = OAuth2(name,
+name = "qq"
+qq = OAuth2(name,
     client_id = PLUGINS[name]["APP_ID"],
     client_secret = PLUGINS[name]["APP_KEY"],
     redirect_url = PLUGINS[name]["REDIRECT_URI"],
-    authorize_url = "https://github.com/login/oauth/authorize",
-    access_token_url = "https://github.com/login/oauth/access_token",
-    get_userinfo_url = "https://api.github.com/user"
+    authorize_url = "https://graph.qq.com/oauth2.0/authorize",
+    access_token_url = "https://graph.qq.com/oauth2.0/token",
+    get_userinfo_url = "https://graph.qq.com/oauth2.0/me"
 )
 
-plugin_blueprint = Blueprint("oauth2_github", "oauth2_github")
+plugin_blueprint = Blueprint("oauth2_qq", "oauth2_qq")
 @plugin_blueprint.route("/login")
 def login():
     """ 跳转此OAuth应用登录以授权
-    此路由地址：/oauth2/github/login
+    此路由地址：/oauth2/qq/login
     """
-    return github.authorize()
+    return qq.authorize()
 
 @plugin_blueprint.route("/authorized")
 def authorized():
     """ 授权回调路由
-    此路由地址：/oauth2/github/authorized
+    此路由地址：/oauth2/qq/authorized
     """
-    resp = github.authorized_response()
-    resp = github.Parse_Access_Token(resp)
+    resp = qq.authorized_response()
+    resp = qq.Parse_Access_Token(resp)
     print resp
     if resp and isinstance(resp, dict) and "access_token" in resp:
         user = github.get_userinfo(resp["access_token"])
@@ -87,10 +87,10 @@ def authorized():
 
 #: 返回插件主类
 def getPluginClass():
-    return OAuth2_Github_Main
+    return OAuth2_QQ_Main
 
 #: 插件主类, 不强制要求名称与插件名一致, 保证getPluginClass准确返回此类
-class OAuth2_Github_Main(PluginBase):
+class OAuth2_QQ_Main(PluginBase):
     """ 继承自PluginBase基类 """
 
     def register_tep(self):
