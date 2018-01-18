@@ -76,4 +76,23 @@ REDIS=os.getenv("passport_redis_url")
 #host,port必填项,如有密码,记得密码前加冒号,默认localhost:6379/0
 
 #插件配置段
-PLUGINS={}
+PLUGINS = {
+    "WEIBO": {
+        "ENABLE": True,
+        "APP_ID": 1746902937,
+        "APP_KEY": "8853e9ba5835e5a26fa0b4907c2995ce",
+        "REDIRECT_URI": "https://passport.saintic.com/callback/weibo/"
+    },
+    "QQ": {
+        "ENABLE": True,
+        "APP_ID": 100581101,
+        "APP_KEY": "36b4136a30a1bcd126525baf9e815f1f",
+        "REDIRECT_URI": "https://passport.saintic.com/callback/qq/"
+    },
+    "GITHUB": {
+        "ENABLE": True,
+        "APP_ID": '02de0bef7a4f0c669ffd',
+        "APP_KEY": "fa3cd1ce0269b40b40fd98f863a0a6a3c1fb3e83",
+        "REDIRECT_URI": "http://passport.90era.vip/oauth2/github/authorized"
+    },
+}

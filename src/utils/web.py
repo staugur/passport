@@ -9,12 +9,13 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import json
-from functools import wraps
-from flask import g, request, redirect, url_for
-from .tool import logger
+import json, requests
+from .tool import logger, gen_fingerprint
 from .jwt import JWTUtil, JWTException
 from .aes_cbc import CBC
+from urllib import urlencode
+from functools import wraps
+from flask import g, request, redirect, url_for
 
 jwt = JWTUtil()
 cbc = CBC()
@@ -56,6 +57,121 @@ def anonymous_required(f):
             return redirect(url_for('index'))
         return f(*args, **kwargs)
     return decorated_function
+
+
+class OAuth2(object):
+    """OAuth2.0 Client基类"""
+
+    def __init__(self, name, client_id, client_secret, redirect_url, authorize_url, access_token_url, get_userinfo_url, **kwargs):
+        """
+        必选参数：
+            name: 开放平台标识
+            client_id: 开放平台申请的应用id
+            client_secret: 开放平台申请的应用密钥
+            redirect_url: 开放平台申请的应用回掉地址
+            authorize_url: 开放平台的授权地址
+            access_token_url: 开放平台的access_token请求地址
+            get_userinfo_url: 开放平台的用户信息请求地址
+        可选参数：
+            scope: 申请权限，保持默认即可
+            state: client端的状态值，可随机可校验，防CSRF攻击
+            access_token_method: 开放平台的access_token请求方法，默认post，仅支持get、post
+            get_userinfo_method: 开放平台的用户信息请求方法，默认get，仅支持get、post
+            content_type: 保留
+        """
+        self._name = name
+        self._consumer_key = client_id
+        self._consumer_secret = client_secret
+        self._redirect_url = redirect_url
+        self._authorize_url = authorize_url
+        self._access_token_url = access_token_url
+        self._get_userinfo_url = get_userinfo_url
+        self._encoding = "utf-8"
+        self._response_type = "code"
+        self._scope = kwargs.get("scope", "")
+        self._state = kwargs.get("state", gen_fingerprint(n=8))
+        self._access_token_method = kwargs.get("access_token_method", "post").lower()
+        self._get_userinfo_method = kwargs.get("get_userinfo_method", "get").lower()
+        self._content_type = kwargs.get("content_type", "application/json")
+        self._requests = requests.Session()
+
+    @property
+    def requests(self):
+        # 请求函数，同requests
+        return self._requests
+
+    def authorize(self, **params):
+        '''登录的第一步：请求授权页面以获取`Authorization Code`
+        :params: 其他请求参数
+        '''
+        _request_params = self._make_params(
+            response_type=self._response_type,
+            client_id = self._consumer_key,
+            redirect_uri = self._redirect_url,
+            state = self._state,
+            scope = self._scope,
+            **params
+        )
+        return redirect(self._authorize_url + "?" + _request_params)
+
+    def authorized_response(self):
+        '''登录第二步：授权回调，通过`Authorization Code`获取`Access Token`
+        :return: 
+        '''
+        code = request.args.get("code")
+        if code:
+            _request_params = dict(
+                grant_type = "authorization_code",
+                client_id = self._consumer_key,
+                client_secret = self._consumer_secret,
+                code = code,
+                redirect_uri = self._redirect_url
+            )
+            if self._access_token_method == 'get':
+                resp = self.requests.get(self._access_token_url, params=_request_params)
+            else:
+                resp = self.requests.post(self._access_token_url, params=_request_params)
+            try:
+                data = resp.json()
+            except:
+                data = resp.text
+                #data = self.url_code(resp.content)
+            # 包含access_token、expires_in、refresh_token等数据
+            return data
+
+    def get_userinfo(self, access_token, **params):
+        '''登录第三步：根据access_token获取用户信息
+        '''
+        _request_params = self._make_params(
+            access_token = access_token,
+            **params
+        )
+        url = self._get_userinfo_url + "?" + _request_params
+        if self._get_userinfo_method == 'get':
+            resp = self.requests.get(url)
+        else:
+            resp = self.requests.post(url)
+        try:
+            data = resp.json()
+        except:
+            data = resp.text
+        return data
+
+    def _make_params(self, **kwargs):
+        """传入编码成url参数"""
+        return urlencode(kwargs)
+
+    def url_code(self,content):
+        from werkzeug import url_decode
+        return url_decode(content,charset=self._encoding).to_dict()
+
+    def Parse_Access_Token(self, x):
+        '''
+        parse string, such as access_token=E8BF2BCAF63B7CE749796519F5C5D5EB&expires_in=7776000&refresh_token=30AF0BD336324575029492BD2D1E134B.
+        return data, such as {'access_token': 'E8BF2BCAF63B7CE749796519F5C5D5EB', 'expires_in': '7776000', 'refresh_token': '30AF0BD336324575029492BD2D1E134B'}
+        '''
+        return dict( _.split('=') for _ in x.split('&') )
+
 
 # 邮件模板：参数依次是邮箱账号、使用场景、验证码
 email_tpl = u"""<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><style>a{text-decoration: none}</style></head><body><table style="width:550px;"><tr><td style="padding-top:10px; padding-left:5px; padding-bottom:5px; border-bottom:1px solid #D9D9D9; font-size:16px; color:#999;">SaintIC Passport</td></tr><tr><td style="padding:20px 0px 20px 5px; font-size:14px; line-height:23px;">尊敬的<b>%s</b>，您正在申请<i>%s</i><br><br>申请场景的邮箱验证码是 <b style="color: red">%s</b><br><br>5分钟有效，请妥善保管验证码，不要泄露给他人。<br></td></tr><tr><td style="padding-top:5px; padding-left:5px; padding-bottom:10px; border-top:1px solid #D9D9D9; font-size:12px; color:#999;">此为系统邮件，请勿回复<br/>请保管好您的邮箱，避免账户被他人盗用<br/><br/>如有任何疑问，可查看网站帮助 <a target="_blank" href="https://passport.saintic.com">https://passport.saintic.com</a></td></tr></table></body></html>"""
@@ -118,4 +234,3 @@ def dfr(res, language="zh_CN"):
             else:
                 res["msg"] = new
     return res
- 

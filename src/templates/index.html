@@ -9,7 +9,8 @@
 <a href="{{ url_for('logout') }}">注销</a>
 {% else %}
 <a href="{{ url_for('signIn') }}">登录</a>&nbsp;或&nbsp;
-<a href="{{ url_for('signUp') }}">注册</a>
+<a href="{{ url_for('signUp') }}">注册</a>&nbsp;或&nbsp;
+<a href="{{ url_for('oauth2_github.login') }}">github</a>
 {% endif %}
 </body>
 </html>

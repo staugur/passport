@@ -87,6 +87,7 @@ def before_request():
     before_request_hook = plugin.get_all_cep.get("before_request_hook")
     for cep_func in before_request_hook():
         cep_func(request=request, g=g)
+    app.logger.debug(app.url_map)
 
 @app.after_request
 def after_request(response):

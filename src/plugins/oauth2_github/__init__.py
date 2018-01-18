@@ -15,7 +15,9 @@ from __future__ import absolute_import
 from libs.base import PluginBase
 #: Import the other modules here, and if it's your own module, use the relative Import. eg: from .lib import Lib
 #: 在这里导入其他模块, 如果有自定义包目录, 使用相对导入, 如: from .lib import Lib
-from flask import Blueprint, request
+from flask import Blueprint, request, jsonify
+from utils.web import OAuth2
+from config import PLUGINS
 
 #：Your plug-in name must be consistent with the plug-in directory name.
 #：你的插件名称，必须和插件目录名称等保持一致.
@@ -46,10 +48,42 @@ __readme_file__ = "README"
 __state__       = "enabled"
 
 
+github = OAuth2("github",
+    client_id = PLUGINS["GITHUB"]["APP_ID"],
+    client_secret = PLUGINS["GITHUB"]["APP_KEY"],
+    redirect_url = PLUGINS["GITHUB"]["REDIRECT_URI"],
+    authorize_url = "https://github.com/login/oauth/authorize",
+    access_token_url = "https://github.com/login/oauth/access_token",
+    get_userinfo_url = "https://api.github.com/user"
+)
+
 plugin_blueprint = Blueprint("oauth2_github", "oauth2_github")
-@plugin_blueprint.route("/github")
-def github():
-    return "plugin demo"
+@plugin_blueprint.route("/login")
+def login():
+    """ 跳转此OAuth应用登录以授权
+    此路由地址：/oauth2/github/login
+    """
+    return github.authorize()
+
+@plugin_blueprint.route("/authorized")
+def authorized():
+    """ 授权回调路由
+    此路由地址：/oauth2/github/authorized
+    """
+    resp = github.authorized_response()
+    resp = github.Parse_Access_Token(resp)
+    print resp
+    if resp and isinstance(resp, dict) and "access_token" in resp:
+        user = github.get_userinfo(resp["access_token"])
+        return jsonify(data=dict(
+            resp=resp,
+            user=user)
+        )
+    else:
+        return 'Access denied: reason=%s error=%s resp=%s' % (
+            request.args['error'],
+            request.args['error_description']
+        )
 
 #: 返回插件主类
 def getPluginClass():
@@ -66,5 +100,5 @@ class OAuth2_Github_Main(PluginBase):
 
     def register_bep(self):
         """注册蓝图入口, 返回蓝图路由前缀及蓝图名称"""
-        bep = {"prefix": "/pluginDemo", "blueprint": plugin_blueprint}
+        bep = {"prefix": "/oauth2/github", "blueprint": plugin_blueprint}
         return bep
