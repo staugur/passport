@@ -15,9 +15,10 @@ from __future__ import absolute_import
 from libs.base import PluginBase
 #: Import the other modules here, and if it's your own module, use the relative Import. eg: from .lib import Lib
 #: 在这里导入其他模块, 如果有自定义包目录, 使用相对导入, 如: from .lib import Lib
-from flask import Blueprint, request, jsonify
-from utils.web import OAuth2
+from flask import Blueprint, request, jsonify, g, flash, redirect, url_for
+from utils.web import OAuth2, analysis_cookie, dfr
 from config import PLUGINS
+from libs.auth import Authentication
 
 #：Your plug-in name must be consistent with the plug-in directory name.
 #：你的插件名称，必须和插件目录名称等保持一致.
@@ -71,19 +72,39 @@ def authorized():
     此路由地址：/oauth2/github/authorized
     """
     resp = github.authorized_response()
-    resp = github.Parse_Access_Token(resp)
-    print resp
+    resp = github.url_code(resp)
+    print "authorized_response:",resp
     if resp and isinstance(resp, dict) and "access_token" in resp:
         user = github.get_userinfo(resp["access_token"])
-        return jsonify(data=dict(
-            resp=resp,
-            user=user)
-        )
+        userinfo = dict(openid=user["id"], nick_name=user["name"], gender=2, avatar=user["avatar_url"], domain_name=user["login"], signature=user["bio"])
+        # 处理第三方登录逻辑
+        auth = Authentication(g.mysql, g.redis)
+        ip = request.headers.get('X-Real-Ip', request.remote_addr)
+        uid = analysis_cookie(request.cookies.get("sessionId")).get("uid")
+        goinfo = auth.oauth2_go(name=name, signin=g.signin, tokeninfo=resp, userinfo=userinfo, register_ip=ip, uid=uid)
+        goinfo = dfr(goinfo)
+        if goinfo["pageAction"] == "goto_signIn":
+            # 未登录流程->执行登录
+            auth.brush_loginlog(dict(identity_type=auth.oauth2_name2type(name), uid=uid, success=True), login_ip=ip, user_agent=request.headers.get("User-Agent"))
+            return github.goto_signIn()
+        elif goinfo["pageAction"] == "goto_signUp":
+            # 未登录流程->执行注册绑定功能
+            flash(u"去注册")
+            #return github.goto_signUp()
+        else:
+            # 已登录流程->反馈绑定结果
+            if goinfo["success"]:
+                # 绑定成功，返回原页面
+                flash(u"已绑定")
+            else:
+                flash(goinfo["msg"])
+        return redirect(url_for("index"))
     else:
-        return 'Access denied: reason=%s error=%s resp=%s' % (
+        flash(u'Access denied: reason=%s error=%s resp=%s' % (
             request.args['error'],
             request.args['error_description']
-        )
+        ))
+    return redirect(url_for("index"))
 
 #: 返回插件主类
 def getPluginClass():

@@ -45,7 +45,7 @@ __license_file__= "LICENSE"
 __readme_file__ = "README"
 #: Plugin state, enabled or disabled, default: enabled
 #: 插件状态, enabled、disabled, 默认enabled
-__state__       = "enabled"
+__state__       = "disabled"
 
 name = "qq"
 qq = OAuth2(name,

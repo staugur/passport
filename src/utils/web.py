@@ -15,7 +15,8 @@ from .jwt import JWTUtil, JWTException
 from .aes_cbc import CBC
 from urllib import urlencode
 from functools import wraps
-from flask import g, request, redirect, url_for
+from flask import g, request, redirect, url_for, make_response
+from werkzeug import url_decode
 
 jwt = JWTUtil()
 cbc = CBC()
@@ -42,6 +43,23 @@ def verify_cookie(cookie):
                 return success
     return False
 
+def analysis_cookie(cookie):
+    """分析获取cookie中payload数据"""
+    if cookie:
+        try:
+            sessionId = cbc.decrypt(cookie)
+        except Exception,e:
+            logger.warn(e)
+        else:
+            try:
+                success = jwt.verifyJWT(sessionId)
+            except JWTException,e:
+                logger.error(e, exc_info=True)
+            else:
+                # 验证token无误即设置登录态，所以确保解密、验证两处key切不可丢失，否则随意伪造！
+                return jwt.analysisJWT(sessionId)["payload"]
+    return dict()
+
 def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -62,7 +80,7 @@ def anonymous_required(f):
 class OAuth2(object):
     """OAuth2.0 Client基类"""
 
-    def __init__(self, name, client_id, client_secret, redirect_url, authorize_url, access_token_url, get_userinfo_url, **kwargs):
+    def __init__(self, name, client_id, client_secret, redirect_url, authorize_url, access_token_url, get_userinfo_url, get_openid_url=None, **kwargs):
         """
         必选参数：
             name: 开放平台标识
@@ -72,11 +90,13 @@ class OAuth2(object):
             authorize_url: 开放平台的授权地址
             access_token_url: 开放平台的access_token请求地址
             get_userinfo_url: 开放平台的用户信息请求地址
+            get_openid_url: 开放平台的获取用户唯一标识请求地址，可选
         可选参数：
             scope: 申请权限，保持默认即可
             state: client端的状态值，可随机可校验，防CSRF攻击
             access_token_method: 开放平台的access_token请求方法，默认post，仅支持get、post
             get_userinfo_method: 开放平台的用户信息请求方法，默认get，仅支持get、post
+            get_openid_method: 开放平台的获取用户唯一标识请求方法，默认get，仅支持get、post
             content_type: 保留
         """
         self._name = name
@@ -85,12 +105,14 @@ class OAuth2(object):
         self._redirect_url = redirect_url
         self._authorize_url = authorize_url
         self._access_token_url = access_token_url
+        self._get_openid_url = get_openid_url
         self._get_userinfo_url = get_userinfo_url
         self._encoding = "utf-8"
         self._response_type = "code"
         self._scope = kwargs.get("scope", "")
         self._state = kwargs.get("state", gen_fingerprint(n=8))
         self._access_token_method = kwargs.get("access_token_method", "post").lower()
+        self._get_openid_method = kwargs.get("get_openid_method", "get").lower()
         self._get_userinfo_method = kwargs.get("get_userinfo_method", "get").lower()
         self._content_type = kwargs.get("content_type", "application/json")
         self._requests = requests.Session()
@@ -139,8 +161,28 @@ class OAuth2(object):
             # 包含access_token、expires_in、refresh_token等数据
             return data
 
+    def get_openid(self, access_token, **params):
+        '''登录第三步准备：根据access_token获取用户唯一标识id
+        '''
+        _request_params = self._make_params(
+            access_token = access_token,
+            **params
+        )
+        if not self._get_openid_url:
+            return None
+        url = self._get_openid_url + "?" + _request_params
+        if self._get_openid_method == 'get':
+            resp = self.requests.get(url)
+        else:
+            resp = self.requests.post(url)
+        try:
+            data = resp.json()
+        except:
+            data = resp.text
+        return data
+
     def get_userinfo(self, access_token, **params):
-        '''登录第三步：根据access_token获取用户信息
+        '''登录第三步：根据access_token获取用户信息(部分开放平台需要先获取openid、uid，可配置get_openid_url，先请求get_openid接口)
         '''
         _request_params = self._make_params(
             access_token = access_token,
@@ -157,20 +199,28 @@ class OAuth2(object):
             data = resp.text
         return data
 
+    def goto_signIn(self, uid):
+        """OAuth转入登录流程，表示登录成功，需要设置cookie"""
+        sessionId = set_cookie(uid=uid)
+        response = make_response(redirect(url_for("index")))
+        # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
+        secure = False if request.url_root.split("://")[0] == "http" else True
+        response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
+        return response
+
+    def goto_signUp(self):
+        pass
+
     def _make_params(self, **kwargs):
         """传入编码成url参数"""
         return urlencode(kwargs)
 
-    def url_code(self,content):
-        from werkzeug import url_decode
-        return url_decode(content,charset=self._encoding).to_dict()
-
-    def Parse_Access_Token(self, x):
+    def url_code(self, content):
         '''
         parse string, such as access_token=E8BF2BCAF63B7CE749796519F5C5D5EB&expires_in=7776000&refresh_token=30AF0BD336324575029492BD2D1E134B.
         return data, such as {'access_token': 'E8BF2BCAF63B7CE749796519F5C5D5EB', 'expires_in': '7776000', 'refresh_token': '30AF0BD336324575029492BD2D1E134B'}
         '''
-        return dict( _.split('=') for _ in x.split('&') )
+        return url_decode(content, charset=self._encoding).to_dict()
 
 
 # 邮件模板：参数依次是邮箱账号、使用场景、验证码
@@ -202,6 +252,9 @@ def dfr(res, language="zh_CN"):
             "Have sent the verification code, please check the mailbox": u"已发送过验证码，请查收邮箱",
             "Sent verification code, valid for 300 seconds": u"已发送验证码，有效期300秒",
             "Mail delivery failed, please try again later": u"邮件发送失败，请稍后重试",
+            "Third-party login binding failed": u"第三方登录绑定失败",
+            "Has been bound to other accounts": u"已经绑定其他账号",
+            "Operation failed, rolled back": u"操作失败，已回滚",
         },
         zh_HK = {
             "Hello World": u"世界，你好",
@@ -222,6 +275,9 @@ def dfr(res, language="zh_CN"):
             "Have sent the verification code, please check the mailbox": u"已發送過驗證碼，請查收郵箱",
             "Sent verification code, valid for 300 seconds": u"已發送驗證碼，有效期300秒",
             "Mail delivery failed, please try again later": u"郵件發送失敗，請稍後重試",
+            "Third-party login binding failed": u"第三方登錄綁定失敗",
+            "Has been bound to other accounts": u"已經綁定其他賬號",
+            "Operation failed, rolled back": u"操作失敗，已回滾",
         }
     )
     if isinstance(res, dict):

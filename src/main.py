@@ -15,7 +15,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import config, json, datetime, jinja2, os
+import config, json, datetime, jinja2, os, sys
 from version import __version__
 from utils.tool import logger, access_logger, create_redis_engine, create_mysql_engine, generate_verification_code, email_check, phone_check
 from utils.web import email_tpl, login_required, anonymous_required, set_cookie, verify_cookie, dfr
@@ -24,6 +24,8 @@ from libs.plugins import PluginManager
 from libs.auth import Authentication
 from vaptchasdk import vaptcha as VaptchaApi
 from flask import Flask, request, g, jsonify, redirect, make_response, url_for, render_template, flash
+reload(sys)
+sys.setdefaultencoding('utf-8')
 
 __author__  = 'staugur'
 __email__   = 'staugur@saintic.com'
