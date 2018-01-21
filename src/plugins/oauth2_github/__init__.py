@@ -81,12 +81,12 @@ def authorized():
         auth = Authentication(g.mysql, g.redis)
         ip = request.headers.get('X-Real-Ip', request.remote_addr)
         uid = analysis_cookie(request.cookies.get("sessionId")).get("uid")
-        goinfo = auth.oauth2_go(name=name, signin=g.signin, tokeninfo=resp, userinfo=userinfo, register_ip=ip, uid=uid)
+        goinfo = auth.oauth2_go(name=name, signin=g.signin, tokeninfo=resp, userinfo=userinfo, uid=uid)
         goinfo = dfr(goinfo)
         if goinfo["pageAction"] == "goto_signIn":
             # 未登录流程->执行登录
             auth.brush_loginlog(dict(identity_type=auth.oauth2_name2type(name), uid=uid, success=True), login_ip=ip, user_agent=request.headers.get("User-Agent"))
-            return github.goto_signIn()
+            return github.goto_signIn(uid=goinfo["pageGuid"])
         elif goinfo["pageAction"] == "goto_signUp":
             # 未登录流程->执行注册绑定功能
             flash(u"去注册")

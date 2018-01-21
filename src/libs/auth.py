@@ -62,7 +62,7 @@ class Authentication(object):
                 return self.rc.get(key) == vcode
         return False
 
-    def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified, register_ip, expire_time="", define_profile_sql=None):
+    def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified, register_ip="", expire_time="0", use_profile_sql=True, define_profile_sql=None):
         ''' begin的方式使用事务注册账号，
         参数：
             @param guid str: 系统账号唯一标识
@@ -71,8 +71,9 @@ class Authentication(object):
             @param certificate str: 加盐密码或第三方access_token
             @param verified int: 是否已验证 0-未验证 1-已验证
             @param register_ip str: 注册IP地址
-            @param define_profile_sql str: 自定义写入`user_profile`表的sql(需要完整可直接执行SQL)
             @param expire_time int: 特指OAuth过期时间戳，暂时保留
+            @param use_profile_sql bool: 定义是否执行define_profile_sql
+            @param define_profile_sql str: 自定义写入`user_profile`表的sql(需要完整可直接执行SQL)
         流程：
             1、写入`user_auth`表
             2、写入`user_profile`表
@@ -86,7 +87,6 @@ class Authentication(object):
             identity_type and \
             certificate and \
             verified and \
-            register_ip and \
             isinstance(guid, (str, unicode)) and \
             len(guid) == 22 and \
             identity_type in (1, 2, 3, 4, 5, 6, 7) and \
@@ -105,13 +105,14 @@ class Authentication(object):
                     logger.error(e, exc_info=True)
                     res.update(msg="System is abnormal")
                 else:
-                    if define_profile_sql:
-                        sql_2 = define_profile_sql
-                        info = self.db.insert(sql_2)
-                    else:
-                        sql_2 = "INSERT INTO user_profile (uid, register_source, register_ip, create_time, is_realname, is_admin) VALUES (%s, %s, %s, %s, %s, %s)"
-                        info = self.db.insert(sql_2, guid, identity_type, register_ip, ctime, 0, 0)
-                    logger.debug("sql_2: {}, return info: {}".format(sql_2, info))
+                    if use_profile_sql:
+                        if define_profile_sql:
+                            sql_2 = define_profile_sql
+                            info = self.db.execute(sql_2)
+                        else:
+                            sql_2 = "INSERT INTO user_profile (uid, register_source, register_ip, create_time, is_realname, is_admin) VALUES (%s, %s, %s, %s, %s, %s)"
+                            info = self.db.insert(sql_2, guid, identity_type, register_ip, ctime, 0, 0)
+                        logger.debug("sql_2: {}, return info: {}".format(sql_2, info))
                     logger.debug('transaction, commit')
                     self.db._db.commit()
             except Exception, e:
@@ -246,7 +247,7 @@ class Authentication(object):
             if data and isinstance(data, dict):
                 return data.get("uid") or None
 
-    def oauth2_go(self, name, signin, tokeninfo, userinfo, register_ip, uid=None):
+    def oauth2_go(self, name, signin, tokeninfo, userinfo, uid=None):
         """第三方账号登录入口
         参数：
             @param name str: 开放平台标识，3GitHub 4qq 5微信 6腾讯微博 7新浪微博
@@ -266,7 +267,6 @@ class Authentication(object):
                     "domain_name": "可选，个性域名，针对weibo"
                     "signature": "可选，签名，针对github"
                 }
-            @param register_ip str: 注册IP地址
             @param uid str: 系统本地用户id，当`signin=True`时，此值必须为实际用户id
         流程：
             1. signin字段判断是否登录
@@ -309,12 +309,8 @@ class Authentication(object):
                         else:
                             res.update(msg="Has been bound to other accounts")
                     else:
-                        # 此openid没有绑定任何本地账号
-                        define_profile_sql = "INSERT INTO user_profile (uid, register_source, register_ip, nick_name, domain_name, gender, signature, avatar, create_time, is_realname, is_admin) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" %(uid, self.oauth2_name2type(name), register_ip, nick_name, domain_name, gender, signature, avatar, get_current_timestamp(), 0, 0)
-                        UPDATE user_profile SET uid='2XyKu82nFWoT9HUoKUwhVQ', register_source='2', register_ip='127.0.0.1', nick_name='', domain_name='', gender='2', birthday='0', signature='', avatar='', curr_nation=NULL, curr_province=NULL, curr_city=NULL, create_time='1516075478', update_time=NULL, is_realname='0', is_admin='0', retain=NULL WHERE (uid='2XyKu82nFWoT9HUoKUwhVQ');
-
-                        print define_profile_sql
-                        upts = self.__signUp_transacion(uid, openid, self.oauth2_name2type(name), access_token, 1, register_ip, expires_in, define_profile_sql)
+                        # 此openid没有绑定任何本地账号，更新用户资料
+                        upts = self.__signUp_transacion(guid=uid, identifier=openid, identity_type=self.oauth2_name2type(name), certificate=access_token, verified=1, expire_time=expires_in, use_profile_sql=False)
                         res.update(upts)
                 else:
                     res.update(msg="Third-party login binding failed")
@@ -323,7 +319,7 @@ class Authentication(object):
                 guid = self.__oauth2_getUid(openid)
                 if guid:
                     # 已经绑定过账号，需要设置登录态
-                    res.update(pageAction="goto_signIn")
+                    res.update(pageAction="goto_signIn", pageGuid=guid)
                 else:
                     # 尚未绑定，需要绑定注册
                     res.update(pageAction="goto_signUp")
