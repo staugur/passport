@@ -1,0 +1,35 @@
+{% extends "auth/base.html" %}
+
+{% block title %}第三方社会化账号登录{% endblock %}
+
+{% block container %}
+    <form action="" method="post" class="form" name="theform">
+        <div class="form-head">
+            <h2>{{ self.title() }}</h2>
+            <!--<p class="form-notice"></p>-->
+        </div>
+        <div class="form-body">
+            <p class="err-msg" id="err-msg">
+            {%- with messages = get_flashed_messages() %}
+            {%- if messages %}
+            {{ " ".join(messages) }}
+            {%- endif %}
+            {%- endwith %}
+            <input type="hidden" name="openid" value="{{ request.args.get('openid') }}">
+            <input type="button" class="ui-button ui-button--success" onclick="gotologin()" value="直接登录">
+            <input type="button" class="ui-button ui-button--success" onclick="redirect()" value="绑定已有账号">
+        </div>
+    </form>
+{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+    function gotologin() {
+        document.theform.action = '{{ url_for("OAuthDirectLogin") }}';
+        document.theform.submit();
+    }
+    function redirect() {
+        window.location.href = "{{ url_for('OAuthBindAccount', openid=request.args.get('openid')) }}"
+    }
+</script>
+{% endblock %}

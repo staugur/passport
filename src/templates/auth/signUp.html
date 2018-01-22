@@ -5,7 +5,7 @@
 {% block container %}
     <form action="{{ url_for('signUp') }}" method="post" class="form" onsubmit="return checkSubmit();">
 		<div class="form-head">
-			<h2>注册</h2>
+			<h2>{{ self.title() }}</h2>
 			<!--<p class="form-notice"></p>-->
 			<p>已有账号？<a href="{{ url_for('signIn') }}">立即登录</a></p>
 		</div>
@@ -30,14 +30,7 @@
             <div class="ui-input">
                 <input type="password" placeholder="确认密码" name="repassword" id="repassword" required="required">
             </div>
-            <input type="hidden" name="token" id="token">
-            <input type="hidden" name="challenge" id="challenge">
-            <div id="vaptcha_container">
-                <div class="vaptcha-init-loading">
-                    <a><img src="{{ url_for('static', filename='images/vaptcha-loading.gif') }}"/></a>
-                    <span class="vaptcha-text">VAPTCHA启动中...</span>
-                </div>
-            </div>
+            {%- include "auth/vaptcha_form.html" %}
 			<input type="submit" class="ui-button ui-button--primary" disabled="disabled" id="signUpButton" value="注册">
 		</div>
 	</form>

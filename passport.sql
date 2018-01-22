@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50720
 File Encoding         : 65001
 
-Date: 2018-01-19 18:35:51
+Date: 2018-01-22 18:33:48
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -35,7 +35,7 @@ CREATE TABLE `user_auth` (
   UNIQUE KEY `identifier` (`identifier`) USING BTREE,
   KEY `status` (`status`) USING BTREE,
   KEY `idx_uid` (`uid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
 
 -- ----------------------------
 -- Records of user_auth
@@ -46,6 +46,7 @@ INSERT INTO `user_auth` VALUES ('3', 'RH3XJVUizkQjyRCsvsCY7U', '2', '1663116375@
 INSERT INTO `user_auth` VALUES ('4', 'MCSki7q8VyhsJuLuMGKusj', '2', 'staugur@qq.com', 'pbkdf2:sha256:50000$Ru1nFYsW$d3b41ae24ff41b0c6aeb4edea113cb3e4bb80d9f8f0df1a2bb708f6bb5f1c005', '1', '1', '1516081679', '0', null, null);
 INSERT INTO `user_auth` VALUES ('5', 'uw7JAzAV9MCz5zRQThV4tf', '2', 'staugur@foxmail.com', 'pbkdf2:sha256:50000$NgpNJydp$9138d04356f92a7716f8f6dc7eb7ffc58542e11a98dee68132813b663833a69f', '1', '1', '1516087910', '0', null, null);
 INSERT INTO `user_auth` VALUES ('6', '7c4DWFyB4YASkSU5Ry2wri', '2', 'taochengwei@starokay.com', 'pbkdf2:sha256:50000$2fRb7MlN$d2a4d20dcc506e22bba7121620ec455660eeb808b756ee1b30ee5a93a658c9c8', '1', '1', '1516093470', '0', null, null);
+INSERT INTO `user_auth` VALUES ('18', 'fWYsBAWhL6sUrM8D7jAL6e', '3', '10270930', 'bbacd1f059d8c0b1c39e1263625502f59cb4e418', '1', '1', '1516616703', '0', '0', null);
 
 -- ----------------------------
 -- Table structure for user_loginlog
@@ -98,6 +99,7 @@ CREATE TABLE `user_profile` (
   `curr_nation` varchar(10) DEFAULT NULL,
   `curr_province` varchar(10) DEFAULT NULL,
   `curr_city` varchar(10) DEFAULT NULL,
+  `location` varchar(50) DEFAULT NULL COMMENT '地址',
   `create_time` int(11) unsigned NOT NULL COMMENT '账号创建时间',
   `update_time` int(11) unsigned DEFAULT NULL COMMENT '账号修改时间',
   `is_realname` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否实名认证 0-未实名 1-已实名',
@@ -110,9 +112,9 @@ CREATE TABLE `user_profile` (
 -- ----------------------------
 -- Records of user_profile
 -- ----------------------------
-INSERT INTO `user_profile` VALUES ('2XyKu82nFWoT9HUoKUwhVQ', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, '1516075478', null, '0', '0', null);
-INSERT INTO `user_profile` VALUES ('7c4DWFyB4YASkSU5Ry2wri', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, '1516093470', null, '0', '0', null);
-INSERT INTO `user_profile` VALUES ('fWYsBAWhL6sUrM8D7jAL6e', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, '1516075172', null, '0', '0', null);
-INSERT INTO `user_profile` VALUES ('MCSki7q8VyhsJuLuMGKusj', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, '1516081679', null, '0', '0', null);
-INSERT INTO `user_profile` VALUES ('RH3XJVUizkQjyRCsvsCY7U', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, '1516081249', null, '0', '0', null);
-INSERT INTO `user_profile` VALUES ('uw7JAzAV9MCz5zRQThV4tf', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, '1516087910', null, '0', '0', null);
+INSERT INTO `user_profile` VALUES ('2XyKu82nFWoT9HUoKUwhVQ', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, null, '1516075478', null, '0', '0', null);
+INSERT INTO `user_profile` VALUES ('7c4DWFyB4YASkSU5Ry2wri', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, null, '1516093470', null, '0', '0', null);
+INSERT INTO `user_profile` VALUES ('fWYsBAWhL6sUrM8D7jAL6e', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, null, '1516075172', null, '0', '0', null);
+INSERT INTO `user_profile` VALUES ('MCSki7q8VyhsJuLuMGKusj', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, null, '1516081679', null, '0', '0', null);
+INSERT INTO `user_profile` VALUES ('RH3XJVUizkQjyRCsvsCY7U', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, null, '1516081249', null, '0', '0', null);
+INSERT INTO `user_profile` VALUES ('uw7JAzAV9MCz5zRQThV4tf', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, null, '1516087910', null, '0', '0', null);

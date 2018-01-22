@@ -11,6 +11,7 @@
 
 import json
 from utils.tool import logger, get_current_timestamp, gen_uniqueId, email_check, phone_check
+from utils.web import oauth2_name2type, cbc
 from torndb import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -84,13 +85,13 @@ class Authentication(object):
         res = dict(success=False, msg=None)
         # 校验
         if guid and identifier and \
-            identity_type and \
-            certificate and \
-            verified and \
-            isinstance(guid, (str, unicode)) and \
-            len(guid) == 22 and \
-            identity_type in (1, 2, 3, 4, 5, 6, 7) and \
-            verified in (1, 0):
+                identity_type and \
+                certificate and \
+                verified and \
+                isinstance(guid, (str, unicode)) and \
+                len(guid) == 22 and \
+                identity_type in (1, 2, 3, 4, 5, 6, 7) and \
+                verified in (1, 0):
             ctime = get_current_timestamp()
             try:
                 logger.debug("transaction, start")
@@ -105,7 +106,7 @@ class Authentication(object):
                     logger.error(e, exc_info=True)
                     res.update(msg="System is abnormal")
                 else:
-                    if use_profile_sql:
+                    if use_profile_sql is True:
                         if define_profile_sql:
                             sql_2 = define_profile_sql
                             info = self.db.execute(sql_2)
@@ -247,6 +248,29 @@ class Authentication(object):
             if data and isinstance(data, dict):
                 return data.get("uid") or None
 
+    def __oauth2_setUserinfo(self, userinfo):
+        """缓存`oauth2_go返回pageAction=goto_signUp时的goto_signUp_data`数据
+        @param userinfo dict: 同`oauth2_go`的userinfo
+        """
+        if userinfo and isinstance(userinfo, dict) and "openid" in userinfo and "identity_type" in userinfo and "avatar" in userinfo and "nick_name" in userinfo:
+            key = "passport:oauth2_cachedUserinfo:{}".format(userinfo["openid"])
+            success = self.rc.hmset(key, userinfo)
+            if success:
+                self.rc.expire(key, 600)
+            return success
+
+    def __oauth2_getUserinfo(self, openid):
+        """查询`__oauth2_cacheUserinfo`接口缓存的数据
+        @param openid str: 加密后的openid
+        """
+        try:
+            openid = cbc.decrypt(openid)
+        except:
+            return None
+        else:
+            key = "passport:oauth2_cachedUserinfo:{}".format(openid)
+            return self.rc.hgetall(key) or None
+
     def oauth2_go(self, name, signin, tokeninfo, userinfo, uid=None):
         """第三方账号登录入口
         参数：
@@ -258,13 +282,13 @@ class Authentication(object):
                     "expires_in": "可选，到期时间戳，默认0不限制",
                     "refresh_token": "可选，刷新TOKEN"
                 }
-            @param userinfo dict: 用户数据，包含用户基本信息及用户在第三方网站唯一标识，格式：
+            @param userinfo dict: 用户数据，包含用户基本信息及用户在第三方网站唯一标识，主要用于注册流程，格式：
                 {
                     "openid": "用户唯一标识",
-                    "gender": "性别",
                     "nick_name": "昵称",
                     "avatar": "头像地址",
-                    "domain_name": "可选，个性域名，针对weibo"
+                    "gender": "可选，性别"，默认2,
+                    "domain_name": "可选，个性域名，针对weibo、github"
                     "signature": "可选，签名，针对github"
                 }
             @param uid str: 系统本地用户id，当`signin=True`时，此值必须为实际用户id
@@ -274,34 +298,29 @@ class Authentication(object):
                 1. 判断uid参数，有意义则查询openid是否绑定uid，否则返回失败信息。
                 2. 如果openid返回uid，说明已经绑定，然后判断绑定账号与uid参数是否一致，一致则尝试更新绑定数据，完成绑定；不一致表示已经绑定其他账号，拒绝操作并返回原页面。
                 3. 如果openid返回None，说明没有绑定，则直接注册并绑定uid参数。
-            - 未登录，可能无账号、可能有账号
+            - 未登录，可能无账号、可能有账号，需要直接注册或绑定已有
                 1. 查询openid是否绑定uid。
                 2. 如果openid返回uid，说明已经绑定，转入登录流程，需要设置cookie登录状态。
                 3. 如果openid返回None，说明没有绑定，此时需要设置是否页面绑定本地账号或直接注册。
         """
         res = dict(msg=None, success=False, pageAction=None)
         if isinstance(name, (str, unicode)) and \
-            signin in (True, False) and \
-            isinstance(tokeninfo, dict) and \
-            isinstance(userinfo, dict) and \
-            "access_token" in tokeninfo and \
-            "openid" in userinfo and \
-            "nick_name" in userinfo and \
-            "gender" in userinfo and \
-            "avatar" in userinfo:
+                signin in (True, False) and \
+                isinstance(tokeninfo, dict) and \
+                isinstance(userinfo, dict) and \
+                "access_token" in tokeninfo and \
+                "openid" in userinfo and \
+                "nick_name" in userinfo and \
+                "avatar" in userinfo:
             # openid是第三方平台用户唯一标识，微博是uid，QQ是openid，Github是id，统一更新为openid
-            openid = userinfo["openid"]
             access_token = tokeninfo["access_token"]
             expires_in = tokeninfo.get("expires_in") or 0
-            gender = userinfo["gender"]
-            nick_name = userinfo["nick_name"]
-            avatar = userinfo["avatar"]
-            domain_name = userinfo.get("domain_name", "")
-            signature = userinfo.get("signature", "")
+            openid = str(userinfo["openid"])
             if signin is True:
-                # 已登录流程
+                # 已登录->绑定流程
                 if uid:
                     guid = self.__oauth2_getUid(openid)
+                    logger.debug("signin true, openid: {}, guid: {}, is equal: {}".format(openid, guid, uid==guid))
                     if guid:
                         if uid == guid:
                             # 更新绑定的数据
@@ -310,38 +329,85 @@ class Authentication(object):
                             res.update(msg="Has been bound to other accounts")
                     else:
                         # 此openid没有绑定任何本地账号，更新用户资料
-                        upts = self.__signUp_transacion(guid=uid, identifier=openid, identity_type=self.oauth2_name2type(name), certificate=access_token, verified=1, expire_time=expires_in, use_profile_sql=False)
+                        upts = self.__signUp_transacion(guid=uid, identifier=openid, identity_type=oauth2_name2type(name), certificate=access_token, verified=1, expire_time=expires_in, use_profile_sql=False)
                         res.update(upts)
                 else:
                     res.update(msg="Third-party login binding failed")
             else:
-                # 未登录流程
+                # 未登录->注册绑定流程
                 guid = self.__oauth2_getUid(openid)
                 if guid:
                     # 已经绑定过账号，需要设置登录态
-                    res.update(pageAction="goto_signIn", pageGuid=guid)
+                    res.update(pageAction="goto_signIn", goto_signIn_data=dict(guid=guid))
                 else:
                     # 尚未绑定，需要绑定注册
-                    res.update(pageAction="goto_signUp")
+                    userinfo.update(identity_type=oauth2_name2type(name), access_token=access_token, expires_in=expires_in)
+                    if self.__oauth2_setUserinfo(userinfo):
+                        res.update(pageAction="goto_signUp", goto_signUp_data=dict(openid=cbc.encrypt(openid)))
+                    else:
+                        res.update(msg="System is abnormal")
         else:
             res.update(msg="Check failed")
         logger.info(res)
         return res
 
-    def oauth2_name2type(self, name):
-        """将第三方登录根据name转化为对应数字
-        @param name str: OAuth name
-        1手机号 2邮箱 3GitHub 4qq 5微信 6腾讯微博 7新浪微博
+    def oauth2_signUp(self, openid, register_ip):
+        """OAuth直接登录时注册入系统
+        @param openid str: 加密的openid，用以获取缓存中数据userinfo，格式是：
+            userinfo dict: 用户信息，必须包含`openid`,`identity_type`,`avatar`,`nick_name`
+        @param register_ip str: 注册IP地址
         """
-        BIND = dict(
-            mobile = 1,
-            email = 2,
-            github = 3,
-            qq = 4,
-            wechat = 5,
-            wexin = 5,
-            tencentweibo = 6,
-            weibo = 7,
-            sinaweibo = 7
-        )
-        return BIND[name]
+        res = dict(msg=None, success=False)
+        userinfo = self.__oauth2_getUserinfo(openid)
+        logger.debug(userinfo)
+        logger.debug(type(userinfo))
+        if userinfo and isinstance(userinfo, dict) and "avatar" in userinfo and "nick_name" in userinfo and "openid" in userinfo and "access_token" in userinfo and "identity_type" in userinfo:
+            openid = userinfo["openid"]
+            access_token = userinfo["access_token"]
+            identity_type = int(userinfo["identity_type"])
+            avatar = userinfo["avatar"]
+            nick_name = userinfo["nick_name"]
+            gender = userinfo.get("gender") or 2
+            domain_name = userinfo.get("domain_name") or ""
+            signature = userinfo.get("signature") or ""
+            location = userinfo.get("location") or ""
+            expire_time = userinfo.get("expire_time") or 0
+            guid = gen_uniqueId()
+            logger.debug("check test: guid length: {}, identifier: {}, identity_type:{}, identity_type: {}, certificate: {}".format(len(guid), openid, identity_type, type(identity_type), access_token))
+            define_profile_sql = "INSERT INTO user_profile (uid, register_source, register_ip, nick_name, domain_name, gender, signature, avatar, location, create_time, is_realname, is_admin) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" %(guid, identity_type, register_ip, nick_name, domain_name, gender, signature, avatar, location, get_current_timestamp(), 0, 0)
+            upts = self.__signUp_transacion(guid=guid, identifier=openid, identity_type=identity_type, certificate=access_token, verified=1, register_ip=register_ip, expire_time=expire_time, define_profile_sql=define_profile_sql)
+            logger.warn(upts)
+            res.update(upts)
+            if res["success"]:
+                res.update(identity_type=identity_type, uid=guid)
+        else:
+            res.update(msg="Check failed")
+        logger.info(res)
+        return res
+
+    def oauth2_bindLogin(self, openid, account, password):
+        """OAuth绑定账号并登录系统
+        @param openid str: 加密的openid
+        @param account str: 同`signIn`中account
+        @param password str: 同`signIn`中password
+        """
+        res = dict(msg=None, success=False)
+        userinfo = self.__oauth2_getUserinfo(openid)
+        logger.debug(userinfo)
+        logger.debug(type(userinfo))
+        if userinfo and isinstance(userinfo, dict) and "avatar" in userinfo and "nick_name" in userinfo and "openid" in userinfo and "access_token" in userinfo and "identity_type" in userinfo:
+            res = self.signIn(account, password)
+            openid = userinfo["openid"]
+            logger.debug(res)
+            if res["success"] is True:
+                # 登录成功，即可绑定openid到uid，无需校验(goto_signUp已经校验)
+                uid = res["uid"]
+                access_token = userinfo["access_token"]
+                identity_type = int(userinfo["identity_type"])
+                expire_time = userinfo.get("expire_time") or 0
+                upts = self.__signUp_transacion(guid=uid, identifier=openid, identity_type=identity_type, certificate=access_token, verified=1, expire_time=expire_time, use_profile_sql=False)
+                res.update(upts)
+        else:
+            res.update(msg="Check failed")
+        logger.info(res)
+        return res

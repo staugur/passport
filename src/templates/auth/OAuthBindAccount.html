@@ -1,15 +1,15 @@
 {% extends "auth/base.html" %}
 
-{% block title %}登录{% endblock %}
+{% block title %}第三方登录绑定账号{% endblock %}
 
 {% block container %}
-    <form action="{{ url_for('signIn') }}" method="post" class="form" onsubmit="return checkSubmit();">
-		<div class="form-head">
-			<h2>{{ self.title() }}</h2>
+    <form action="{{ url_for('OAuthBindAccount') }}" method="post" class="form" onsubmit="return checkSubmit();">
+        <div class="form-head">
+            <h2>{{ self.title() }}</h2>
             <!--<p class="form-notice"></p>-->
-			<p>还没有账号？<a href="{{ url_for('signUp') }}">立即注册</a></p>
-		</div>
-		<div class="form-body">
+            <p>还没有账号？<a href="{{ url_for('signUp') }}">立即注册</a></p>
+        </div>
+        <div class="form-body">
             <p class="err-msg" id="err-msg">
             {%- with messages = get_flashed_messages() %}
             {%- if messages %}
@@ -17,33 +17,17 @@
             {%- endif %}
             {%- endwith %}
             </p>
-			<div class="ui-input">
-				<input type="text" placeholder="邮箱/手机号" name="account" id="account" autofocus="autofocus">
-			</div>
-			<div class="ui-input">
-				<input type="password" placeholder="登录密码" name="password" id="password">
-			</div>
+            <div class="ui-input">
+                <input type="text" placeholder="邮箱/手机号" name="account" id="account" autofocus="autofocus">
+            </div>
+            <div class="ui-input">
+                <input type="password" placeholder="登录密码" name="password" id="password">
+            </div>
+            <input type="hidden" name="openid" value="{{ request.args.get('openid') }}">
             {%- include "auth/vaptcha_form.html" %}
-            <input type="submit" class="ui-button ui-button--primary" disabled="disabled" id="signInButton" value="登录">
-			<hr>
-			<p class="forget-password">
-				<a href="forget.html">忘记密码？</a>
-			</p>
-            <p class="socialLogin">
-            	<sup>第三方社会化账号登录：</sup>
-                {% if auth_signIn_socialLogin_include %}
-                    {% for ai in auth_signIn_socialLogin_include() %}
-                        {% include ai %}
-                    {% endfor %}
-                {% endif %}
-                {% if auth_signIn_socialLogin_string %}
-                    {% for as in auth_signIn_socialLogin_string() %}
-                        {{ as|safe }}
-                    {% endfor %}
-                {% endif %}
-            </p>
-		</div>
-	</form>
+            <input type="submit" class="ui-button ui-button--primary" disabled="disabled" id="signInButton" value="绑定并登录">
+        </div>
+    </form>
 {% endblock %}
 
 {% block script %}
@@ -51,7 +35,7 @@
 <script src="https://cdn.vaptcha.com/v.js"></script>
 <script type="text/javascript">
     //这里使用到验证场景，传过去的参数即为对应的编号，比如之前登录的对应的编号即为01
-    $.get("{{ url_for('misc_getChallenge', sceneid='01') }}", function(res){
+    $.get("{{ url_for('misc_getChallenge', sceneid='03') }}", function(res){
         var options={
             vid: res.vid, //验证单元id, string, 必填
             challenge: res.challenge, //验证流水号, string, 必填

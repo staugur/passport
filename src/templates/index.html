@@ -6,20 +6,23 @@
 <body>
 
 <p>
-            {%- with messages = get_flashed_messages() %}
-                {%- if messages %}
-                    {{ " ".join(messages) }}
-                {%- endif %}
-            {%- endwith %}
+{%- with messages = get_flashed_messages() %}
+    {%- if messages %}
+        {{ " ".join(messages) }}
+    {%- endif %}
+{%- endwith %}
 </p>
 
 {% if g.signin %}
+<p>UID:&nbsp;&nbsp;{{ g.uid }}</p>
 <a href="{{ url_for('logout') }}">注销</a>
 {% else %}
 <a href="{{ url_for('signIn') }}">登录</a>&nbsp;或&nbsp;
-<a href="{{ url_for('signUp') }}">注册</a>&nbsp;或&nbsp;
+<a href="{{ url_for('signUp') }}">注册</a>
 {% endif %}
 
-<p><a href="{{ url_for('oauth2_github.login') }}">注册或绑定github</a></p>
+<p>
+<a href="{{ url_for('oauth2_github.login') }}" title="使用GitHub账号登录">使用github登录或绑定</a>
+</p>
 </body>
 </html>

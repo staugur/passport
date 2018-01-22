@@ -76,6 +76,23 @@ def anonymous_required(f):
         return f(*args, **kwargs)
     return decorated_function
 
+def oauth2_name2type(name):
+    """将第三方登录根据name转化为对应数字
+    @param name str: OAuth name
+    1手机号 2邮箱 3GitHub 4qq 5微信 6腾讯微博 7新浪微博
+    """
+    BIND = dict(
+            mobile = 1,
+            email = 2,
+            github = 3,
+            qq = 4,
+            wechat = 5,
+            wexin = 5,
+            tencentweibo = 6,
+            weibo = 7,
+            sinaweibo = 7
+    )
+    return BIND[name]
 
 class OAuth2(object):
     """OAuth2.0 Client基类"""
@@ -141,6 +158,8 @@ class OAuth2(object):
         :return: 
         '''
         code = request.args.get("code")
+        # state 可以先写入redis并设置过期，此处做验证，增强安全
+        state = request.args.get("state")
         if code:
             _request_params = dict(
                 grant_type = "authorization_code",
@@ -159,6 +178,7 @@ class OAuth2(object):
                 data = resp.text
                 #data = self.url_code(resp.content)
             # 包含access_token、expires_in、refresh_token等数据
+            # 之后进入授权认证接口
             return data
 
     def get_openid(self, access_token, **params):
@@ -208,8 +228,9 @@ class OAuth2(object):
         response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
         return response
 
-    def goto_signUp(self):
-        pass
+    def goto_signUp(self, openid):
+        """OAuth转入注册绑定流程"""
+        return redirect(url_for("OAuthGuide", openid=openid))
 
     def _make_params(self, **kwargs):
         """传入编码成url参数"""
@@ -220,8 +241,7 @@ class OAuth2(object):
         parse string, such as access_token=E8BF2BCAF63B7CE749796519F5C5D5EB&expires_in=7776000&refresh_token=30AF0BD336324575029492BD2D1E134B.
         return data, such as {'access_token': 'E8BF2BCAF63B7CE749796519F5C5D5EB', 'expires_in': '7776000', 'refresh_token': '30AF0BD336324575029492BD2D1E134B'}
         '''
-        return url_decode(content, charset=self._encoding).to_dict()
-
+        return url_decode(content, charset=self._encoding).to_dict() if content else None
 
 # 邮件模板：参数依次是邮箱账号、使用场景、验证码
 email_tpl = u"""<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><style>a{text-decoration: none}</style></head><body><table style="width:550px;"><tr><td style="padding-top:10px; padding-left:5px; padding-bottom:5px; border-bottom:1px solid #D9D9D9; font-size:16px; color:#999;">SaintIC Passport</td></tr><tr><td style="padding:20px 0px 20px 5px; font-size:14px; line-height:23px;">尊敬的<b>%s</b>，您正在申请<i>%s</i><br><br>申请场景的邮箱验证码是 <b style="color: red">%s</b><br><br>5分钟有效，请妥善保管验证码，不要泄露给他人。<br></td></tr><tr><td style="padding-top:5px; padding-left:5px; padding-bottom:10px; border-top:1px solid #D9D9D9; font-size:12px; color:#999;">此为系统邮件，请勿回复<br/>请保管好您的邮箱，避免账户被他人盗用<br/><br/>如有任何疑问，可查看网站帮助 <a target="_blank" href="https://passport.saintic.com">https://passport.saintic.com</a></td></tr></table></body></html>"""

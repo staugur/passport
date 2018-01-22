@@ -18,7 +18,7 @@
 import config, json, datetime, jinja2, os, sys
 from version import __version__
 from utils.tool import logger, access_logger, create_redis_engine, create_mysql_engine, generate_verification_code, email_check, phone_check
-from utils.web import email_tpl, login_required, anonymous_required, set_cookie, verify_cookie, dfr
+from utils.web import email_tpl, login_required, anonymous_required, set_cookie, verify_cookie, analysis_cookie, dfr
 from utils.send_email_msg import SendMail
 from libs.plugins import PluginManager
 from libs.auth import Authentication
@@ -82,14 +82,15 @@ def before_request():
     g.redis = create_redis_engine(app.config["REDIS"])
     g.mysql = create_mysql_engine(app.config["MYSQL"])
     g.signin = verify_cookie(request.cookies.get("sessionId"))
+    g.uid = analysis_cookie(request.cookies.get("sessionId")).get("uid")
     g.ref = request.referrer
     g.redirect_uri = g.ref or url_for('index') if request.endpoint and request.endpoint in ("logout", ) else request.url
-    access_logger.debug("referrer: {}, redirect_uri: {}".format(g.ref, g.redirect_uri))
+    #access_logger.debug("referrer: {}, redirect_uri: {}".format(g.ref, g.redirect_uri))
     #上下文扩展点之请求后(返回前)
     before_request_hook = plugin.get_all_cep.get("before_request_hook")
     for cep_func in before_request_hook():
         cep_func(request=request, g=g)
-    app.logger.debug(app.url_map)
+    #app.logger.debug(app.url_map)
 
 @app.after_request
 def after_request(response):
@@ -151,7 +152,7 @@ def index():
 @anonymous_required
 def signUp():
     if request.method == 'POST':
-        sceneid = request.args.get("sceneid") or ""
+        sceneid = request.args.get("sceneid") or "02"
         token = request.form.get("token")
         challenge = request.form.get("challenge")
         if token and challenge and vaptcha.validate(challenge, token, sceneid):
@@ -182,7 +183,7 @@ def signUp():
 @anonymous_required
 def signIn():
     if request.method == 'POST':
-        sceneid = request.args.get("sceneid") or ""
+        sceneid = request.args.get("sceneid") or "01"
         token = request.form.get("token")
         challenge = request.form.get("challenge")
         if token and challenge and vaptcha.validate(challenge, token, sceneid):
@@ -209,12 +210,79 @@ def signIn():
         return redirect(url_for('signIn'))
     return render_template("auth/signIn.html")
 
-@app.route("/logout")
-@login_required
-def logout():
-    response = make_response(redirect(url_for('signIn')))
-    response.set_cookie(key='sessionId', value='', expires=0)
-    return response
+@app.route("/OAuthGuide")
+@anonymous_required
+def OAuthGuide():
+    """OAuth2登录未注册时引导路由，选择绑定已有账号或直接登录(首选)"""
+    if request.args.get("openid"):
+        return render_template("auth/OAuthGuide.html")
+    else:
+        return redirect(url_for("index"))
+
+@app.route("/OAuthGuide/DirectLogin", methods=["POST"])
+@anonymous_required
+def OAuthDirectLogin():
+    """OAuth2直接登录(首选)"""
+    if request.method == 'POST':
+        openid = request.form.get("openid")
+        if openid:
+            auth = Authentication(g.mysql, g.redis)
+            # 直接注册新账号并设置登录态
+            ip = request.headers.get('X-Real-Ip', request.remote_addr)
+            res = auth.oauth2_signUp(openid, ip)
+            res = dfr(res)
+            if res["success"]:
+                # 记录登录日志
+                auth.brush_loginlog(res, login_ip=ip, user_agent=request.headers.get("User-Agent"))
+                # 登录成功，设置cookie
+                sessionId = set_cookie(uid=res["uid"])
+                response = make_response(redirect(url_for("index")))
+                # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
+                secure = False if request.url_root.split("://")[0] == "http" else True
+                response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
+                return response
+            else:
+                flash(res["msg"])
+            return redirect(url_for('index'))
+        else:
+            return redirect(url_for("index"))
+
+@app.route("/OAuthGuide/BindAccount", methods=["GET", "POST"])
+@anonymous_required
+def OAuthBindAccount():
+    """OAuth2绑定已有账号登录"""
+    if request.method == 'POST':
+        openid = request.form.get("openid")
+        sceneid = request.args.get("sceneid") or "03"
+        token = request.form.get("token")
+        challenge = request.form.get("challenge")
+        if token and challenge and vaptcha.validate(challenge, token, sceneid):
+            account = request.form.get("account")
+            password = request.form.get("password")
+            auth = Authentication(g.mysql, g.redis)
+            res = auth.oauth2_bindLogin(openid=openid, account=account, password=password)
+            res = dfr(res)
+            if res["success"]:
+                # 记录登录日志
+                auth.brush_loginlog(res, login_ip=request.headers.get('X-Real-Ip', request.remote_addr), user_agent=request.headers.get("User-Agent"))
+                # 登录成功，设置cookie
+                sessionId = set_cookie(uid=res["uid"])
+                response = make_response(redirect(url_for("index")))
+                # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
+                secure = False if request.url_root.split("://")[0] == "http" else True
+                response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
+                return response
+            else:
+                flash(res["msg"])
+        else:
+            flash(u"人机验证失败")
+        return redirect(url_for('OAuthBindAccount', openid=openid))
+    else:
+        openid = request.args.get("openid")
+        if openid:
+            return render_template("auth/OAuthBindAccount.html")
+        else:
+            redirect(url_for("index"))
 
 @app.route('/miscellaneous/_sendVcode', methods=['POST'])
 def misc_sendVcode():
@@ -269,6 +337,13 @@ def misc_getDownTime():
     data = request.args.get("data")
     logger.info("vaptcha into downtime, get data: {}, query string: {}".format(data, request.args.to_dict()))
     return jsonify(json.loads(vaptcha.downtime(data)))
+
+@app.route("/logout")
+@login_required
+def logout():
+    response = make_response(redirect(url_for('signIn')))
+    response.set_cookie(key='sessionId', value='', expires=0)
+    return response
 
 if __name__ == '__main__':
     app.run(host=app.config["GLOBAL"]["Host"], port=int(app.config["GLOBAL"]["Port"]), debug=True)
