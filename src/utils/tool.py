@@ -43,7 +43,7 @@ def email_check(email):
         return mail_pat.match(email)
 
 def phone_check(phone): 
-    if phone and isinstance(phone):
+    if phone and isinstance(phone, (str, unicode)):
         return mobilephone_pat.match(phone)
 
 def parse_phone(phone):

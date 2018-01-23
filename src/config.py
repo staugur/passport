@@ -81,18 +81,18 @@ PLUGINS = {
         "ENABLE": True,
         "APP_ID": 1746902937,
         "APP_KEY": "8853e9ba5835e5a26fa0b4907c2995ce",
-        "REDIRECT_URI": "https://passport.saintic.com/callback/weibo/"
+        "REDIRECT_URI": "https://passport.saintic.com/oauth2/weibo/authorized"
     },
     "qq": {
         "ENABLE": True,
         "APP_ID": 100581101,
         "APP_KEY": "36b4136a30a1bcd126525baf9e815f1f",
-        "REDIRECT_URI": "https://passport.saintic.com/callback/qq/"
+        "REDIRECT_URI": "https://passport.saintic.com/oauth2/qq/authorized"
     },
     "github": {
         "ENABLE": True,
         "APP_ID": '02de0bef7a4f0c669ffd',
         "APP_KEY": "fa3cd1ce0269b40b40fd98f863a0a6a3c1fb3e83",
-        "REDIRECT_URI": "http://passport.90era.vip/oauth2/github/authorized"
+        "REDIRECT_URI": "https://passport.saintic.com/oauth2/github/authorized"
     },
 }

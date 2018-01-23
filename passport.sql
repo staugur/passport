@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50720
 File Encoding         : 65001
 
-Date: 2018-01-22 18:33:48
+Date: 2018-01-23 15:26:24
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -35,18 +35,7 @@ CREATE TABLE `user_auth` (
   UNIQUE KEY `identifier` (`identifier`) USING BTREE,
   KEY `status` (`status`) USING BTREE,
   KEY `idx_uid` (`uid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
-
--- ----------------------------
--- Records of user_auth
--- ----------------------------
-INSERT INTO `user_auth` VALUES ('1', 'fWYsBAWhL6sUrM8D7jAL6e', '2', 'staugur@vip.qq.com', 'pbkdf2:sha256:50000$JRmJt9NS$07ffc4c24899f8375b2b3964997a4cc00b5bafff5b7f4ff67eb8e61635a408d7', '1', '1', '1516075172', '0', null, null);
-INSERT INTO `user_auth` VALUES ('2', '2XyKu82nFWoT9HUoKUwhVQ', '2', 'staugur@saintic.com', 'pbkdf2:sha256:50000$QEB9eHHW$419ff3357a2792e46564be9c978fb496cd50613ecfc3891dfb10f117c4d13ba3', '1', '1', '1516075478', '0', null, null);
-INSERT INTO `user_auth` VALUES ('3', 'RH3XJVUizkQjyRCsvsCY7U', '2', '1663116375@qq.com', 'pbkdf2:sha256:50000$IIyRnV6n$68c380314e0f9a7a7aec58ac5d83c6e5c4ee8210be4e0157cf0ad319bd525765', '1', '1', '1516081249', '0', null, null);
-INSERT INTO `user_auth` VALUES ('4', 'MCSki7q8VyhsJuLuMGKusj', '2', 'staugur@qq.com', 'pbkdf2:sha256:50000$Ru1nFYsW$d3b41ae24ff41b0c6aeb4edea113cb3e4bb80d9f8f0df1a2bb708f6bb5f1c005', '1', '1', '1516081679', '0', null, null);
-INSERT INTO `user_auth` VALUES ('5', 'uw7JAzAV9MCz5zRQThV4tf', '2', 'staugur@foxmail.com', 'pbkdf2:sha256:50000$NgpNJydp$9138d04356f92a7716f8f6dc7eb7ffc58542e11a98dee68132813b663833a69f', '1', '1', '1516087910', '0', null, null);
-INSERT INTO `user_auth` VALUES ('6', '7c4DWFyB4YASkSU5Ry2wri', '2', 'taochengwei@starokay.com', 'pbkdf2:sha256:50000$2fRb7MlN$d2a4d20dcc506e22bba7121620ec455660eeb808b756ee1b30ee5a93a658c9c8', '1', '1', '1516093470', '0', null, null);
-INSERT INTO `user_auth` VALUES ('18', 'fWYsBAWhL6sUrM8D7jAL6e', '3', '10270930', 'bbacd1f059d8c0b1c39e1263625502f59cb4e418', '1', '1', '1516616703', '0', '0', null);
+) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
 
 -- ----------------------------
 -- Table structure for user_loginlog
@@ -66,21 +55,7 @@ CREATE TABLE `user_loginlog` (
   `browser_family` varchar(30) CHARACTER SET utf8 DEFAULT NULL COMMENT '浏览器种类及版本，如chrome 60.0.3122',
   PRIMARY KEY (`id`),
   KEY `idx_uid_type_time` (`uid`,`login_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
-
--- ----------------------------
--- Records of user_loginlog
--- ----------------------------
-INSERT INTO `user_loginlog` VALUES ('1', 'fWYsBAWhL6sUrM8D7jAL6e', '2', '127.0.0.1', '  内网IP 内网IP', '1516081790', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36', 'pc', 'PC', 'Windows 10', 'Chrome 63.0.3239');
-INSERT INTO `user_loginlog` VALUES ('2', 'fWYsBAWhL6sUrM8D7jAL6e', '2', '127.0.0.1', '  内网IP 内网IP', '1516083514', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36', 'pc', 'PC', 'Windows 10', 'Chrome 63.0.3239');
-INSERT INTO `user_loginlog` VALUES ('3', 'uw7JAzAV9MCz5zRQThV4tf', '2', '127.0.0.1', '  内网IP 内网IP', '1516088724', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36', 'pc', 'PC', 'Windows 10', 'Chrome 63.0.3239');
-INSERT INTO `user_loginlog` VALUES ('4', 'fWYsBAWhL6sUrM8D7jAL6e', '2', '127.0.0.1', '  内网IP 内网IP', '1516090135', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36', 'pc', 'PC', 'Windows 10', 'Chrome 63.0.3239');
-INSERT INTO `user_loginlog` VALUES ('5', '2XyKu82nFWoT9HUoKUwhVQ', '2', '127.0.0.1', '  内网IP 内网IP', '1516090400', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36', 'pc', 'PC', 'Windows 10', 'Chrome 63.0.3239');
-INSERT INTO `user_loginlog` VALUES ('6', 'fWYsBAWhL6sUrM8D7jAL6e', '2', '127.0.0.1', '  内网IP 内网IP', '1516093174', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36', 'pc', 'PC', 'Windows 10', 'Chrome 63.0.3239');
-INSERT INTO `user_loginlog` VALUES ('7', '7c4DWFyB4YASkSU5Ry2wri', '2', '127.0.0.1', '  内网IP 内网IP', '1516093479', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36', 'pc', 'PC', 'Windows 10', 'Chrome 63.0.3239');
-INSERT INTO `user_loginlog` VALUES ('8', '7c4DWFyB4YASkSU5Ry2wri', '2', '127.0.0.1', '  内网IP 内网IP', '1516094184', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36', 'pc', 'PC', 'Windows 10', 'Chrome 63.0.3239');
-INSERT INTO `user_loginlog` VALUES ('9', 'fWYsBAWhL6sUrM8D7jAL6e', '2', '127.0.0.1', '  内网IP 内网IP', '1516094198', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36', 'pc', 'PC', 'Windows 10', 'Chrome 63.0.3239');
-INSERT INTO `user_loginlog` VALUES ('10', 'fWYsBAWhL6sUrM8D7jAL6e', '2', '127.0.0.1', '  内网IP 内网IP', '1516182464', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.108 Safari/537.36', 'pc', 'PC', 'Windows 10', 'Chrome 63.0.3239');
+) ENGINE=InnoDB AUTO_INCREMENT=47 DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
 
 -- ----------------------------
 -- Table structure for user_profile
@@ -108,13 +83,3 @@ CREATE TABLE `user_profile` (
   PRIMARY KEY (`uid`),
   UNIQUE KEY `uid` (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户个人资料表';
-
--- ----------------------------
--- Records of user_profile
--- ----------------------------
-INSERT INTO `user_profile` VALUES ('2XyKu82nFWoT9HUoKUwhVQ', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, null, '1516075478', null, '0', '0', null);
-INSERT INTO `user_profile` VALUES ('7c4DWFyB4YASkSU5Ry2wri', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, null, '1516093470', null, '0', '0', null);
-INSERT INTO `user_profile` VALUES ('fWYsBAWhL6sUrM8D7jAL6e', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, null, '1516075172', null, '0', '0', null);
-INSERT INTO `user_profile` VALUES ('MCSki7q8VyhsJuLuMGKusj', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, null, '1516081679', null, '0', '0', null);
-INSERT INTO `user_profile` VALUES ('RH3XJVUizkQjyRCsvsCY7U', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, null, '1516081249', null, '0', '0', null);
-INSERT INTO `user_profile` VALUES ('uw7JAzAV9MCz5zRQThV4tf', '2', '127.0.0.1', '', '', '2', '0', '', '', null, null, null, null, '1516087910', null, '0', '0', null);

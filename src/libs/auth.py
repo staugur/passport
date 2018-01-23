@@ -99,7 +99,6 @@ class Authentication(object):
                 try:
                     sql_1 = "INSERT INTO user_auth (uid, identity_type, identifier, certificate, verified, status, create_time, expire_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
                     info = self.db.insert(sql_1, guid, identity_type, identifier, certificate, verified, 1, ctime, expire_time)
-                    logger.debug("sql_1 info: {}".format(info))
                 except IntegrityError:
                     res.update(msg="Account already exists")
                 except Exception,e:
@@ -109,15 +108,20 @@ class Authentication(object):
                     if use_profile_sql is True:
                         if define_profile_sql:
                             sql_2 = define_profile_sql
-                            info = self.db.execute(sql_2)
+                            try:
+                                info = self.db.execute(sql_2)
+                            except:
+                                raise
                         else:
                             sql_2 = "INSERT INTO user_profile (uid, register_source, register_ip, create_time, is_realname, is_admin) VALUES (%s, %s, %s, %s, %s, %s)"
-                            info = self.db.insert(sql_2, guid, identity_type, register_ip, ctime, 0, 0)
-                        logger.debug("sql_2: {}, return info: {}".format(sql_2, info))
+                            try:
+                                info = self.db.insert(sql_2, guid, identity_type, register_ip, ctime, 0, 0)
+                            except:
+                                raise
                     logger.debug('transaction, commit')
                     self.db._db.commit()
             except Exception, e:
-                logger.debug('transaction, rollback', exc_info=True)
+                logger.error(e, exc_info=True)
                 res.update(msg="Operation failed, rolled back")
                 self.db._db.rollback()
             else:
@@ -318,6 +322,7 @@ class Authentication(object):
             openid = str(userinfo["openid"])
             if signin is True:
                 # 已登录->绑定流程
+                logger.debug("signin true, uid: {}".format(uid))
                 if uid:
                     guid = self.__oauth2_getUid(openid)
                     logger.debug("signin true, openid: {}, guid: {}, is equal: {}".format(openid, guid, uid==guid))

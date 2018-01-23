@@ -32,12 +32,12 @@ def verify_cookie(cookie):
         try:
             sessionId = cbc.decrypt(cookie)
         except Exception,e:
-            logger.warn(e)
+            logger.debug(e)
         else:
             try:
                 success = jwt.verifyJWT(sessionId)
             except JWTException,e:
-                logger.error(e, exc_info=True)
+                logger.debug(e)
             else:
                 # 验证token无误即设置登录态，所以确保解密、验证两处key切不可丢失，否则随意伪造！
                 return success
@@ -49,12 +49,12 @@ def analysis_cookie(cookie):
         try:
             sessionId = cbc.decrypt(cookie)
         except Exception,e:
-            logger.warn(e)
+            logger.debug(e)
         else:
             try:
                 success = jwt.verifyJWT(sessionId)
             except JWTException,e:
-                logger.error(e, exc_info=True)
+                logger.debug(e)
             else:
                 # 验证token无误即设置登录态，所以确保解密、验证两处key切不可丢失，否则随意伪造！
                 return jwt.analysisJWT(sessionId)["payload"]
@@ -93,6 +93,15 @@ def oauth2_name2type(name):
             sinaweibo = 7
     )
     return BIND[name]
+
+def oauth2_genderconverter(gender):
+    """性别转换器"""
+    if gender:
+        if gender in (u"男", "男", "man", "m"):
+            return 1
+        elif gender in (u"女", "女", "woman", "f", "female"):
+            return 0
+    return 2
 
 class OAuth2(object):
     """OAuth2.0 Client基类"""
@@ -154,36 +163,29 @@ class OAuth2(object):
         return redirect(self._authorize_url + "?" + _request_params)
 
     def authorized_response(self):
-        '''登录第二步：授权回调，通过`Authorization Code`获取`Access Token`
-        :return: 
-        '''
+        '''登录第二步：授权回调，通过`Authorization Code`获取`Access Token`'''
         code = request.args.get("code")
         # state 可以先写入redis并设置过期，此处做验证，增强安全
         state = request.args.get("state")
         if code:
-            _request_params = dict(
+            _request_params = self._make_params(
                 grant_type = "authorization_code",
                 client_id = self._consumer_key,
                 client_secret = self._consumer_secret,
                 code = code,
                 redirect_uri = self._redirect_url
             )
-            if self._access_token_method == 'get':
-                resp = self.requests.get(self._access_token_url, params=_request_params)
-            else:
-                resp = self.requests.post(self._access_token_url, params=_request_params)
+            url = self._access_token_url + "?" + _request_params
+            resp = self.requests.get(url) if self._access_token_method == 'get' else self.requests.post(url)
             try:
                 data = resp.json()
             except:
                 data = resp.text
-                #data = self.url_code(resp.content)
             # 包含access_token、expires_in、refresh_token等数据
-            # 之后进入授权认证接口
             return data
 
     def get_openid(self, access_token, **params):
-        '''登录第三步准备：根据access_token获取用户唯一标识id
-        '''
+        '''登录第三步准备：根据access_token获取用户唯一标识id'''
         _request_params = self._make_params(
             access_token = access_token,
             **params
@@ -191,10 +193,7 @@ class OAuth2(object):
         if not self._get_openid_url:
             return None
         url = self._get_openid_url + "?" + _request_params
-        if self._get_openid_method == 'get':
-            resp = self.requests.get(url)
-        else:
-            resp = self.requests.post(url)
+        resp = self.requests.get(url) if self._get_openid_method == 'get' else self.requests.post(url)
         try:
             data = resp.json()
         except:
@@ -202,17 +201,13 @@ class OAuth2(object):
         return data
 
     def get_userinfo(self, access_token, **params):
-        '''登录第三步：根据access_token获取用户信息(部分开放平台需要先获取openid、uid，可配置get_openid_url，先请求get_openid接口)
-        '''
+        '''登录第三步：根据access_token获取用户信息(部分开放平台需要先获取openid、uid，可配置get_openid_url，先请求get_openid接口)'''
         _request_params = self._make_params(
             access_token = access_token,
             **params
         )
         url = self._get_userinfo_url + "?" + _request_params
-        if self._get_userinfo_method == 'get':
-            resp = self.requests.get(url)
-        else:
-            resp = self.requests.post(url)
+        resp = self.requests.get(url) if self._get_userinfo_method == 'get' else self.requests.post(url)
         try:
             data = resp.json()
         except:

@@ -47,7 +47,6 @@ class JWTUtil(object):
         }
         # 标准载荷
         self._payloadkey = ("iss", "sub", "aud", "exp", "nbf", "iat", "jti")
-        logger.info("header: {0}, payload: {1}".format(self._header, self._payload))
 
     def md5(self, pwd):
         """ MD5加密 """
@@ -119,7 +118,6 @@ class JWTUtil(object):
             "payload": json.loads(base64.urlsafe_b64decode(str(_payload))),
             "signature": base64.urlsafe_b64decode(str(_signature))
         }
-        logger.debug("analysis token: {0}".format(data))
         return data
 
     def verifyJWT(self, token):
@@ -130,7 +128,6 @@ class JWTUtil(object):
         >> 3. payload一致性验证后, 验证过期时间;
         >> 4. 根据header、payload用密钥签名对比请求的signature;
         """
-        logger.debug("verify token: {0}".format(token))
         #1. 拆分解析
         if isinstance(token, (str, unicode)):
             if token.count(".") == 2:
@@ -149,7 +146,6 @@ class JWTUtil(object):
         #3. 验证payload
         for i in self._payloadkey:
             if i in ("exp", "iat"): continue
-            logger.debug("verify payload key: {0}: {1}".format(i, payload.get(i) == self._payload.get(i)))
             if payload.get(i) != self._payload.get(i):
                 raise InvalidTokenError("payload contains standard declaration keys")
         if self.get_current_timestamp() > payload["exp"]:

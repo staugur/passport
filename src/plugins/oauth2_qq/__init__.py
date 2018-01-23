@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 """
-    passport.plugins.oauth2_github
+    passport.plugins.oauth2_qq
     ~~~~~~~~~~~~~~
 
-    使用GitHub登录
+    使用qq登录
 
     :copyright: (c) 2017 by staugur.
     :license: MIT, see LICENSE for more details.
@@ -15,17 +15,18 @@ from __future__ import absolute_import
 from libs.base import PluginBase
 #: Import the other modules here, and if it's your own module, use the relative Import. eg: from .lib import Lib
 #: 在这里导入其他模块, 如果有自定义包目录, 使用相对导入, 如: from .lib import Lib
+import json
 from flask import Blueprint, request, jsonify, g, flash, redirect, url_for
-from utils.web import OAuth2, analysis_cookie, dfr, oauth2_name2type
+from utils.web import OAuth2, analysis_cookie, dfr, oauth2_name2type, oauth2_genderconverter
 from config import PLUGINS
 from libs.auth import Authentication
 
 #：Your plug-in name must be consistent with the plug-in directory name.
 #：你的插件名称，必须和插件目录名称等保持一致.
-__name__        = "oauth2_github"
+__name__        = "oauth2_qq"
 #: Plugin describes information. What does it do?
 #: 插件描述信息,什么用处.
-__description__ = "Connection GitHub with OAuth2"
+__description__ = "Connection QQ with OAuth2"
 #: Plugin Author
 #: 插件作者
 __author__      = "Mr.tao <staugur@saintic.com>"
@@ -46,55 +47,72 @@ __license_file__= "LICENSE"
 __readme_file__ = "README"
 #: Plugin state, enabled or disabled, default: enabled
 #: 插件状态, enabled、disabled, 默认enabled
-name = "github"
+name = "qq"
 if PLUGINS[name]["ENABLE"] in ("true", "True", True):
     __state__   = "enabled"
 else:
     __state__   = "disabled"
 
-github = OAuth2(name,
+print PLUGINS[name]["APP_ID"]
+print PLUGINS[name]["APP_KEY"]
+
+qq = OAuth2(name,
     client_id = PLUGINS[name]["APP_ID"],
     client_secret = PLUGINS[name]["APP_KEY"],
     redirect_url = PLUGINS[name]["REDIRECT_URI"],
-    authorize_url = "https://github.com/login/oauth/authorize",
-    access_token_url = "https://github.com/login/oauth/access_token",
-    get_userinfo_url = "https://api.github.com/user"
+    authorize_url = "https://graph.qq.com/oauth2.0/authorize",
+    access_token_url = "https://graph.qq.com/oauth2.0/token",
+    access_token_method = "get",
+    get_openid_url = "https://graph.qq.com/oauth2.0/me",
+    get_openid_method = "get",
+    get_userinfo_url = "https://graph.qq.com/user/get_user_info",
+    get_userinfo_method = "get"
 )
 
-plugin_blueprint = Blueprint("oauth2_github", "oauth2_github")
+plugin_blueprint = Blueprint("oauth2_qq", "oauth2_qq")
 @plugin_blueprint.route("/login")
 def login():
     """ 跳转此OAuth应用登录以授权
-    此路由地址：/oauth2/github/login
+    此路由地址：/oauth2/qq/login
     """
-    return github.authorize()
+    return qq.authorize()
 
 @plugin_blueprint.route("/authorized")
 def authorized():
     """ 授权回调路由
-    此路由地址：/oauth2/github/authorized
+    此路由地址：/oauth2/qq/authorized
     """
     # 换取access_token
-    resp = github.authorized_response()
-    resp = github.url_code(resp)
+    resp = qq.authorized_response()
+    if "callback" in resp:
+        resp = json.loads(resp[10:-3])
+    else:
+        resp = qq.url_code(resp)
     print "authorized_response:",resp
     if resp and isinstance(resp, dict) and "access_token" in resp:
+        # 获取用户唯一标识
+        openid = json.loads(qq.get_openid(resp["access_token"])[10:-3]).get("openid")
+        print "openid", openid
         # 根据access_token获取用户基本信息
-        user = github.get_userinfo(resp["access_token"])
+        user = qq.get_userinfo(resp["access_token"], openid=openid, oauth_consumer_key=PLUGINS[name]["APP_ID"])
+        print user
+        if int(user.get("ret", 0)) < 0:
+            flash(user.get("msg"))
+            return redirect(url_for("index"))
         # 处理第三方登录逻辑
         auth = Authentication(g.mysql, g.redis)
         # 第三方账号登录入口`oauth2_go`
-        goinfo = auth.oauth2_go(name=name, signin=g.signin, tokeninfo=resp, userinfo=dict(openid=user["id"], nick_name=user["name"], gender=2, avatar=user["avatar_url"], domain_name=user["login"], signature=user["bio"], location=user.get("location")), uid=g.uid)
+        goinfo = auth.oauth2_go(name=name, signin=g.signin, tokeninfo=resp, userinfo=dict(openid=openid, nick_name=user["nickname"], gender=oauth2_genderconverter(user["gender"]), avatar=user["figureurl_qq_1"], location="%s %s" %(user.get("province"), user.get("city"))), uid=g.uid)
         goinfo = dfr(goinfo)
         if goinfo["pageAction"] == "goto_signIn":
             """ 未登录流程->执行登录 """
             # 记录登录日志
             auth.brush_loginlog(dict(identity_type=oauth2_name2type(name), uid=goinfo["goto_signIn_data"]["guid"], success=True), login_ip=request.headers.get('X-Real-Ip', request.remote_addr), user_agent=request.headers.get("User-Agent"))
             # 设置登录态
-            return github.goto_signIn(uid=goinfo["goto_signIn_data"]["guid"])
+            return qq.goto_signIn(uid=goinfo["goto_signIn_data"]["guid"])
         elif goinfo["pageAction"] == "goto_signUp":
             """ 未登录流程->执行注册绑定功能 """
-            return github.goto_signUp(openid=goinfo["goto_signUp_data"]["openid"])
+            return qq.goto_signUp(openid=goinfo["goto_signUp_data"]["openid"])
         else:
             # 已登录流程->反馈绑定结果
             if goinfo["success"]:
@@ -107,25 +125,25 @@ def authorized():
             return redirect(url_for("index"))
     else:
         flash(u'Access denied: reason=%s error=%s' % (
-            request.args['error'],
-            request.args['error_description']
+            resp.get('error'),
+            resp.get('error_description')
         ))
     return redirect(url_for("index"))
 
 #: 返回插件主类
 def getPluginClass():
-    return OAuth2_Github_Main
+    return OAuth2_QQ_Main
 
 #: 插件主类, 不强制要求名称与插件名一致, 保证getPluginClass准确返回此类
-class OAuth2_Github_Main(PluginBase):
+class OAuth2_QQ_Main(PluginBase):
     """ 继承自PluginBase基类 """
 
     def register_tep(self):
         """注册模板入口, 返回扩展点名称及扩展的代码, 其中include点必须是实际的HTML文件, string点必须是HTML代码."""
-        tep = {"auth_signIn_socialLogin_include": "connect_github.html"}
+        tep = {"auth_signIn_socialLogin_include": "connect_qq.html"}
         return tep
 
     def register_bep(self):
         """注册蓝图入口, 返回蓝图路由前缀及蓝图名称"""
-        bep = {"prefix": "/oauth2/github", "blueprint": plugin_blueprint}
+        bep = {"prefix": "/oauth2/qq", "blueprint": plugin_blueprint}
         return bep

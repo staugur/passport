@@ -85,8 +85,8 @@ status)
     ;;
 
 restart)
-    sh $0 stop
-    sh $0 start
+    bash $0 stop
+    bash $0 start
     ;;
 
 *)
