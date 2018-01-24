@@ -25,7 +25,7 @@
 				<a class="sms-button" href="javascript:sendCode(this)" id="sms-tip-msg">获取验证码</a>
 			</div>
 			<div class="ui-input">
-				<input type="password" placeholder="设置密码，6-30位，请尽量保持复杂" name="password" id="password" required="required" maxlength="30">
+				<input type="password" placeholder="设置密码，6-30位" name="password" id="password" required="required" maxlength="30">
 			</div>
             <div class="ui-input">
                 <input type="password" placeholder="确认密码" name="repassword" id="repassword" required="required">
@@ -116,7 +116,7 @@
                 $('#sms-tip-msg').text("重发验证码");
                 wait = 300;
             } else {
-                $('#sms-tip-msg').text(wait+"秒后可重新发送");
+                $('#sms-tip-msg').text(wait+"秒后重发");
                 wait--;
                 setTimeout(function() {
                     check();

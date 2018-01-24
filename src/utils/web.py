@@ -79,7 +79,7 @@ def anonymous_required(f):
 def oauth2_name2type(name):
     """将第三方登录根据name转化为对应数字
     @param name str: OAuth name
-    1手机号 2邮箱 3GitHub 4qq 5微信 6腾讯微博 7新浪微博
+    1手机号 2邮箱 3GitHub 4qq 5微信 6百度 7新浪微博 8Coding 9码云
     """
     BIND = dict(
             mobile = 1,
@@ -88,18 +88,20 @@ def oauth2_name2type(name):
             qq = 4,
             wechat = 5,
             wexin = 5,
-            tencentweibo = 6,
+            baidu = 6,
             weibo = 7,
-            sinaweibo = 7
+            sinaweibo = 7,
+            coding = 8,
+            gitee = 9
     )
     return BIND[name]
 
 def oauth2_genderconverter(gender):
     """性别转换器"""
     if gender:
-        if gender in (u"男", "男", "man", "m"):
+        if gender in (u"男", "男", "man", "m", 0, "0"):
             return 1
-        elif gender in (u"女", "女", "woman", "f", "female"):
+        elif gender in (u"女", "女", "woman", "f", "female", 1, "1"):
             return 0
     return 2
 

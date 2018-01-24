@@ -64,6 +64,7 @@ hr {
 .form .ui-button { width: 100%; margin: 10px 0; }
 
 .socialLogin { height: 14px; color: #7b7f81; text-align: left; font-size: 14px;}
+.socialImg {height: 16px; width: auto;}
 
 .footer {
     font:14px "微软雅黑", "黑体"; 

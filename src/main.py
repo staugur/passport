@@ -148,6 +148,12 @@ def index():
     #首页
     return render_template("index.html")
 
+@app.route('/link')
+def link():
+    """重定向链接"""
+    nextUrl = request.args.get("nextUrl") or url_for("index")
+    return redirect(nextUrl)
+
 @app.route('/signUp', methods=['GET', 'POST'])
 @anonymous_required
 def signUp():

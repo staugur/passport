@@ -68,7 +68,7 @@ class Authentication(object):
         参数：
             @param guid str: 系统账号唯一标识
             @param identifier str: 手机号、邮箱或第三方openid
-            @param identity_type int: 账号类型，1手机号 2邮箱 3GitHub 4qq 5微信 6腾讯微博 7新浪微博
+            @param identity_type int: 账号类型，参见`oauth2_name2type`函数
             @param certificate str: 加盐密码或第三方access_token
             @param verified int: 是否已验证 0-未验证 1-已验证
             @param register_ip str: 注册IP地址
@@ -90,7 +90,7 @@ class Authentication(object):
                 verified and \
                 isinstance(guid, (str, unicode)) and \
                 len(guid) == 22 and \
-                identity_type in (1, 2, 3, 4, 5, 6, 7) and \
+                identity_type in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9) and \
                 verified in (1, 0):
             ctime = get_current_timestamp()
             try:
@@ -225,7 +225,7 @@ class Authentication(object):
         """ 将登录日志写入redis，需有定时任务每分钟解析入库
         @param signInResult dict: 登录接口返回
             @param uid str: 用户全局唯一标识id
-            @param identity_type int: 登录类型，1手机号 2邮箱 3GitHub 4qq 5微信 6腾讯微博 7新浪微博
+            @param identity_type int: 登录类型，参见`oauth2_name2type`函数
         @param login_ip str: 登录IP
         @param user_agent str: 用户代理
         """
@@ -278,7 +278,7 @@ class Authentication(object):
     def oauth2_go(self, name, signin, tokeninfo, userinfo, uid=None):
         """第三方账号登录入口
         参数：
-            @param name str: 开放平台标识，3GitHub 4qq 5微信 6腾讯微博 7新浪微博
+            @param name str: 开放平台标识，参见`oauth2_name2type`函数
             @param signin bool: 是否已登录
             @param tokeninfo dict: access_token数据，格式：
                 {
@@ -319,7 +319,10 @@ class Authentication(object):
             # openid是第三方平台用户唯一标识，微博是uid，QQ是openid，Github是id，统一更新为openid
             access_token = tokeninfo["access_token"]
             expires_in = tokeninfo.get("expires_in") or 0
-            openid = str(userinfo["openid"])
+            # 重新定义openid规则->加上开放平台前缀
+            openid = "{}.{}".format(oauth2_name2type(name), userinfo["openid"])
+            # 覆盖原openid
+            userinfo.update(openid=openid)
             if signin is True:
                 # 已登录->绑定流程
                 logger.debug("signin true, uid: {}".format(uid))
