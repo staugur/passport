@@ -275,6 +275,14 @@ class Authentication(object):
             key = "passport:oauth2_cachedUserinfo:{}".format(openid)
             return self.rc.hgetall(key) or None
 
+    def __oauth2_delUserinfo(self, openid):
+        """删除`__oauth2_cacheUserinfo`接口缓存的数据
+        @param openid str: 未加密的openid
+        """
+        if openid
+            key = "passport:oauth2_cachedUserinfo:{}".format(openid)
+            return self.rc.delete(key) or None
+
     def oauth2_go(self, name, signin, tokeninfo, userinfo, uid=None):
         """第三方账号登录入口
         参数：
@@ -387,6 +395,7 @@ class Authentication(object):
             logger.warn(upts)
             res.update(upts)
             if res["success"]:
+                self.__oauth2_delUserinfo(openid)
                 res.update(identity_type=identity_type, uid=guid)
         else:
             res.update(msg="Check failed")
@@ -415,6 +424,8 @@ class Authentication(object):
                 expire_time = userinfo.get("expire_time") or 0
                 upts = self.__signUp_transacion(guid=uid, identifier=openid, identity_type=identity_type, certificate=access_token, verified=1, expire_time=expire_time, use_profile_sql=False)
                 res.update(upts)
+                if res["success"] is True:
+                    self.__oauth2_delUserinfo(openid)
         else:
             res.update(msg="Check failed")
         logger.info(res)
