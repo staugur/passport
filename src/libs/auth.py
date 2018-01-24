@@ -279,7 +279,7 @@ class Authentication(object):
         """删除`__oauth2_cacheUserinfo`接口缓存的数据
         @param openid str: 未加密的openid
         """
-        if openid
+        if openid:
             key = "passport:oauth2_cachedUserinfo:{}".format(openid)
             return self.rc.delete(key) or None
 

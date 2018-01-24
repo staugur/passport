@@ -53,9 +53,6 @@ if PLUGINS[name]["ENABLE"] in ("true", "True", True):
 else:
     __state__   = "disabled"
 
-print PLUGINS[name]["APP_ID"]
-print PLUGINS[name]["APP_KEY"]
-
 qq = OAuth2(name,
     client_id = PLUGINS[name]["APP_ID"],
     client_secret = PLUGINS[name]["APP_KEY"],
@@ -92,10 +89,8 @@ def authorized():
     if resp and isinstance(resp, dict) and "access_token" in resp:
         # 获取用户唯一标识
         openid = json.loads(qq.get_openid(resp["access_token"])[10:-3]).get("openid")
-        print "openid", openid
         # 根据access_token获取用户基本信息
         user = qq.get_userinfo(resp["access_token"], openid=openid, oauth_consumer_key=PLUGINS[name]["APP_ID"])
-        print user
         if int(user.get("ret", 0)) < 0:
             flash(user.get("msg"))
             return redirect(url_for("index"))
