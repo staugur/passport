@@ -99,8 +99,7 @@ class PluginManager(object):
         """ 动态加载插件模块,遵循插件格式的才能被启用并运行,否则删除加载 """
 
         #: 动态加载模块(plugins.package): 可以查询自定义的信息, 并通过getPluginClass获取插件的类定义
-        plugin = __import__("{0}.{1}".format(
-            "plugins", package), fromlist=["plugins", ])
+        plugin = __import__("{0}.{1}".format("plugins", package), fromlist=["plugins", ])
         #: 检测插件信息
         if plugin.__name__ and plugin.__version__ and plugin.__description__ and plugin.__author__:
             #: 获取插件信息
@@ -115,8 +114,7 @@ class PluginManager(object):
             if plugin.__state__ != "enabled":
                 self.plugins.append(pluginInfo)
                 return
-            plugin_logger.info("runPlugin: package is {0}.{1}, class instance is {2}".format(
-                "plugins", package, i))
+            plugin_logger.info("runPlugin: package is {0}.{1}, class instance is {2}".format("plugins", package, i))
             #: 更新插件信息
             pluginInfo.update(plugin_instance=i)
             #: 运行插件主类的run方法
@@ -199,10 +197,8 @@ class PluginManager(object):
         CEP: after_request_hook
         """
         return dict(
-            before_request_hook=lambda: [plugin["plugin_cep"].get(
-                "before_request_hook") for plugin in self.get_enabled_plugins if plugin["plugin_cep"].get("before_request_hook")],
-            after_request_hook=lambda: [plugin["plugin_cep"].get(
-                "after_request_hook") for plugin in self.get_enabled_plugins if plugin["plugin_cep"].get("after_request_hook")],
+            before_request_hook=lambda: [plugin["plugin_cep"].get("before_request_hook") for plugin in self.get_enabled_plugins if plugin["plugin_cep"].get("before_request_hook")],
+            after_request_hook=lambda: [plugin["plugin_cep"].get("after_request_hook") for plugin in self.get_enabled_plugins if plugin["plugin_cep"].get("after_request_hook")],
         )
 
     @property
