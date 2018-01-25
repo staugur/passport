@@ -10,16 +10,18 @@
 """
 
 import json, requests
-from .tool import logger, gen_fingerprint
+from .tool import logger, gen_fingerprint, parseAcceptLanguage, get_current_timestamp, timestamp_after_timestamp
 from .jwt import JWTUtil, JWTException
 from .aes_cbc import CBC
+from libs.base import ServiceBase
 from urllib import urlencode
 from functools import wraps
-from flask import g, request, redirect, url_for, make_response
+from flask import g, request, redirect, url_for, make_response, abort
 from werkzeug import url_decode
 
 jwt = JWTUtil()
 cbc = CBC()
+sbs = ServiceBase()
 
 def set_cookie(uid, seconds=7200):
     """设置cookie"""
@@ -64,7 +66,7 @@ def login_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not g.signin:
-            return redirect(url_for('signIn'))
+            return redirect(url_for('front.signIn'))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -72,8 +74,17 @@ def anonymous_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if g.signin:
-            return redirect(url_for('index'))
+            return redirect(url_for('front.index'))
         return f(*args, **kwargs)
+    return decorated_function
+
+def adminlogin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if g.signin and g.uid:
+            if sbs.isAdmin(g.uid):
+                return f(*args, **kwargs)
+        return abort(404)
     return decorated_function
 
 def oauth2_name2type(name):
@@ -138,12 +149,31 @@ class OAuth2(object):
         self._encoding = "utf-8"
         self._response_type = "code"
         self._scope = kwargs.get("scope", "")
-        self._state = kwargs.get("state", gen_fingerprint(n=8))
         self._access_token_method = kwargs.get("access_token_method", "post").lower()
         self._get_openid_method = kwargs.get("get_openid_method", "get").lower()
         self._get_userinfo_method = kwargs.get("get_userinfo_method", "get").lower()
         self._content_type = kwargs.get("content_type", "application/json")
         self._requests = requests.Session()
+
+    @property
+    def __make_state(self):
+        """生成state并设置过期时间10min"""
+        state = gen_fingerprint(n=4)
+        key = "passport:oauth:state:{}".format(state)
+        pipe = sbs.redis.pipeline()
+        pipe.set(key, timestamp_after_timestamp(seconds=600))
+        pipe.expire(key, 600)
+        pipe.execute()
+        return state
+
+    def __verify_state(self, state):
+        """验证state"""
+        key = "passport:oauth:state:{}".format(state)
+        if state and sbs.redis.exists(key):
+            expire = sbs.redis.get(key)
+            if get_current_timestamp() <= int(expire):
+                return True
+        return False
 
     @property
     def requests(self):
@@ -158,7 +188,7 @@ class OAuth2(object):
             response_type=self._response_type,
             client_id = self._consumer_key,
             redirect_uri = self._redirect_url,
-            state = self._state,
+            state = self.__make_state,
             scope = self._scope,
             **params
         )
@@ -169,7 +199,7 @@ class OAuth2(object):
         code = request.args.get("code")
         # state 可以先写入redis并设置过期，此处做验证，增强安全
         state = request.args.get("state")
-        if code:
+        if code and self.__verify_state(state):
             _request_params = self._make_params(
                 grant_type = "authorization_code",
                 client_id = self._consumer_key,
@@ -219,7 +249,7 @@ class OAuth2(object):
     def goto_signIn(self, uid):
         """OAuth转入登录流程，表示登录成功，需要设置cookie"""
         sessionId = set_cookie(uid=uid)
-        response = make_response(redirect(url_for("index")))
+        response = make_response(redirect(url_for("front.index")))
         # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
         secure = False if request.url_root.split("://")[0] == "http" else True
         response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
@@ -227,7 +257,7 @@ class OAuth2(object):
 
     def goto_signUp(self, openid):
         """OAuth转入注册绑定流程"""
-        return redirect(url_for("OAuthGuide", openid=openid))
+        return redirect(url_for("front.OAuthGuide", openid=openid))
 
     def _make_params(self, **kwargs):
         """传入编码成url参数"""
@@ -243,14 +273,21 @@ class OAuth2(object):
 # 邮件模板：参数依次是邮箱账号、使用场景、验证码
 email_tpl = u"""<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><style>a{text-decoration: none}</style></head><body><table style="width:550px;"><tr><td style="padding-top:10px; padding-left:5px; padding-bottom:5px; border-bottom:1px solid #D9D9D9; font-size:16px; color:#999;">SaintIC Passport</td></tr><tr><td style="padding:20px 0px 20px 5px; font-size:14px; line-height:23px;">尊敬的<b>%s</b>，您正在申请<i>%s</i><br><br>申请场景的邮箱验证码是 <b style="color: red">%s</b><br><br>5分钟有效，请妥善保管验证码，不要泄露给他人。<br></td></tr><tr><td style="padding-top:5px; padding-left:5px; padding-bottom:10px; border-top:1px solid #D9D9D9; font-size:12px; color:#999;">此为系统邮件，请勿回复<br/>请保管好您的邮箱，避免账户被他人盗用<br/><br/>如有任何疑问，可查看网站帮助 <a target="_blank" href="https://passport.saintic.com">https://passport.saintic.com</a></td></tr></table></body></html>"""
 
-def dfr(res, language="zh_CN"):
+def dfr(res, default='en-US'):
     """定义前端返回，将res中msg字段转换语言
     @param res dict: like {"msg": None, "success": False}, 英文格式
-    @param language str: `zh_CN 简体中文`, `zh_HK 繁体中文`
+    @param default str: 默认语言
     """
+    try:
+        language = parseAcceptLanguage(request.headers.get('Accept-Language', default), default)
+        if language == "zh-Hans-CN":
+            language = "zh-CN"
+    except:
+        language = default
     # 翻译转换字典库
-    trans = dict(
-        zh_CN = {
+    trans = {
+        #简体中文
+        "zh-CN": {
             "Hello World": u"世界，你好",
             "Account already exists": u"账号已存在",
             "System is abnormal": u"系统异常，请稍后再试",
@@ -273,7 +310,8 @@ def dfr(res, language="zh_CN"):
             "Has been bound to other accounts": u"已经绑定其他账号",
             "Operation failed, rolled back": u"操作失败，已回滚",
         },
-        zh_HK = {
+        #繁体中文-香港
+        "zh-HK": {
             "Hello World": u"世界，你好",
             "Account already exists": u"帳號已存在",
             "System is abnormal": u"系統异常",
@@ -296,8 +334,8 @@ def dfr(res, language="zh_CN"):
             "Has been bound to other accounts": u"已經綁定其他賬號",
             "Operation failed, rolled back": u"操作失敗，已回滾",
         }
-    )
-    if isinstance(res, dict):
+    }
+    if isinstance(res, dict) and not "en" in language:
         if res.get("msg"):
             msg = res["msg"]
             try:

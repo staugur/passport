@@ -11,7 +11,7 @@
 
 from os import getenv
 
-GLOBAL={
+GLOBAL = {
 
     "ProcessName": "passport",
     #Custom process, you can see it with "ps aux|grep ProcessName".

@@ -17,11 +17,10 @@
 """
 
 import json
-from config import REDIS, MYSQL
 from utils.tool import cli_logger, create_redis_engine, create_mysql_engine, getIpArea, parse_userAgent
 
-redis = create_redis_engine(REDIS)
-mysql = create_mysql_engine(MYSQL)
+redis = create_redis_engine()
+mysql = create_mysql_engine()
 
 def execute_refresh_loginlog(times=30):
     """从redis读取登录记录刷入mysql"""

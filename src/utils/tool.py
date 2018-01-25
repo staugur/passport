@@ -16,6 +16,7 @@ from base64 import b32encode
 from redis import from_url
 from torndb import Connection
 from user_agents import parse as user_agents_parse
+from config import REDIS as REDIS_URL, MYSQL as MYSQL_URL
 
 
 ip_pat          = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
@@ -25,6 +26,7 @@ Universal_pat   = re.compile(r"[a-zA-Z\_][0-9a-zA-Z\_]*")
 comma_pat       = re.compile(r"\s*,\s*")
 logger          = Logger("sys").getLogger
 cli_logger      = Logger("cli").getLogger
+err_logger      = Logger("error").getLogger
 plugin_logger   = Logger("plugin").getLogger
 access_logger   = Logger("access").getLogger
 md5             = lambda pwd:hashlib.md5(pwd).hexdigest()
@@ -81,10 +83,12 @@ def ParseMySQL(mysql, callback="dict"):
     else:
         return {"protocol": protocol, "host": host, "port": port, "database": database, "user": user, "password": password, "charset": charset, "time_zone": timezone}
 
-def create_redis_engine(REDIS_URL):
+def create_redis_engine():
+    """ 创建redis连接 """
     return from_url(REDIS_URL)
 
-def create_mysql_engine(MYSQL_URL):
+def create_mysql_engine():
+    """ 创建mysql连接 """
     protocol,host,port,user,password,database,charset,timezone = ParseMySQL(MYSQL_URL, callback="tuple")
     return  Connection(host="{}:{}".format(host, port), database=database, user=user, password=password, time_zone=timezone, charset=charset)
 
@@ -189,3 +193,18 @@ def parse_userAgent(user_agent):
     else:
         browserType = "unknown"
     return browserType, browserDevice, browserOs, browserFamily
+
+def parseAcceptLanguage(acceptLanguage, defaultLanguage="zh-CN"):
+    if not acceptLanguage:
+        return defaultLanguage
+    languages = acceptLanguage.split(",")
+    locale_q_pairs = []
+    for language in languages:
+        if language.split(";")[0] == language:
+            # no q => q = 1
+            locale_q_pairs.append((language.strip(), "1"))
+        else:
+            locale = language.split(";")[0].strip()
+            q = language.split(";")[1].split("=")[1]
+            locale_q_pairs.append((locale, q))
+    return sorted(locale_q_pairs, key=lambda x: x[-1], reverse=True)[0][0] or defaultLanguage
