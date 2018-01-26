@@ -15,6 +15,20 @@ Date: 2018-01-23 15:26:24
 
 SET FOREIGN_KEY_CHECKS=0;
 
+DROP TABLE IF EXISTS `sso_apps`;
+CREATE TABLE `sso_apps` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(12) NOT NULL COMMENT '应用名称',
+  `description` varchar(50) NOT NULL COMMENT '应用描述',
+  `app_id` char(32) NOT NULL COMMENT '应用id',
+  `app_secret` char(36) NOT NULL COMMENT '应用密钥',
+  `app_redirect_url` varchar(255) NOT NULL COMMENT '应用回调地址',
+  `ctime` int(11) NOT NULL COMMENT '创建时间',
+  `mtime` int(11) DEFAULT NULL COMMENT '更新时间',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+
 -- ----------------------------
 -- Table structure for user_auth
 -- ----------------------------

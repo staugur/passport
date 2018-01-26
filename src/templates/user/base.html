@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>{% block title %}{% endblock %} - SaintIC Passport</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <link rel="stylesheet" href="/static/layui/css/layui.css">
+    <link rel="stylesheet" href="/static/css/global.css">
+</head>
+<body>
+
+{% include "user/common/header.html" %}
+
+<div class="layui-container fly-marginTop fly-user-main">
+
+    {% include "user/common/user-nav.html" %}
+
+    {% block userpanel %}{% endblock %}
+
+</div>
+
+{% include "user/common/footer.html" %}
+
+{% block script %}{% endblock %}
+</body>
+</html>

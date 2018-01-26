@@ -61,19 +61,10 @@ for bep in plugin.get_all_bep:
 app.register_blueprint(FrontBlueprint)
 app.register_blueprint(AdminBlueprint, url_prefix="/admin")
 
-# 模板中重写覆盖url_for函数
-def static_url_for(endpoint, **values):
-    if endpoint == 'static':
-        STATIC_URL_ROOT = GLOBAL.get("STATIC_URL_ROOT")
-        LAST_URL = STATIC_URL_ROOT.strip("/") + url_for(endpoint, **values) if STATIC_URL_ROOT else url_for(endpoint, **values)
-        return LAST_URL
-    else:
-        return url_for(endpoint, **values)
-
 # 添加模板上下文变量
 @app.context_processor  
 def GlobalTemplateVariables():  
-    data = {"Version": __version__, "Author": __author__, "Email": __email__, "Doc": __doc__, "url_for": static_url_for}
+    data = {"Version": __version__, "Author": __author__, "Email": __email__, "Doc": __doc__}
     return data
 
 @app.before_request

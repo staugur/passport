@@ -59,7 +59,8 @@ coding = OAuth2(name,
     authorize_url = "https://coding.net/oauth_authorize.html",
     access_token_url = "https://coding.net/api/oauth/access_token",
     get_userinfo_url = "https://coding.net/api/account/current_user",
-    scope = "user"
+    scope = "user",
+    verify_state = False,
 )
 
 plugin_blueprint = Blueprint("oauth2_coding", "oauth2_coding")
@@ -83,7 +84,7 @@ def authorized():
         user = coding.get_userinfo(resp["access_token"])
         if user["code"] != 0:
             flash(user["msg"].keys())
-            return redirect(url_for("index"))
+            return redirect(url_for("front.index"))
         user = user["data"]
         # 处理第三方登录逻辑
         auth = Authentication(g.mysql, g.redis)
@@ -109,13 +110,13 @@ def authorized():
                 # 绑定失败，返回原页面
                 flash(goinfo["msg"])
             # 跳回原页面
-            return redirect(url_for("index"))
+            return redirect(url_for("front.index"))
     else:
         flash(u'Access denied: reason=%s error=%s' % (
             request.args.get('error'),
             request.args.get('error_description')
         ))
-    return redirect(url_for("index"))
+    return redirect(url_for("front.index"))
 
 #: 返回插件主类
 def getPluginClass():

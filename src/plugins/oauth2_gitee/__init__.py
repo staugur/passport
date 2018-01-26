@@ -83,7 +83,7 @@ def authorized():
         user = gitee.get_userinfo(resp["access_token"])
         if not "id" in user:
             flash(user.get("status", "Gitee error"))
-            return redirect(url_for("index"))
+            return redirect(url_for("front.index"))
         # 处理第三方登录逻辑
         auth = Authentication(g.mysql, g.redis)
         # 第三方账号登录入口`oauth2_go`
@@ -107,13 +107,13 @@ def authorized():
                 # 绑定失败，返回原页面
                 flash(goinfo["msg"])
             # 跳回原页面
-            return redirect(url_for("index"))
+            return redirect(url_for("front.index"))
     else:
         flash(u'Access denied: reason=%s error=%s' % (
             request.args.get('error'),
             request.args.get('error_description')
         ))
-    return redirect(url_for("index"))
+    return redirect(url_for("front.index"))
 
 #: 返回插件主类
 def getPluginClass():

@@ -107,7 +107,7 @@ class JWTUtil(object):
 
         #4. returns the available token
         token = first_part + '.' + second_part + '.' + third_part
-        logger.info("Generating token ok")
+        logger.debug("Generating token ok")
         return token
 
     def analysisJWT(self, token):
@@ -160,7 +160,7 @@ class JWTUtil(object):
         third_part  = self.signatureJWT("{0}.{1}".format(first_part, second_part))
         #校验签名
         if token["signature"] == third_part:
-            logger.info("verify token pass")
+            logger.debug("verify token pass")
             return True
         else:
             raise SignatureBadError("invalid signature")

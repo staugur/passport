@@ -15,7 +15,7 @@
     #password='xxxx'
     #server.login(useraddr, password)
 
-    :copyright: (c) 2017 by taochengwei.
+    :copyright: (c) 2017 by staugur.
     :license: MIT, see LICENSE for more details.
 """
 

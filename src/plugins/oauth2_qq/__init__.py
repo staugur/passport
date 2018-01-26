@@ -93,7 +93,7 @@ def authorized():
         user = qq.get_userinfo(resp["access_token"], openid=openid, oauth_consumer_key=PLUGINS[name]["APP_ID"])
         if int(user.get("ret", 0)) < 0:
             flash(user.get("msg"))
-            return redirect(url_for("index"))
+            return redirect(url_for("front.index"))
         # 处理第三方登录逻辑
         auth = Authentication(g.mysql, g.redis)
         # 第三方账号登录入口`oauth2_go`
@@ -117,13 +117,13 @@ def authorized():
                 # 绑定失败，返回原页面
                 flash(goinfo["msg"])
             # 跳回原页面
-            return redirect(url_for("index"))
+            return redirect(url_for("front.index"))
     else:
         flash(u'Access denied: reason=%s error=%s' % (
             resp.get('error'),
             resp.get('error_description')
         ))
-    return redirect(url_for("index"))
+    return redirect(url_for("front.index"))
 
 #: 返回插件主类
 def getPluginClass():

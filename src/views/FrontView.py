@@ -15,7 +15,7 @@ from utils.web import email_tpl, login_required, anonymous_required, dfr, set_co
 from utils.tool import logger, generate_verification_code, email_check, phone_check
 from libs.auth import Authentication
 from vaptchasdk import vaptcha as VaptchaApi
-from flask import Blueprint, request, render_template, jsonify, g, abort, redirect, url_for, flash, make_response, current_app
+from flask import Blueprint, request, render_template, jsonify, g, abort, redirect, url_for, flash, make_response
 
 #初始化前台蓝图
 FrontBlueprint = Blueprint("front", __name__)
@@ -28,6 +28,14 @@ vaptcha = VaptchaApi(VAPTCHA["vid"], VAPTCHA["key"])
 def index():
     #首页
     return render_template("index.html")
+
+@FrontBlueprint.route('/user')
+def userhome():
+    return render_template("user/index.html")
+
+@FrontBlueprint.route('/user/setting/')
+def userset():
+    return render_template("user/set.html")
 
 @FrontBlueprint.route('/link')
 def link():
@@ -228,7 +236,7 @@ def misc_getDownTime():
 @FrontBlueprint.route("/logout")
 @login_required
 def logout():
-    response = make_response(redirect(url_for('signIn')))
+    response = make_response(redirect(url_for('.signIn')))
     response.set_cookie(key='sessionId', value='', expires=0)
     return response
 

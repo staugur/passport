@@ -25,9 +25,6 @@ GLOBAL = {
     "LogLevel": getenv("passport_loglevel", "DEBUG"),
     #Application to write the log level, currently has DEBUG, INFO, WARNING, ERROR, CRITICAL.
 
-    "STATIC_URL_ROOT": getenv("passport_static_url_root"),
-    #静态资源根地址，如果引用CDN等第三方css、js、image等文件，请填写资源域名，否则留空
-
     "AES_CBC_KEY": getenv("passport_aes_cbc_key", "YRRGBRYQqrV1gv5A"),
     # utils.aes_cbc.CBC类中所用加密key
 

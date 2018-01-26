@@ -153,6 +153,7 @@ class OAuth2(object):
         self._get_openid_method = kwargs.get("get_openid_method", "get").lower()
         self._get_userinfo_method = kwargs.get("get_userinfo_method", "get").lower()
         self._content_type = kwargs.get("content_type", "application/json")
+        self._verify_state = kwargs.get("verify_state", True) 
         self._requests = requests.Session()
 
     @property
@@ -168,6 +169,8 @@ class OAuth2(object):
 
     def __verify_state(self, state):
         """验证state"""
+        if self._verify_state is False:
+            return True
         key = "passport:oauth:state:{}".format(state)
         if state and sbs.redis.exists(key):
             expire = sbs.redis.get(key)
@@ -215,6 +218,8 @@ class OAuth2(object):
                 data = resp.text
             # 包含access_token、expires_in、refresh_token等数据
             return data
+        else:
+            logger.info("Invalid code or state: {}".format(self.__verify_state(state)))
 
     def get_openid(self, access_token, **params):
         '''登录第三步准备：根据access_token获取用户唯一标识id'''

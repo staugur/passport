@@ -3,11 +3,11 @@
 {% block title %}第三方登录绑定账号{% endblock %}
 
 {% block container %}
-    <form action="{{ url_for('OAuthBindAccount') }}" method="post" class="form" onsubmit="return checkSubmit();">
+    <form action="{{ url_for('front.OAuthBindAccount') }}" method="post" class="form" onsubmit="return checkSubmit();">
         <div class="form-head">
             <h2>{{ self.title() }}</h2>
             <!--<p class="form-notice"></p>-->
-            <p>还没有账号？<a href="{{ url_for('signUp') }}">立即注册</a></p>
+            <p>还没有账号？<a href="{{ url_for('front.signUp') }}">立即注册</a></p>
         </div>
         <div class="form-body">
             <p class="err-msg" id="err-msg">
@@ -35,7 +35,7 @@
 <script src="https://cdn.vaptcha.com/v.js"></script>
 <script type="text/javascript">
     //这里使用到验证场景，传过去的参数即为对应的编号，比如之前登录的对应的编号即为01
-    $.get("{{ url_for('misc_getChallenge', sceneid='03') }}", function(res){
+    $.get("{{ url_for('front.misc_getChallenge', sceneid='03') }}", function(res){
         var options={
             vid: res.vid, //验证单元id, string, 必填
             challenge: res.challenge, //验证流水号, string, 必填
@@ -43,7 +43,7 @@
             type:"click", //必填，表示点击式验证模式,
             effect:'popup', //验证图显示方式, string, 可选择float, popup, 默认float
             color:"#57ABFF", //按钮颜色, string
-            outage:"{{ url_for('misc_getDownTime') }}", //服务器端配置的宕机模式接口地址
+            outage:"{{ url_for('front.misc_getDownTime') }}", //服务器端配置的宕机模式接口地址
             success:function(token,challenge){//验证成功回调函数, 参数token, challenge 为string, 必填
                 //todo:执行人机验证成功后的操作
                 $('#token').val(token);
