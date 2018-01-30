@@ -3,5 +3,6 @@
 
 from .FrontView import FrontBlueprint
 from .AdminView import AdminBlueprint
+from .ApiView import ApiBlueprint
 
-__all__ = ["FrontBlueprint", "AdminBlueprint"]
+__all__ = ["FrontBlueprint", "AdminBlueprint", "ApiBlueprint"]

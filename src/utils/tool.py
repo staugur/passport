@@ -24,6 +24,13 @@ mail_pat        = re.compile(r"([0-9a-zA-Z\_*\.*\-*]+)@([a-zA-Z0-9\-*\_*\.*]+)\.
 mobilephone_pat = re.compile(r'1[3,4,5,7,8]\d{9}')
 Universal_pat   = re.compile(r"[a-zA-Z\_][0-9a-zA-Z\_]*")
 comma_pat       = re.compile(r"\s*,\s*")
+url_pat         = re.compile(
+        r'^(?:http|ftp)s?://' # http:// or https://
+        r'(?:(?:[A-Z0-9](?:[A-Z0-9-]{0,61}[A-Z0-9])?\.)+(?:[A-Z]{2,6}\.?|[A-Z0-9-]{2,}\.?)|' #domain...
+        r'localhost|' #localhost...
+        r'\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})' # ...or ip
+        r'(?::\d+)?' # optional port
+        r'(?:/?|[/?]\S+)$', re.IGNORECASE)
 logger          = Logger("sys").getLogger
 cli_logger      = Logger("cli").getLogger
 err_logger      = Logger("error").getLogger
@@ -35,6 +42,8 @@ gen_token       = lambda n=32:b32encode(uuid4().hex)[:n]
 gen_requestId   = lambda :str(uuid4())
 gen_fingerprint = lambda n=16,s=2: ":".join([ "".join(random.sample("0123456789abcdef",s)) for i in range(0, n) ])
 gen_uniqueId    = lambda :shortuuid.uuid()
+#列表按长度切割
+ListEqualSplit  = lambda l,n=5: [ l[i:i+n] for i in range(0,len(l), n) ]
 
 def ip_check(ip):
     if ip and isinstance(ip, (str, unicode)):

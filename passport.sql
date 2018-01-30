@@ -10,15 +10,19 @@ Target Server Type    : MYSQL
 Target Server Version : 50720
 File Encoding         : 65001
 
-Date: 2018-01-23 15:26:24
+Date: 2018-01-30 18:31:33
 */
 
 SET FOREIGN_KEY_CHECKS=0;
 
+-- ----------------------------
+-- Table structure for sso_apps
+-- ----------------------------
 DROP TABLE IF EXISTS `sso_apps`;
 CREATE TABLE `sso_apps` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(12) NOT NULL COMMENT '应用名称',
+  `uid` char(22) NOT NULL COMMENT '所属用户的uid',
+  `name` varchar(18) NOT NULL COMMENT '应用名称',
   `description` varchar(50) NOT NULL COMMENT '应用描述',
   `app_id` char(32) NOT NULL COMMENT '应用id',
   `app_secret` char(36) NOT NULL COMMENT '应用密钥',
@@ -26,8 +30,9 @@ CREATE TABLE `sso_apps` (
   `ctime` int(11) NOT NULL COMMENT '创建时间',
   `mtime` int(11) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+  UNIQUE KEY `name` (`name`),
+  KEY `uid` (`uid`)
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user_auth
@@ -36,7 +41,7 @@ DROP TABLE IF EXISTS `user_auth`;
 CREATE TABLE `user_auth` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `uid` char(22) NOT NULL COMMENT '用户id',
-  `identity_type` tinyint(2) unsigned NOT NULL COMMENT '0保留 1手机号 2邮箱 3GitHub 4qq 5微信 6百度 7新浪微博 8Coding 9码云',
+  `identity_type` tinyint(2) unsigned NOT NULL COMMENT '0保留 1手机号 2邮箱 3GitHub 4qq 5微信 6谷歌 7新浪微博 8Coding 9码云',
   `identifier` varchar(50) NOT NULL DEFAULT '' COMMENT '手机号、邮箱或第三方应用的唯一标识(openid、union_id)',
   `certificate` varchar(106) NOT NULL DEFAULT '' COMMENT '密码凭证(站内的保存密码，站外的不保存或保存token)',
   `verified` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否已验证 0-未验证 1-已验证',
@@ -49,7 +54,7 @@ CREATE TABLE `user_auth` (
   UNIQUE KEY `identifier` (`identifier`) USING BTREE,
   KEY `status` (`status`) USING BTREE,
   KEY `idx_uid` (`uid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
 
 -- ----------------------------
 -- Table structure for user_loginlog
@@ -69,7 +74,7 @@ CREATE TABLE `user_loginlog` (
   `browser_family` varchar(30) CHARACTER SET utf8 DEFAULT NULL COMMENT '浏览器种类及版本，如chrome 60.0.3122',
   PRIMARY KEY (`id`),
   KEY `idx_uid_type_time` (`uid`,`login_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
 
 -- ----------------------------
 -- Table structure for user_profile

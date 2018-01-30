@@ -16,14 +16,14 @@ from .aes_cbc import CBC
 from libs.base import ServiceBase
 from urllib import urlencode
 from functools import wraps
-from flask import g, request, redirect, url_for, make_response, abort
+from flask import g, request, redirect, url_for, make_response, abort, jsonify
 from werkzeug import url_decode
 
 jwt = JWTUtil()
 cbc = CBC()
 sbs = ServiceBase()
 
-def set_cookie(uid, seconds=7200):
+def set_cookie(uid, seconds=10800):
     """设置cookie"""
     sessionId = jwt.createJWT(payload=dict(uid=uid), expiredSeconds=seconds)
     return cbc.encrypt(sessionId)
@@ -85,6 +85,23 @@ def adminlogin_required(f):
             if sbs.isAdmin(g.uid):
                 return f(*args, **kwargs)
         return abort(404)
+    return decorated_function
+
+def apilogin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if not g.signin:
+            return jsonify(dfr(dict(msg="Authentication failed or no permission to access", success=False)))
+        return f(*args, **kwargs)
+    return decorated_function
+
+def apiadminlogin_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if g.signin and g.uid:
+            if sbs.isAdmin(g.uid):
+                return f(*args, **kwargs)
+        return jsonify(dfr(dict(msg="Authentication failed or no permission to access", success=False)))
     return decorated_function
 
 def oauth2_name2type(name):
@@ -314,6 +331,10 @@ def dfr(res, default='en-US'):
             "Third-party login binding failed": u"第三方登录绑定失败",
             "Has been bound to other accounts": u"已经绑定其他账号",
             "Operation failed, rolled back": u"操作失败，已回滚",
+            "Authentication failed or no permission to access": u"认证失败或无权限访问",
+            "There are invalid parameters": u"存在无效的参数",
+            "No data": u"没有数据",
+            "Name already exists": u"名称已存在",
         },
         #繁体中文-香港
         "zh-HK": {
@@ -338,6 +359,10 @@ def dfr(res, default='en-US'):
             "Third-party login binding failed": u"第三方登錄綁定失敗",
             "Has been bound to other accounts": u"已經綁定其他賬號",
             "Operation failed, rolled back": u"操作失敗，已回滾",
+            "Authentication failed or no permission to access": u"認證失敗或無權限訪問",
+            "There are invalid parameters": u"存在無效的參數",
+            "No data": u"沒有數據",
+            "Name already exists": u"名稱已存在",
         }
     }
     if isinstance(res, dict) and not "en" in language:

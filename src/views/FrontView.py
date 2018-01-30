@@ -10,17 +10,14 @@
 """
 import json
 from config import VAPTCHA
-from utils.send_email_msg import SendMail
-from utils.web import email_tpl, login_required, anonymous_required, dfr, set_cookie
-from utils.tool import logger, generate_verification_code, email_check, phone_check
+from utils.web import login_required, anonymous_required, adminlogin_required, dfr, set_cookie
+from utils.tool import logger, email_check, phone_check
 from libs.auth import Authentication
 from vaptchasdk import vaptcha as VaptchaApi
-from flask import Blueprint, request, render_template, jsonify, g, abort, redirect, url_for, flash, make_response
+from flask import Blueprint, request, render_template, g, redirect, url_for, flash, make_response
 
 #初始化前台蓝图
 FrontBlueprint = Blueprint("front", __name__)
-#初始化邮箱发送服务
-sendmail = SendMail()
 #初始化手势验证码服务
 vaptcha = VaptchaApi(VAPTCHA["vid"], VAPTCHA["key"])
 
@@ -29,19 +26,31 @@ def index():
     #首页
     return render_template("index.html")
 
-@FrontBlueprint.route('/user')
-def userhome():
-    return render_template("user/index.html")
-
-@FrontBlueprint.route('/user/setting/')
-def userset():
-    return render_template("user/set.html")
-
 @FrontBlueprint.route('/link')
 def link():
     """重定向链接"""
     nextUrl = request.args.get("nextUrl") or url_for(".index")
     return redirect(nextUrl)
+
+@FrontBlueprint.route('/user/')
+@login_required
+def userhome():
+    return render_template("user/index.html")
+
+@FrontBlueprint.route('/user/setting/')
+@login_required
+def userset():
+    return render_template("user/set.html")
+
+@FrontBlueprint.route('/user/app/')
+@adminlogin_required
+def userapp():
+    Action = request.args.get("Action")
+    if Action == "editView":
+        # 编辑应用
+        return render_template("user/apps.edit.html")
+    # 默认返回应用选项卡
+    return render_template("user/apps.html")
 
 @FrontBlueprint.route('/signUp', methods=['GET', 'POST'])
 @anonymous_required
@@ -178,60 +187,6 @@ def OAuthBindAccount():
             return render_template("auth/OAuthBindAccount.html")
         else:
             redirect(url_for(".index"))
-
-@FrontBlueprint.route('/miscellaneous/_sendVcode', methods=['POST'])
-def misc_sendVcode():
-    """发送验证码：邮箱、手机"""
-    res = dict(msg=None, success=False)
-    account = request.form.get("account")
-    if email_check(account):
-        email = account
-        key = "passport:signUp:vcode:{}".format(email)
-        try:
-            hasKey = g.redis.exists(key)
-        except Exception,e:
-            logger.error(e, exc_info=True)
-            res.update(msg="System is abnormal")
-        else:
-            if hasKey:
-                res.update(msg="Have sent the verification code, please check the mailbox")
-            else:
-                vcode = generate_verification_code()
-                result = sendmail.SendMessage(to_addr=email, subject=u"Passport邮箱注册验证码", formatType="html", message=email_tpl %(email, u"注册", vcode))
-                if result["success"]:
-                    try:
-                        g.redis.set(key, vcode)
-                        g.redis.expire(key, 300)
-                    except Exception,e:
-                        logger.error(e, exc_info=True)
-                        res.update(msg="System is abnormal")
-                    else:
-                        res.update(msg="Sent verification code, valid for 300 seconds", success=True)
-                else:
-                    res.update(msg="Mail delivery failed, please try again later")
-    elif phone_check(account):
-        res.update(msg="Not support phone number registration")
-    else:
-        res.update(msg="Invalid account")
-    logger.debug(res)
-    return jsonify(dfr(res))
-
-@FrontBlueprint.route("/miscellaneous/_getChallenge")
-def misc_getChallenge():
-    """Vaptcha获取流水
-    @param sceneid str: 场景id，如01登录、02注册
-    """
-    sceneid = request.args.get("sceneid") or ""
-    return jsonify(json.loads(vaptcha.get_challenge(sceneid)))
-
-@FrontBlueprint.route("/miscellaneous/_getDownTime")
-def misc_getDownTime():
-    """Vaptcha宕机模式
-    like: ?data=request&_t=1516092685906
-    """
-    data = request.args.get("data")
-    logger.info("vaptcha into downtime, get data: {}, query string: {}".format(data, request.args.to_dict()))
-    return jsonify(json.loads(vaptcha.downtime(data)))
 
 @FrontBlueprint.route("/logout")
 @login_required

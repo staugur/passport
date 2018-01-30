@@ -21,7 +21,7 @@ from version import __version__
 from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine
 from utils.web import verify_cookie, analysis_cookie
 from libs.plugins import PluginManager
-from views import FrontBlueprint, AdminBlueprint
+from views import FrontBlueprint, AdminBlueprint, ApiBlueprint
 from flask import Flask, request, g, jsonify, url_for, render_template
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -60,6 +60,7 @@ for bep in plugin.get_all_bep:
 # 注册视图包中蓝图
 app.register_blueprint(FrontBlueprint)
 app.register_blueprint(AdminBlueprint, url_prefix="/admin")
+app.register_blueprint(ApiBlueprint, url_prefix="/api")
 
 # 添加模板上下文变量
 @app.context_processor  

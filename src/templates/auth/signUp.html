@@ -40,7 +40,7 @@
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 <script src="https://cdn.vaptcha.com/v.js"></script>
 <script type="text/javascript">
-    $.get("{{ url_for('front.misc_getChallenge', sceneid='02') }}", function(res){
+    $.get("{{ url_for('api.misc_getChallenge', sceneid='02') }}", function(res){
         var options={
             vid: res.vid, //验证单元id, string, 必填
             challenge: res.challenge, //验证流水号, string, 必填
@@ -48,7 +48,7 @@
             type:"click", //必填，表示点击式验证模式,
             effect:'popup', //验证图显示方式, string, 可选择float, popup, 默认float
             color:"#57ABFF", //按钮颜色, string
-            outage:"{{ url_for('front.misc_getDownTime') }}", //服务器端配置的宕机模式接口地址
+            outage:"{{ url_for('api.misc_getDownTime') }}", //服务器端配置的宕机模式接口地址
             success:function(token,challenge){//验证成功回调函数, 参数token, challenge 为string, 必填
                 //todo:执行人机验证成功后的操作
                 $('#token').val(token);
@@ -87,7 +87,7 @@
         if (account) {
             $.ajax({
                 type: 'post',
-                url: '{{ url_for("front.misc_sendVcode") }}',
+                url: '{{ url_for("api.misc_sendVcode") }}',
                 data: {"account": account},
                 success: function (res) {
                     console.log(res);
