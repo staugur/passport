@@ -131,6 +131,15 @@
 <script type="text/javascript">
 layui.use(["element", "form", "layer", "laydate"], function(){
     var element = layui.element, form = layui.form, layer = layui.layer, $ = layui.jquery, laydate = layui.laydate;
+    // 初始化生日输入框时间选择器
+    laydate.render({
+        elem: '#birthday'
+        ,theme: "molv"
+        ,calendar: true
+        ,done: function(value, date, endDate){
+            $('#birthday').val(value);
+        }
+    });
     //表单自定义校验
     form.verify({
         name: function(value, item){ //value：表单的值、item：表单的DOM对象

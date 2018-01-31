@@ -160,7 +160,7 @@ def timestamp_datetime(timestamp, format='%Y-%m-%d %H:%M:%S'):
     # 最后再经过strftime函数转换为正常日期格式。
     return time.strftime(format, timestamp)
 
-def datetime_to_timestamp(timestring, format="%Y-%m-%d %H:%M:%S"):
+def timestring_to_timestamp(timestring, format="%Y-%m-%d %H:%M:%S"):
     """ 将普通时间格式转换为时间戳(10位), 形如 '2016-05-05 20:28:54'，由format指定 """
     try:
         # 转换成时间数组
