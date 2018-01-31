@@ -91,7 +91,7 @@ def apilogin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if not g.signin:
-            return jsonify(dfr(dict(msg="Authentication failed or no permission to access", success=False)))
+            return jsonify(dfr(dict(msg="Authentication failed or no permission to access", code=1)))
         return f(*args, **kwargs)
     return decorated_function
 
@@ -101,7 +101,7 @@ def apiadminlogin_required(f):
         if g.signin and g.uid:
             if sbs.isAdmin(g.uid):
                 return f(*args, **kwargs)
-        return jsonify(dfr(dict(msg="Authentication failed or no permission to access", success=False)))
+        return jsonify(dfr(dict(msg="Authentication failed or no permission to access", code=1)))
     return decorated_function
 
 def oauth2_name2type(name):

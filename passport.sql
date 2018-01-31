@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50720
 File Encoding         : 65001
 
-Date: 2018-01-30 18:31:33
+Date: 2018-01-31 17:38:33
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -21,7 +21,6 @@ SET FOREIGN_KEY_CHECKS=0;
 DROP TABLE IF EXISTS `sso_apps`;
 CREATE TABLE `sso_apps` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
-  `uid` char(22) NOT NULL COMMENT '所属用户的uid',
   `name` varchar(18) NOT NULL COMMENT '应用名称',
   `description` varchar(50) NOT NULL COMMENT '应用描述',
   `app_id` char(32) NOT NULL COMMENT '应用id',
@@ -30,9 +29,8 @@ CREATE TABLE `sso_apps` (
   `ctime` int(11) NOT NULL COMMENT '创建时间',
   `mtime` int(11) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `name` (`name`),
-  KEY `uid` (`uid`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
+  UNIQUE KEY `name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user_auth
@@ -47,8 +45,8 @@ CREATE TABLE `user_auth` (
   `verified` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否已验证 0-未验证 1-已验证',
   `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '用户状态 0-禁用 1-启用',
   `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '绑定时间',
-  `update_time` int(11) unsigned DEFAULT '0' COMMENT '更新绑定时间',
-  `expire_time` int(11) DEFAULT NULL COMMENT '到期时间，特指OAuth2登录',
+  `update_time` int(11) unsigned DEFAULT NULL COMMENT '更新绑定时间',
+  `expire_time` int(11) unsigned DEFAULT NULL COMMENT '到期时间，特指OAuth2登录',
   `refresh_token` varchar(255) DEFAULT NULL COMMENT '第三方登录刷新token',
   PRIMARY KEY (`id`),
   UNIQUE KEY `identifier` (`identifier`) USING BTREE,
@@ -82,23 +80,20 @@ CREATE TABLE `user_loginlog` (
 DROP TABLE IF EXISTS `user_profile`;
 CREATE TABLE `user_profile` (
   `uid` char(22) NOT NULL COMMENT '用户id',
-  `register_source` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '注册来源 同identity_type',
-  `register_ip` varchar(15) NOT NULL COMMENT '注册IP地址',
-  `nick_name` varchar(32) DEFAULT '' COMMENT '用户昵称',
-  `domain_name` varchar(32) DEFAULT '' COMMENT '个性域名',
+  `register_source` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '注册来源 同identity_type 不可更改',
+  `register_ip` varchar(15) NOT NULL COMMENT '注册IP地址，不可更改',
+  `nick_name` varchar(32) DEFAULT NULL COMMENT '用户昵称',
+  `domain_name` varchar(32) CHARACTER SET utf8 DEFAULT NULL COMMENT '个性域名',
   `gender` tinyint(1) unsigned DEFAULT '2' COMMENT '用户性别 0-女 1-男 2-保密',
-  `birthday` bigint(20) unsigned DEFAULT '0' COMMENT '用户生日',
-  `signature` varchar(140) DEFAULT '' COMMENT '用户个人签名',
-  `avatar` varchar(255) DEFAULT '' COMMENT '头像',
-  `curr_nation` varchar(10) DEFAULT NULL,
-  `curr_province` varchar(10) DEFAULT NULL,
-  `curr_city` varchar(10) DEFAULT NULL,
+  `birthday` bigint(20) unsigned DEFAULT NULL COMMENT '用户生日',
+  `signature` varchar(140) DEFAULT NULL COMMENT '用户个人签名',
+  `avatar` varchar(255) DEFAULT NULL COMMENT '头像',
   `location` varchar(50) DEFAULT NULL COMMENT '地址',
-  `create_time` int(11) unsigned NOT NULL COMMENT '账号创建时间',
-  `update_time` int(11) unsigned DEFAULT NULL COMMENT '账号修改时间',
+  `ctime` int(11) unsigned NOT NULL COMMENT '账号创建时间',
+  `mtime` int(11) unsigned DEFAULT NULL COMMENT '资料修改时间',
   `is_realname` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否实名认证 0-未实名 1-已实名',
   `is_admin` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否管理员 0-否 1-是',
-  `retain` varchar(255) DEFAULT NULL COMMENT '保留字段',
   PRIMARY KEY (`uid`),
-  UNIQUE KEY `uid` (`uid`)
+  UNIQUE KEY `uid` (`uid`),
+  UNIQUE KEY `dn` (`domain_name`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户个人资料表';

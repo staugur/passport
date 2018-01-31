@@ -12,10 +12,9 @@ import json
 from config import VAPTCHA
 from utils.send_email_msg import SendMail
 from utils.web import email_tpl, dfr, apilogin_required, apiadminlogin_required
-from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit, md5, gen_token, Universal_pat, url_pat, get_current_timestamp
+from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit
 from vaptchasdk import vaptcha as VaptchaApi
 from flask import Blueprint, request, jsonify, g
-from torndb import IntegrityError
 
 
 #初始化前台蓝图
@@ -94,12 +93,15 @@ def userapp():
             page = int(page)
             limit = int(limit)
             page -= 1
+            if page < 0:
+                raise
         except:
             res.update(code=2, msg="There are invalid parameters")
         else:
-            sql = "SELECT id,uid,name,description,app_id,app_secret,app_redirect_url,ctime,mtime FROM sso_apps WHERE uid=%s"
-            data = g.mysql.query(sql, g.uid)
-            if data:
+            # 从封装类中获取数据
+            res.update(g.api.userapp.listUserApp())
+            data = res.get("data")
+            if data and isinstance(data, (list, tuple)):
                 data = [ i for i in sorted(data, reverse=False if sort == "asc" else True) ]
                 count = len(data)
                 data = ListEqualSplit(data, limit)
@@ -114,54 +116,22 @@ def userapp():
         name = request.form.get("name")
         description = request.form.get("description")
         app_redirect_url = request.form.get("app_redirect_url")
-        logger.debug("name: {}, redirect: {}".format(name, app_redirect_url))
-        if name and description and app_redirect_url and Universal_pat.match(name) and url_pat.match(app_redirect_url):
-            app_id = md5(name)
-            app_secret = gen_token(36)
-            ctime = get_current_timestamp()
-            sql = "INSERT INTO sso_apps (uid, name, description, app_id, app_secret, app_redirect_url, ctime) VALUES (%s, %s, %s, %s, %s, %s, %s)"
-            try:
-                g.mysql.insert(sql, g.uid, name, description, app_id, app_secret, app_redirect_url, ctime)
-            except IntegrityError:
-                res.update(msg="Name already exists", code=2)
-            except Exception,e:
-                logger.error(e, exc_info=True)
-                res.update(msg="System is abnormal", code=3)
-            else:
-                res.update(code=0)
-        else:
-            res.update(msg="There are invalid parameters", code=4)
+        res.update(g.api.userapp.createUserApp(name=name, description=description, app_redirect_url=app_redirect_url))
     elif request.method == "PUT":
         name = request.form.get("name")
         description = request.form.get("description")
         app_redirect_url = request.form.get("app_redirect_url")
-        logger.debug("name: {}, redirect: {}".format(name, app_redirect_url))
-        if name and description and app_redirect_url and Universal_pat.match(name) and url_pat.match(app_redirect_url):
-            mtime = get_current_timestamp()
-            sql = "UPDATE sso_apps SET description=%s, app_redirect_url=%s, mtime=%s WHERE name=%s"
-            try:
-                g.mysql.update(sql, description, app_redirect_url, mtime, name)
-            except IntegrityError:
-                res.update(msg="Name already exists", code=2)
-            except Exception,e:
-                logger.error(e, exc_info=True)
-                res.update(msg="System is abnormal", code=3)
-            else:
-                res.update(code=0)
-        else:
-            res.update(msg="There are invalid parameters", code=4)
+        res.update(g.api.userapp.updateUserApp(name=name, description=description, app_redirect_url=app_redirect_url))
     elif request.method == "DELETE":
         name = request.form.get("name")
-        if name:
-            sql = "DELETE FROM sso_apps WHERE name=%s"
-            try:
-                g.mysql.execute(sql, name)
-            except Exception,e:
-                logger.error(e, exc_info=True)
-                res.update(msg="System is abnormal", code=3)
-            else:
-                res.update(code=0)
-        else:
-            res.update(msg="There are invalid parameters", code=4)
+        res.update(g.api.userapp.deleteUserApp(name=name))
+    logger.info(res)
+    return jsonify(dfr(res))
+
+@ApiBlueprint.route("/user/profile/", methods=["GET", "POST", "PUT"])
+@apilogin_required
+def userprofile():
+    if request.method == "GET":
+        res = g.api.userprofile.getUserProfile(g.uid)
     logger.info(res)
     return jsonify(dfr(res))

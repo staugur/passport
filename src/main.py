@@ -18,9 +18,10 @@
 import jinja2, os, sys
 from config import GLOBAL
 from version import __version__
-from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine
+from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO
 from utils.web import verify_cookie, analysis_cookie
 from libs.plugins import PluginManager
+from hlm import UserAppManager, UserProfileManager
 from views import FrontBlueprint, AdminBlueprint, ApiBlueprint
 from flask import Flask, request, g, jsonify, url_for, render_template
 reload(sys)
@@ -37,6 +38,12 @@ app = Flask(__name__)
 app.config.update(
     SECRET_KEY = os.urandom(24)
 )
+
+# 初始化接口管理器
+api = DO({
+    "userapp": UserAppManager(),
+    "userprofile": UserProfileManager(),
+})
 
 #初始化插件管理器(自动扫描并加载运行)
 plugin = PluginManager()
@@ -73,7 +80,8 @@ def before_request():
     g.redis = create_redis_engine()
     g.mysql = create_mysql_engine()
     g.signin = verify_cookie(request.cookies.get("sessionId"))
-    g.uid = analysis_cookie(request.cookies.get("sessionId")).get("uid")
+    g.uid = analysis_cookie(request.cookies.get("sessionId")).get("uid") if g.signin else None
+    g.api = api
     g.ref = request.referrer
     g.redirect_uri = g.ref or url_for('front.index') if request.endpoint and request.endpoint in ("logout", ) else request.url
     #access_logger.debug("referrer: {}, redirect_uri: {}".format(g.ref, g.redirect_uri))

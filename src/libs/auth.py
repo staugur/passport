@@ -300,7 +300,6 @@ class Authentication(object):
                     "nick_name": "昵称",
                     "avatar": "头像地址",
                     "gender": "可选，性别"，默认2,
-                    "domain_name": "可选，个性域名，针对weibo、github"
                     "signature": "可选，签名，针对github"
                 }
             @param uid str: 系统本地用户id，当`signin=True`时，此值必须为实际用户id
@@ -384,13 +383,12 @@ class Authentication(object):
             avatar = userinfo["avatar"]
             nick_name = userinfo["nick_name"]
             gender = userinfo.get("gender") or 2
-            domain_name = userinfo.get("domain_name") or ""
             signature = userinfo.get("signature") or ""
             location = userinfo.get("location") or ""
             expire_time = userinfo.get("expire_time") or 0
             guid = gen_uniqueId()
             logger.debug("check test: guid length: {}, identifier: {}, identity_type:{}, identity_type: {}, certificate: {}".format(len(guid), openid, identity_type, type(identity_type), access_token))
-            define_profile_sql = "INSERT INTO user_profile (uid, register_source, register_ip, nick_name, domain_name, gender, signature, avatar, location, create_time, is_realname, is_admin) VALUES ('%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" %(guid, identity_type, register_ip, nick_name, domain_name, gender, signature, avatar, location, get_current_timestamp(), 0, 0)
+            define_profile_sql = "INSERT INTO user_profile (uid, register_source, register_ip, nick_name, gender, signature, avatar, location, create_time, is_realname, is_admin) VALUES ('%s', '%s', %s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" %(guid, identity_type, register_ip, nick_name, gender, signature, avatar, location, get_current_timestamp(), 0, 0)
             upts = self.__signUp_transacion(guid=guid, identifier=openid, identity_type=identity_type, certificate=access_token, verified=1, register_ip=register_ip, expire_time=expire_time, define_profile_sql=define_profile_sql)
             logger.warn(upts)
             res.update(upts)

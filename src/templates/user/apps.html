@@ -18,7 +18,7 @@
                         <div class="layui-form-item">
                             <label class="layui-form-label">名称</label>
                             <div class="layui-input-block">
-                                <input type="text" name="name" autocomplete="off" placeholder="应用标识名称，请以英文格式书写" class="layui-input" value="" lay-verify="name">
+                                <input type="text" name="name" autocomplete="off" placeholder="应用标识名称，请以英文格式书写" class="layui-input" value="" lay-verify="required|name">
                             </div>
                         </div>
                         <div class="layui-form-item">
@@ -30,7 +30,7 @@
                         <div class="layui-form-item">
                             <label class="layui-form-label">回调地址</label>
                             <div class="layui-input-block">
-                                <input type="text" name="app_redirect_url" autocomplete="off" placeholder="应用回调地址，请书写完全合格域名" class="layui-input" value="" lay-verify="url">
+                                <input type="text" name="app_redirect_url" autocomplete="off" placeholder="应用回调地址，请书写完全合格域名" class="layui-input" value="" lay-verify="required|url">
                             </div>
                         </div>
                         <input type="hidden" id="editView">
@@ -54,8 +54,7 @@
 layui.use(["table", "element", "form", "layer", "util"], function(){
     var table = layui.table, element = layui.element, form = layui.form, layer = layui.layer, $ = layui.jquery, util = layui.util;
     //定义渲染应用列表函数
-    var renderApp = function () {
-        table.render({
+    var options = {
             elem: "#userapps"
             ,height: 315
             ,url: "{{ url_for('api.userapp') }}" //数据接口
@@ -72,18 +71,18 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
                 }}
                 ,{fixed: 'right', width:160, align:'center', toolbar: '#userAppBar'} //这里的toolbar值是模板元素的选择器
             ]]
-        });
-    };
+            ,done: function(res) {
+                console.log(res)
+            }
+        };
     //初始化渲染表格
-    renderApp();
+    table.render(options);
     //监听工具条
     table.on('tool(userAppTable)', function(obj){ //注：tool是工具条事件名，userAppTable是table原始容器的属性 lay-filter="对应的值"
         var data = obj.data; //获得当前行数据
         var layEvent = obj.event; //获得 lay-event 对应的值（也可以是表头的 event 参数对应的值）
         if(layEvent === 'detail'){ //查看
-            console.log(data);
             var mtime = data.mtime === null ? '暂无修改': util.toDateString(data.mtime*1000);
-            console.log(mtime);
             layer.open({
                 type: 1,
                 skin: 'layui-layer-molv', //样式类名
@@ -133,21 +132,29 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
                 },
                 end: function(layero, index){
                     // 获取隐藏域的值，是个json串
-                    var upvalue = parent.document.getElementById("editView").value;
-                    try {
-                        upvalue = JSON.parse(upvalue);
-                    } catch(err) {
-                        console.error(err);
-                    } finally {
-                        // 同步更新缓存对应的值
-                        obj.update({
-                            name: upvalue.name,
-                            description: upvalue.description,
-                            app_redirect_url: upvalue.app_redirect_url,
-                            mtime: Math.round(new Date().getTime()/1000).toString()
-                        });
-                        // 清空隐藏域的值
-                        document.getElementById("editView").value = '';
+                    var upvalue = document.getElementById("editView").value;
+                    if (upvalue) {
+                        try {
+                            // 此处若不是正常json串则发生异常并终止执行；正常结果时表示已经成功修改应用。
+                            upvalue = JSON.parse(upvalue);
+                            // 检测
+                            if (upvalue.name&&upvalue.description&&upvalue.app_redirect_url) {
+                                // 确保有过修改才更新表格相应字段
+                                if (upvalue.name!=data.name||upvalue.description!=data.description||upvalue.app_redirect_url!=data.app_redirect_url) {
+                                    // 同步更新缓存对应的值
+                                    obj.update({
+                                        name: upvalue.name,
+                                        description: upvalue.description,
+                                        app_redirect_url: upvalue.app_redirect_url,
+                                        mtime: Math.round(new Date().getTime()/1000).toString()
+                                    });
+                                }
+                                // 清空隐藏域的值
+                                document.getElementById("editView").value = '';
+                            }
+                        } catch(err) {
+                            console.error(err);
+                        }
                     }
                 }
             });
@@ -179,8 +186,8 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
                 console.log(res);
                 if (res.code==0) {
                     layer.msg("已新建应用");
-                    // 重新渲染表格数据
-                    renderApp();
+                    // 重载表格数据
+                    table.reload("userapps", options);
                 } else {
                     layer.msg(res.msg);
                 }

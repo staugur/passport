@@ -40,6 +40,7 @@ def userhome():
 @FrontBlueprint.route('/user/setting/')
 @login_required
 def userset():
+    """用户基本设置"""
     return render_template("user/set.html")
 
 @FrontBlueprint.route('/user/app/')

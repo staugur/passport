@@ -42,7 +42,7 @@ class ServiceBase(object):
     def refreshAdminUsers(self):
         """ 刷新管理员列表缓存 """
         key = "passport:user:admins"
-        return True if isinstance(self.redis.delete(key), (int, long)) else False
+        return True if self.redis.delete(key) == 1 else False
 
     def isAdmin(self, uid):
         """ 判断是否为管理员 """
