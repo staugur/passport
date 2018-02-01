@@ -97,7 +97,7 @@ def authorized():
         # 处理第三方登录逻辑
         auth = Authentication(g.mysql, g.redis)
         # 第三方账号登录入口`oauth2_go`
-        goinfo = auth.oauth2_go(name=name, signin=g.signin, tokeninfo=resp, userinfo=dict(openid=openid, nick_name=user["nickname"], gender=oauth2_genderconverter(user["gender"]), avatar=user["figureurl_qq_1"], location="%s %s" %(user.get("province"), user.get("city"))), uid=g.uid)
+        goinfo = auth.oauth2_go(name=name, signin=g.signin, tokeninfo=resp, userinfo=dict(openid=openid, nick_name=user["nickname"], gender=oauth2_genderconverter(user["gender"]), avatar=user["figureurl_qq_2"] or user["figureurl_qq_1"], location="%s %s" %(user.get("province"), user.get("city"))), uid=g.uid)
         goinfo = dfr(goinfo)
         if goinfo["pageAction"] == "goto_signIn":
             """ 未登录流程->执行登录 """

@@ -13,6 +13,7 @@ import json
 from libs.base import ServiceBase
 from utils.tool import logger, md5, gen_token, Universal_pat, url_pat, get_current_timestamp
 from torndb import IntegrityError
+from config import SYSTEM
 
 
 class UserAppManager(ServiceBase):
@@ -20,12 +21,14 @@ class UserAppManager(ServiceBase):
 
     def __init__(self):
         super(UserAppManager, self).__init__()
+        self.cache_enable = True if SYSTEM["CACHE_ENABLE"]["UserApps"] in ("true", "True", True) else False
 
     def listUserApp(self):
         """ 查询userapp应用列表 """
         res = dict(msg=None, code=1)
         key = "passport:user:apps"
         try:
+            if self.cache_enable is False: raise
             data = json.loads(self.redis.get(key))
             logger.info("Hit listUserApps Cache")
         except:
@@ -48,7 +51,7 @@ class UserAppManager(ServiceBase):
     def refreshUserApp(self):
         """ 刷新userapp应用列表缓存 """
         key = "passport:user:apps"
-        return True if self.redis.delete(key) == 1 else False
+        return True if self.cache_enable and self.redis.delete(key) == 1 else False
 
     def createUserApp(self, name, description, app_redirect_url):
         """新建userapp应用

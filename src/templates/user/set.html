@@ -15,56 +15,51 @@
                 <div class="layui-form layui-form-pane layui-tab-item layui-show">
                     <form method="post">
                         <div class="layui-form-item">
-                            <label for="L_username" class="layui-form-label">昵称</label>
+                            <label for="nick_name" class="layui-form-label">个性昵称</label>
                             <div class="layui-input-inline">
-                                <input type="text" id="L_username" name="username" required lay-verify="required" autocomplete="off" value="" class="layui-input">
-                            </div>
-                        </div>
-                        <!--
-                        <div class="layui-form-item">
-                            <label for="L_email" class="layui-form-label">邮箱</label>
-                            <div class="layui-input-inline">
-                                <input type="text" id="L_email" name="email" required lay-verify="email" autocomplete="off" value="" class="layui-input">
+                                <input type="text" id="nick_name" name="nick_name" required lay-verify="required" autocomplete="off" value="" class="layui-input" placeholder='起一个喜欢的别名吧'>
                             </div>
                             <div class="layui-form-mid layui-word-aux">
-                                如果您在邮箱已激活的情况下，变更了邮箱，需<a href="activate.html" style="font-size: 12px; color: #4f99cf;">重新验证邮箱</a>。
+                                每月仅能修改一次，其他用户可以艾特你的昵称哦！
                             </div>
                         </div>
-                        -->
                         <div class="layui-form-item">
                             <label for="domain_name" class="layui-form-label">个性域名</label>
                             <div class="layui-input-inline">
-                                <input type="text" id="domain_name" name="domain_name" value="" class="layui-input">
+                                <input type="text" id="domain_name" name="domain_name" value="" class="layui-input" placeholder='独一无二的主页标识' lay-verify="domain_name">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">
+                                {{ SYSTEM.PersonalizedDomainNamePrefix }}<b id="domain_name_suffix"></b>
                             </div>
                         </div>
                         <div class="layui-form-item">
                             <label for="birthday" class="layui-form-label">生日</label>
                             <div class="layui-input-inline">
-                                <input type="text" id="birthday" name="birthday" value="" class="layui-input">
+                                <input type="text" id="birthday" name="birthday" value="" class="layui-input" placeholder='降临世界的日子'>
                             </div>
                         </div>
                         <div class="layui-form-item">
                             <label for="location" class="layui-form-label">城市</label>
                             <div class="layui-input-inline">
-                                <input type="text" id="location" name="location" value="" class="layui-input">
+                                <input type="text" id="location" name="location" value="" class="layui-input" placeholder='生活的地方'>
                             </div>
                         </div>
                         <div class="layui-form-item">
                             <label class="layui-form-label">性别</label>
                             <div class="layui-inline">
-                                <input type="radio" name="sex" value="2" title="保密" checked="checked">
-                                <input type="radio" name="sex" value="1" title="男">
-                                <input type="radio" name="sex" value="0" title="女">
+                                <input type="radio" id="gender2" name="gender" value=2 title="保密">
+                                <input type="radio" id="gender1" name="gender" value=1 title="男">
+                                <input type="radio" id="gender0" name="gender" value=0 title="女">
                             </div>
                         </div>
                         <div class="layui-form-item layui-form-text">
-                            <label for="L_sign" class="layui-form-label">签名</label>
+                            <label for="signature" class="layui-form-label">签名</label>
                             <div class="layui-input-block">
-                                <textarea placeholder="随便写些什么刷下存在感" id="L_sign"  name="sign" autocomplete="off" class="layui-textarea" style="height: 80px;"></textarea>
+                                <textarea placeholder="随便写些什么刷下存在感" id="signature"  name="signature" autocomplete="off" class="layui-textarea" style="height: 80px;"></textarea>
                             </div>
                         </div>
                         <div class="layui-form-item">
-                            <button class="layui-btn" key="set-mine" lay-filter="*" lay-submit>确认修改</button>
+                            <button class="layui-btn" lay-filter="profile" lay-submit>确认修改</button>
                         </div>
                     </form>
                 </div>
@@ -72,8 +67,8 @@
                     <div class="layui-form-item">
                         <div class="avatar-add">
                             <p>建议尺寸168*168，支持jpg、png、gif，最大不能超过50KB</p>
-                            <button type="button" class="layui-btn upload-img"><i class="layui-icon">&#xe67c;</i>上传头像</button>
-                            <img src="https://tva1.sinaimg.cn/crop.0.0.118.118.180/5db11ff4gw1e77d3nqrv8j203b03cweg.jpg">
+                            <button type="button" class="layui-btn upload-img" id="uploadAvatar"><i class="layui-icon">&#xe67c;</i>上传头像</button>
+                            <img id="avatar">
                             <span class="loading"></span>
                         </div>
                     </div>
@@ -129,9 +124,44 @@
 
 {% block script %}
 <script type="text/javascript">
-layui.use(["element", "form", "layer", "laydate"], function(){
-    var element = layui.element, form = layui.form, layer = layui.layer, $ = layui.jquery, laydate = layui.laydate;
-    // 初始化生日输入框时间选择器
+layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
+    var element = layui.element, form = layui.form, layer = layui.layer, $ = layui.jquery, laydate = layui.laydate, util = layui.util, upload = layui.upload;
+    var profile = {
+        nick_name: "个性昵称",
+        domain_name: "个性域名",
+        birthday: "生日",
+        location: "城市",
+        gender: "性别",
+        signature: "签名"
+    };
+    //获取用户信息
+    $.getJSON({
+        url: "{{ url_for('api.userprofile') }}",
+        success: function(res) {
+            console.log(res);
+            if (res.code===0) {
+                var data = res.data;
+                $('#nick_name').val(data.nick_name);
+                $('#domain_name').val(data.domain_name);
+                if (data.birthday) {
+                    $('#birthday').val(util.toDateString(data.birthday*1000, "yyyy-MM-dd"));
+                }
+                $('#location').val(data.location);
+                if (data.gender===1) {
+                    $("#gender1").attr("checked","checked");
+                } else if (data.gender===0) {
+                    $("#gender0").attr("checked","checked");
+                } else if (data.gender===2) {
+                    $("#gender2").attr("checked","checked");
+                }
+                $('#signature').val(data.signature);
+                form.render();
+                //更新头像
+                $('#avatar').attr('src', data.avatar);
+            }
+        }
+    });
+    //初始化生日输入框时间选择器
     laydate.render({
         elem: '#birthday'
         ,theme: "molv"
@@ -140,39 +170,45 @@ layui.use(["element", "form", "layer", "laydate"], function(){
             $('#birthday').val(value);
         }
     });
+    //实时显示个性域名
+    $('#domain_name').on("input propertychange", function() {
+        var value = $(this).val();
+        $('#domain_name_suffix').html(value);
+    });
     //表单自定义校验
     form.verify({
-        name: function(value, item){ //value：表单的值、item：表单的DOM对象
-            if(!new RegExp("^[a-zA-Z0-9_\\s·]+$").test(value)){
-                return '应用名不能有特殊字符';
+        domain_name: function(value, item){ //value：表单的值、item：表单的DOM对象
+            if(!new RegExp("^[a-z][a-z0-9_\\s·]+$").test(value)){
+                return '个性域名不合法：以英文开头全部小写且无特殊字符';
             }
             if(/(^\_)|(\__)|(\_+$)/.test(value)){
-                return '应用名首尾不能出现下划线\'_\'';
+                return '个性域名首尾不能出现下划线\'_\'';
             }
             if(/^\d+\d+\d$/.test(value)){
-                return '应用名不能全为数字';
+                return '个性域名不能全为数字';
+            }
+            if (value.length<5||value.length>32) {
+                return '个性域名长度不能小于5或大于32';
             }
         }
     });
     //监听新建应用提交
-    form.on('submit(editApp)', function(data){
-        field = data.field; //当前容器的全部表单字段，名值对形式：{name: value}
+    form.on('submit(profile)', function(data){
+        field = data.field; //当前容器的全部表单字段，键值对形式：{name: value}
         $.ajax({
-            url: "{{ url_for('api.userapp') }}",
+            url: "{{ url_for('api.userprofile', Action='profile') }}",
             method: "PUT",
             data: field,
             success: function(res) {
-                console.log(res);
                 if (res.code==0) {
-                    layer.msg("已修改应用");
-                    //更新隐藏域输入框的值
-                    parent.document.getElementById("editView").value = JSON.stringify(field);
-                    //得到当前iframe层的索引
-                    var index = parent.layer.getFrameIndex(window.name);
-                    //再执行关闭
-                    parent.layer.close(index); 
+                    layer.msg("已修改基本资料");
                 } else {
-                    layer.msg(res.msg);
+                    var tip = res.msg;
+                    var err = '';
+                    for (var index in res.invalid) {
+                        err += profile[res.invalid[index]] + " ";
+                    }
+                    layer.msg(tip+"："+err);
                 }
             },
             error: function(error){
@@ -180,6 +216,35 @@ layui.use(["element", "form", "layer", "laydate"], function(){
             }
         });
         return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
+    });
+    //上传头像
+    var avatarAdd = $('.avatar-add');
+    upload.render({
+        elem: '#uploadAvatar'
+        ,url: "{{ url_for('api.userupload') }}"
+        ,method: "post"
+        ,accept: "images"
+        ,exts: "jpg|png|gif|jpeg"
+        //,size: 50
+        ,auto: true
+        ,before: function(){
+            avatarAdd.find('.loading').show();
+        }
+        ,done: function(res){
+            if(res.status == 0){
+                $.post('/user/set/', {
+                  avatar: res.url
+                }, function(res){
+                  location.reload();
+                });
+            } else {
+                layer.msg(res.msg, {icon: 5});
+            }
+            avatarAdd.find('.loading').hide();
+        }
+        ,error: function(){
+            avatarAdd.find('.loading').hide();
+        }
     });
 });
 </script>

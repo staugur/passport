@@ -12,7 +12,7 @@
 
 from Crypto.Cipher import AES
 from binascii import b2a_hex, a2b_hex
-from config import GLOBAL
+from config import SYSTEM
 
 
 class CBC():
@@ -20,7 +20,7 @@ class CBC():
 
     def __init__(self):
         # key长度要求16的倍数
-        self.key = GLOBAL["AES_CBC_KEY"]
+        self.key = SYSTEM["AES_CBC_KEY"]
         self.mode = AES.MODE_CBC
 
     def encrypt(self, text):

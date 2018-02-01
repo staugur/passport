@@ -16,7 +16,7 @@
 """
 
 import jinja2, os, sys
-from config import GLOBAL
+from config import GLOBAL, SYSTEM
 from version import __version__
 from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO
 from utils.web import verify_cookie, analysis_cookie
@@ -72,7 +72,7 @@ app.register_blueprint(ApiBlueprint, url_prefix="/api")
 # 添加模板上下文变量
 @app.context_processor  
 def GlobalTemplateVariables():  
-    data = {"Version": __version__, "Author": __author__, "Email": __email__, "Doc": __doc__}
+    data = {"Version": __version__, "Author": __author__, "Email": __email__, "Doc": __doc__, "SYSTEM": SYSTEM}
     return data
 
 @app.before_request

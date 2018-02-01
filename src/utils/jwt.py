@@ -10,7 +10,7 @@
 """
 
 import hashlib, hmac, time, datetime, random, base64, json
-from config import GLOBAL
+from config import SYSTEM
 from .tool import logger
 
 class JWTException(Exception): pass
@@ -34,7 +34,7 @@ class JWTUtil(object):
             iat: 签发时间，UNIX时间戳
             jti: 唯一身份标识
         """
-        self.secretkey = GLOBAL["JWT_SECRET_KEY"]
+        self.secretkey = SYSTEM["JWT_SECRET_KEY"]
         self._header  = {
             "typ": "JWT",
             "alg": "HS256"

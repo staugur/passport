@@ -50,7 +50,7 @@ layui.use(["form", "layer", "util"], function(){
     });
     //监听新建应用提交
     form.on('submit(editApp)', function(data){
-        field = data.field; //当前容器的全部表单字段，名值对形式：{name: value}
+        field = data.field; //当前容器的全部表单字段，键值对形式：{name: value}
         $.ajax({
             url: "{{ url_for('api.userapp') }}",
             method: "PUT",

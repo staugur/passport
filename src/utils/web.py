@@ -332,9 +332,10 @@ def dfr(res, default='en-US'):
             "Has been bound to other accounts": u"已经绑定其他账号",
             "Operation failed, rolled back": u"操作失败，已回滚",
             "Authentication failed or no permission to access": u"认证失败或无权限访问",
-            "There are invalid parameters": u"存在无效的参数",
+            "There are invalid parameters": u"存在无效或不合法的参数",
             "No data": u"没有数据",
             "Name already exists": u"名称已存在",
+            "Personal domain has been occupied": u"个性域名已被占用",
         },
         #繁体中文-香港
         "zh-HK": {
@@ -360,9 +361,10 @@ def dfr(res, default='en-US'):
             "Has been bound to other accounts": u"已經綁定其他賬號",
             "Operation failed, rolled back": u"操作失敗，已回滾",
             "Authentication failed or no permission to access": u"認證失敗或無權限訪問",
-            "There are invalid parameters": u"存在無效的參數",
+            "There are invalid parameters": u"存在無效或不合法的參數",
             "No data": u"沒有數據",
             "Name already exists": u"名稱已存在",
+            "Personal domain has been occupied": u"個性域名已被佔用",
         }
     }
     if isinstance(res, dict) and not "en" in language:

@@ -22,7 +22,8 @@ from config import REDIS as REDIS_URL, MYSQL as MYSQL_URL
 ip_pat          = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 mail_pat        = re.compile(r"([0-9a-zA-Z\_*\.*\-*]+)@([a-zA-Z0-9\-*\_*\.*]+)\.([a-zA-Z]+$)")
 mobilephone_pat = re.compile(r'1[3,4,5,7,8]\d{9}')
-Universal_pat   = re.compile(r"[a-zA-Z\_][0-9a-zA-Z\_]*")
+Universal_pat   = re.compile(r'^[a-zA-Z\_][0-9a-zA-Z\_]*$')
+domain_name_pat = re.compile(r'^[a-z][0-9a-z\_]{4,32}$')
 comma_pat       = re.compile(r"\s*,\s*")
 url_pat         = re.compile(
         r'^(?:http|ftp)s?://' # http:// or https://
@@ -44,6 +45,10 @@ gen_fingerprint = lambda n=16,s=2: ":".join([ "".join(random.sample("0123456789a
 gen_uniqueId    = lambda :shortuuid.uuid()
 #列表按长度切割
 ListEqualSplit  = lambda l,n=5: [ l[i:i+n] for i in range(0,len(l), n) ]
+#无重复随机数
+gen_rnd_filename = lambda :"%s%s" %(datetime.datetime.now().strftime('%Y%m%d%H%M%S'), str(random.randrange(1000, 10000)))
+#文件名合法性验证
+allowed_file = lambda filename: '.' in filename and filename.rsplit('.', 1)[1] in set(['png', 'jpg', 'jpeg', 'gif'])
 
 def ip_check(ip):
     if ip and isinstance(ip, (str, unicode)):
@@ -151,7 +156,7 @@ def timestamp_after_timestamp(timestamp=None, seconds=0, minutes=0, hours=0, day
     # 4. 返回某时间后的时间戳
     return int(time.mktime(d2.timetuple()))
 
-def timestamp_datetime(timestamp, format='%Y-%m-%d %H:%M:%S'):
+def timestamp_to_timestring(timestamp, format='%Y-%m-%d %H:%M:%S'):
     """ 将时间戳(10位)转换为可读性的时间 """
     # timestamp为传入的值为时间戳(10位整数)，如：1332888820
     timestamp = time.localtime(timestamp)

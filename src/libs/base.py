@@ -10,6 +10,7 @@
 """
 
 import json
+from config import SYSTEM
 from utils.tool import logger, plugin_logger, create_redis_engine, create_mysql_engine
 
 
@@ -21,12 +22,14 @@ class ServiceBase(object):
         self.timeout = 2
         self.redis = create_redis_engine()
         self.mysql = create_mysql_engine()
+        self.cache_admin = True if SYSTEM["CACHE_ENABLE"]["UserAdmin"] in ("true", "True", True) else False
 
     @property
     def listAdminUsers(self):
         """ 用户列表缓存 """
         key = "passport:user:admins"
         try:
+            if self.cache_admin is False: raise
             data = json.loads(self.redis.get(key))
             logger.info("Hit listAdminUsers Cache")
         except:
@@ -42,7 +45,7 @@ class ServiceBase(object):
     def refreshAdminUsers(self):
         """ 刷新管理员列表缓存 """
         key = "passport:user:admins"
-        return True if self.redis.delete(key) == 1 else False
+        return True if self.cache_admin and self.redis.delete(key) == 1 else False
 
     def isAdmin(self, uid):
         """ 判断是否为管理员 """

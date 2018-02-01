@@ -24,13 +24,19 @@ GLOBAL = {
 
     "LogLevel": getenv("passport_loglevel", "DEBUG"),
     #Application to write the log level, currently has DEBUG, INFO, WARNING, ERROR, CRITICAL.
-
-    "AES_CBC_KEY": getenv("passport_aes_cbc_key", "YRRGBRYQqrV1gv5A"),
-    # utils.aes_cbc.CBC类中所用加密key
-
-    "JWT_SECRET_KEY": getenv("passport_jwt_secret_key", "WBlE7_#qDf2vRb@vM!Zw#lqrg@rdd3A6")
-    # utils.jwt.JWTUtil类中所用加密key
 }
+
+
+MYSQL = getenv("passport_mysql_url")
+#MYSQL数据库连接信息
+#mysql://host:port:user:password:database?charset=&timezone=
+
+
+REDIS = getenv("passport_redis_url")
+#Redis数据库连接信息，格式：
+#redis://[:password]@host:port/db
+#host,port必填项,如有密码,记得密码前加冒号,默认localhost:6379/0
+
 
 #手势验证码配置段
 VAPTCHA = {
@@ -42,6 +48,15 @@ VAPTCHA = {
     #验证单元key
 }
 
+
+#又拍云存储配置
+UPYUN = {
+    "bucket": os.getenv("passport_upyun_bucket", ""),
+    "username": os.getenv("passport_upyun_username", ""),
+    "password": os.getenv("passport_upyun_password", ""),
+    "dn": os.getenv("passport_upyun_dn", "https://img.saintic.com"),
+    "basedir": os.getenv("passport_upyun_basedir", "/test")
+}
 
 # 邮箱配置段
 EMAIL = {
@@ -62,16 +77,6 @@ EMAIL = {
     # 是否使用SSL加密
 }
 
-
-MYSQL = getenv("passport_mysql_url")
-#MYSQL数据库连接信息
-#mysql://host:port:user:password:database?charset=&timezone=
-
-
-REDIS = getenv("passport_redis_url")
-#Redis数据库连接信息，格式：
-#redis://[:password]@host:port/db
-#host,port必填项,如有密码,记得密码前加冒号,默认localhost:6379/0
 
 #插件配置段
 PLUGINS = {
@@ -111,4 +116,28 @@ PLUGINS = {
         "APP_KEY": getenv("passport_baidu_appkey"),
         "REDIRECT_URI": getenv("passport_gitee_redirecturi", "https://passport.saintic.com/oauth2/baidu/authorized")
     },
+}
+
+#系统配置
+SYSTEM = {
+
+    "AES_CBC_KEY": getenv("passport_aes_cbc_key", "YRRGBRYQqrV1gv5A"),
+    # utils.aes_cbc.CBC类中所用加密key
+
+    "JWT_SECRET_KEY": getenv("passport_jwt_secret_key", "WBlE7_#qDf2vRb@vM!Zw#lqrg@rdd3A6"),
+    # utils.jwt.JWTUtil类中所用加密key
+
+    "CACHE_ENABLE": {
+        "UserAdmin": getenv("passport_cache_useradmin", True),
+        # 开启管理员用户缓存
+
+        "UserProfile": getenv("passport_cache_userprofile", False),
+        # 开启用户资料缓存
+
+        "UserApps": getenv("passport_cache_userapps", False),
+        # 开启sso应用缓存
+    },
+
+    "PersonalizedDomainNamePrefix": "https://90era.vip/user/"
+    # 个性域名前缀：业务系统中用户对公个人主页前缀地址
 }

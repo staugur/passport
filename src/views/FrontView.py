@@ -35,7 +35,7 @@ def link():
 @FrontBlueprint.route('/user/')
 @login_required
 def userhome():
-    return render_template("user/index.html")
+    return render_template("user/home.html")
 
 @FrontBlueprint.route('/user/setting/')
 @login_required
