@@ -336,6 +336,9 @@ def dfr(res, default='en-US'):
             "No data": u"没有数据",
             "Name already exists": u"名称已存在",
             "Personal domain has been occupied": u"个性域名已被占用",
+            "Unsuccessfully obtained file or format is not allowed": u"未获取到文件或格式不合法",
+            "Image address is not valid": u"图片地址不合法",
+            "System rate-limit policy is blocked": u"系统限流策略阻止",
         },
         #繁体中文-香港
         "zh-HK": {
@@ -365,6 +368,9 @@ def dfr(res, default='en-US'):
             "No data": u"沒有數據",
             "Name already exists": u"名稱已存在",
             "Personal domain has been occupied": u"個性域名已被佔用",
+            "Unsuccessfully obtained file or format is not allowed": u"未獲取到文件或格式不合法",
+            "Image address is not valid": u"圖片地址不合法",
+            "System rate-limit policy is blocked": u"系統限流策略阻止",
         }
     }
     if isinstance(res, dict) and not "en" in language:

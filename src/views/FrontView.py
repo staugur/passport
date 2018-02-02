@@ -148,7 +148,7 @@ def OAuthDirectLogin():
                 return response
             else:
                 flash(res["msg"])
-            return redirect(url_for('.index'))
+                return redirect(url_for('.index'))
         else:
             return redirect(url_for(".index"))
 

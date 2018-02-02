@@ -11,7 +11,7 @@
 
 import json
 from libs.base import ServiceBase
-from utils.tool import logger, get_current_timestamp, timestring_to_timestamp, domain_name_pat
+from utils.tool import logger, get_current_timestamp, timestring_to_timestamp, domain_name_pat, avatar_check, sql_safestring_check
 from torndb import IntegrityError
 from config import SYSTEM
 
@@ -75,8 +75,11 @@ class UserProfileManager(ServiceBase):
         location = profiles.get("location")
         gender = profiles.get("gender")
         signature = profiles.get("signature")
-        if nick_name:
+        if nick_name and len(nick_name) <= 49:
             sql += "nick_name='%s'," %nick_name
+        else:
+            checked = False
+            invalid.append("nick_name")
         if domain_name:
             if domain_name_pat.match(domain_name) and not domain_name.endswith('_') and not domain_name in ("admin", "system", "root", "administrator", "null", "none", "true", "false", "user"):
                 sql += "domain_name='%s'," %domain_name
@@ -115,6 +118,14 @@ class UserProfileManager(ServiceBase):
                 not signature:
             checked = False
             invalid.append("all")
+        if checked:
+            # 拼接sql的安全检测
+            for key,value in profiles.iteritems():
+                checked = sql_safestring_check(value)
+                logger.debug("check {}, value: {}, result: {}".format(key, value, checked))
+                if checked is False:
+                    invalid.append(key)
+                    break
 
         if uid and checked:
             sql += "mtime={}".format(get_current_timestamp())
@@ -132,4 +143,26 @@ class UserProfileManager(ServiceBase):
                 res.update(code=0, refreshCache=self.refreshUserProfile(uid))
         else:
             res.update(msg="There are invalid parameters", code=4, invalid=invalid)
+        return res
+
+    def updateUserAvatar(self, uid, avatarUrl):
+        """修改头像
+        @param uid str: 用户id
+        @param avatarUrl str: 头像地址
+        """
+        res = dict(msg=None, code=1)
+        if uid and avatarUrl and sql_safestring_check(avatarUrl):
+            if avatar_check(avatarUrl):
+                sql = "UPDATE user_profile SET avatar=%s WHERE uid=%s"
+                try:
+                    self.mysql.update(sql, avatarUrl, uid)
+                except Exception, e:
+                    logger.error(e, exc_info=True)
+                    res.update(msg="System is abnormal", code=2)
+                else:
+                    res.update(code=0, refreshCache=self.refreshUserProfile(uid))
+            else:
+                res.update(msg="Image address is not valid", code=3)
+        else:
+            res.update(msg="There are invalid parameters", code=4)
         return res

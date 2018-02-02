@@ -51,12 +51,13 @@ VAPTCHA = {
 
 #又拍云存储配置
 UPYUN = {
-    "bucket": os.getenv("passport_upyun_bucket", ""),
-    "username": os.getenv("passport_upyun_username", ""),
-    "password": os.getenv("passport_upyun_password", ""),
-    "dn": os.getenv("passport_upyun_dn", "https://img.saintic.com"),
-    "basedir": os.getenv("passport_upyun_basedir", "/test")
+    "bucket": getenv("passport_upyun_bucket", ""),
+    "username": getenv("passport_upyun_username", ""),
+    "password": getenv("passport_upyun_password", ""),
+    "dn": getenv("passport_upyun_dn", "https://img.saintic.com"),
+    "basedir": getenv("passport_upyun_basedir", "/test")
 }
+
 
 # 邮箱配置段
 EMAIL = {
@@ -117,6 +118,7 @@ PLUGINS = {
         "REDIRECT_URI": getenv("passport_gitee_redirecturi", "https://passport.saintic.com/oauth2/baidu/authorized")
     },
 }
+
 
 #系统配置
 SYSTEM = {

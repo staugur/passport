@@ -192,13 +192,17 @@ class PluginManager(object):
 
     @property
     def get_all_cep(self):
-        """上下文扩展点, Context extension point, 分别对应请求前、请求后(返回前):
-        CEP: before_request_hook
-        CEP: after_request_hook
+        """上下文扩展点, Context extension point,
+        CEP: before_request_hook 分别对应请求前
+        CEP: before_request_return 警告！请求前，并且具备请求拦截(丢弃、放行等)能力
+        CEP: after_request_hook 返回前
+        CEP: teardown_request_hook 无论是否异常返回前
         """
         return dict(
             before_request_hook=lambda: [plugin["plugin_cep"].get("before_request_hook") for plugin in self.get_enabled_plugins if plugin["plugin_cep"].get("before_request_hook")],
+            before_request_return=lambda: [plugin["plugin_cep"].get("before_request_return") for plugin in self.get_enabled_plugins if plugin["plugin_cep"].get("before_request_return")],
             after_request_hook=lambda: [plugin["plugin_cep"].get("after_request_hook") for plugin in self.get_enabled_plugins if plugin["plugin_cep"].get("after_request_hook")],
+            teardown_request_hook=lambda: [plugin["plugin_cep"].get("teardown_request_hook") for plugin in self.get_enabled_plugins if plugin["plugin_cep"].get("teardown_request_hook")],
         )
 
     @property

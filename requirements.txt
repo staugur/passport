@@ -9,3 +9,4 @@ gunicorn
 vaptchasdk
 shortuuid
 user_agents
+upyun

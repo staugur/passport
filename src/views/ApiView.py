@@ -11,6 +11,7 @@
 import json, os.path
 from config import VAPTCHA, UPYUN as Upyun
 from utils.send_email_msg import SendMail
+from utils.upyunstorage import CloudStorage
 from utils.web import email_tpl, dfr, apilogin_required, apiadminlogin_required
 from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file
 from vaptchasdk import vaptcha as VaptchaApi
@@ -24,6 +25,9 @@ ApiBlueprint = Blueprint("api", __name__)
 sendmail = SendMail()
 #初始化手势验证码服务
 vaptcha = VaptchaApi(VAPTCHA["vid"], VAPTCHA["key"])
+#又拍云存储封装接口
+upyunapi = CloudStorage()
+
 
 @ApiBlueprint.route('/miscellaneous/_sendVcode', methods=['POST'])
 def misc_sendVcode():
@@ -132,6 +136,7 @@ def userapp():
 @ApiBlueprint.route("/user/profile/", methods=["GET", "POST", "PUT"])
 @apilogin_required
 def userprofile():
+    res = dict()
     if request.method == "GET":
         res = g.api.userprofile.getUserProfile(g.uid)
     elif request.method == "PUT":
@@ -142,10 +147,9 @@ def userprofile():
             res = g.api.userprofile.updateUserProfile(uid=g.uid, **data)
         elif Action == "password":
             pass
-            #res = g.api..user_update_password(g.token["username"], request.form.get("OldPassword"), request.form.get("NewPassword"))
+            #res = g.api.user_update_password(g.token["username"], request.form.get("OldPassword"), request.form.get("NewPassword"))
     logger.info(res)
     return jsonify(dfr(res))
-
 
 @ApiBlueprint.route('/user/upload/', methods=['POST','OPTIONS'])
 @apilogin_required
@@ -153,31 +157,22 @@ def userupload():
     res = dict(code=1, msg=None)
     logger.debug(request.files)
     f = request.files.get('file')
+    callableAction = request.args.get("callableAction")
     if f and allowed_file(f.filename):
         filename = secure_filename(gen_rnd_filename() + "." + f.filename.split('.')[-1]) #随机命名
         basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
         imgUrl = os.path.join(basedir, filename)
         try:
-            upres = api.put(imgUrl, f.stream.read())
+            upyunapi.put(imgUrl, f.stream.read())
         except Exception,e:
             logger.error(e, exc_info=True)
-            res.update(code=2, msg="Storage failure")
+            res.update(code=2, msg="System is abnormal")
         else:
-            imgId = md5(filename)
             imgUrl = Upyun['dn'].strip("/") + imgUrl
-            upres.update(ctime=get_current_timestamp(), imgUrl=imgUrl, imgId=imgId)
-            try:
-                pipe = g.redis.pipeline()
-                pipe.sadd(picKey, imgId)
-                pipe.hmset("{}:{}".format(GLOBAL['ProcessName'], imgId), upres)
-                pipe.execute()
-            except Exception,e:
-                logger.error(e, exc_info=True)
-                res.update(code=0, msg="It has been uploaded, but the server has encountered an unknown error")
-            else:
-                logger.info("Upload to Upyun file saved, its url is %s, result is %s, imgId is %s" %(imgUrl, upres, imgId))
-                res.update(code=0, imgUrl=imgUrl)
+            res.update(imgUrl=imgUrl, code=0)
+            if callableAction == "UpdateAvatar":
+                res.update(g.api.userprofile.updateUserAvatar(uid=g.uid, avatarUrl=imgUrl))
     else:
-        res.update(code=1, msg="Unsuccessfully obtained file or format is not allowed")
+        res.update(code=3, msg="Unsuccessfully obtained file or format is not allowed")
     logger.info(res)
-    return jsonify(res)
+    return jsonify(dfr(res))

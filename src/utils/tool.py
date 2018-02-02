@@ -62,6 +62,24 @@ def phone_check(phone):
     if phone and isinstance(phone, (str, unicode)):
         return mobilephone_pat.match(phone)
 
+def avatar_check(avatar):
+    if avatar:
+        if avatar.startswith("/") and allowed_file(avatar):
+            return True
+        elif url_pat.match(avatar):
+            return True
+    return False
+
+def sql_safestring_check(string):
+    """检查拼接sql的字符串是否安全
+    诸如：含有问号、逗号、分号、百分号不予通过
+    返回：True代表安全，False表示不安全
+    """
+    if string:
+        if "'" in string or '"' in string or '?' in string or '%' in string or ';' in string or '*' in string or '=' in string:
+            return False
+    return True
+
 def parse_phone(phone):
     """判断并解析手机号所属运营商
     返回：1-中国移动 2-中国联通 3-中国电信 0-未知或无效手机号
@@ -143,7 +161,7 @@ def getIpArea(ip):
 
 def get_current_timestamp():
     """ 获取本地当前时间戳(10位): Unix timestamp：是从1970年1月1日（UTC/GMT的午夜）开始所经过的秒数，不考虑闰秒 """
-    return int(time.mktime(datetime.datetime.now().timetuple()))
+    return int(time.time())
 
 def timestamp_after_timestamp(timestamp=None, seconds=0, minutes=0, hours=0, days=0):
     """ 给定时间戳(10位),计算该时间戳之后多少秒、分钟、小时、天的时间戳(本地时间) """

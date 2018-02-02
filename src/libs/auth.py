@@ -40,7 +40,7 @@ class Authentication(object):
     def __check_hasEmail(self, email):
         """检查是否存在邮箱账号"""
         if email_check(email):
-            sql = "SELECT uid FROM user_auth WHERE identity_type=%s AND identifier=%s"
+            sql = "SELECT uid FROM user_auth WHERE identity_type=%d AND identifier=%s"
             try:
                 data = self.db.get(sql, 2, email)
             except Exception,e:
@@ -97,7 +97,7 @@ class Authentication(object):
                 logger.debug("transaction, start")
                 self.db._db.begin()
                 try:
-                    sql_1 = "INSERT INTO user_auth (uid, identity_type, identifier, certificate, verified, status, create_time, expire_time) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
+                    sql_1 = "INSERT INTO user_auth (uid, identity_type, identifier, certificate, verified, status, ctime, etime) VALUES (%s, %s, %s, %s, %s, %s, %s, %s)"
                     info = self.db.insert(sql_1, guid, identity_type, identifier, certificate, verified, 1, ctime, expire_time)
                 except IntegrityError:
                     res.update(msg="Account already exists")
@@ -108,12 +108,13 @@ class Authentication(object):
                     if use_profile_sql is True:
                         if define_profile_sql:
                             sql_2 = define_profile_sql
+                            logger.info("execute define_profile_sql: {}".format(sql_2))
                             try:
                                 info = self.db.execute(sql_2)
                             except:
                                 raise
                         else:
-                            sql_2 = "INSERT INTO user_profile (uid, register_source, register_ip, create_time, is_realname, is_admin) VALUES (%s, %s, %s, %s, %s, %s)"
+                            sql_2 = "INSERT INTO user_profile (uid, register_source, register_ip, ctime, is_realname, is_admin) VALUES (%s, %s, %s, %s, %s, %s)"
                             try:
                                 info = self.db.insert(sql_2, guid, identity_type, register_ip, ctime, 0, 0)
                             except:
@@ -194,7 +195,7 @@ class Authentication(object):
             identity_type = 2
             # NO.2 检查账号
             if password and 6 <= len(password) < 30:
-                sql = "SELECT uid,certificate FROM user_auth WHERE identity_type=%s AND identifier=%s AND status=1"
+                sql = "SELECT uid,certificate FROM user_auth WHERE identity_type=%d AND identifier=%s AND status=1"
                 try:
                     data = self.db.get(sql, identity_type, account)
                 except Exception,e:
@@ -382,15 +383,14 @@ class Authentication(object):
             identity_type = int(userinfo["identity_type"])
             avatar = userinfo["avatar"]
             nick_name = userinfo["nick_name"]
-            gender = userinfo.get("gender") or 2
+            gender = int(userinfo.get("gender") or 2)
             signature = userinfo.get("signature") or ""
             location = userinfo.get("location") or ""
             expire_time = userinfo.get("expire_time") or 0
             guid = gen_uniqueId()
             logger.debug("check test: guid length: {}, identifier: {}, identity_type:{}, identity_type: {}, certificate: {}".format(len(guid), openid, identity_type, type(identity_type), access_token))
-            define_profile_sql = "INSERT INTO user_profile (uid, register_source, register_ip, nick_name, gender, signature, avatar, location, create_time, is_realname, is_admin) VALUES ('%s', '%s', %s', '%s', '%s', '%s', '%s', '%s', '%s', '%s', '%s')" %(guid, identity_type, register_ip, nick_name, gender, signature, avatar, location, get_current_timestamp(), 0, 0)
+            define_profile_sql = "INSERT INTO user_profile (uid, register_source, register_ip, nick_name, gender, signature, avatar, location, ctime, is_realname, is_admin) VALUES ('%s', %d, '%s', '%s', %d, '%s', '%s', '%s', %d, %d, %d)" %(guid, identity_type, register_ip, nick_name, gender, signature, avatar, location, get_current_timestamp(), 0, 0)
             upts = self.__signUp_transacion(guid=guid, identifier=openid, identity_type=identity_type, certificate=access_token, verified=1, register_ip=register_ip, expire_time=expire_time, define_profile_sql=define_profile_sql)
-            logger.warn(upts)
             res.update(upts)
             if res["success"]:
                 self.__oauth2_delUserinfo(openid)

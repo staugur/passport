@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50720
 File Encoding         : 65001
 
-Date: 2018-01-31 17:38:33
+Date: 2018-02-02 17:48:22
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -26,11 +26,11 @@ CREATE TABLE `sso_apps` (
   `app_id` char(32) NOT NULL COMMENT '应用id',
   `app_secret` char(36) NOT NULL COMMENT '应用密钥',
   `app_redirect_url` varchar(255) NOT NULL COMMENT '应用回调地址',
-  `ctime` int(11) NOT NULL COMMENT '创建时间',
-  `mtime` int(11) DEFAULT NULL COMMENT '更新时间',
+  `ctime` int(10) NOT NULL COMMENT '创建时间',
+  `mtime` int(10) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user_auth
@@ -44,15 +44,15 @@ CREATE TABLE `user_auth` (
   `certificate` varchar(106) NOT NULL DEFAULT '' COMMENT '密码凭证(站内的保存密码，站外的不保存或保存token)',
   `verified` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否已验证 0-未验证 1-已验证',
   `status` tinyint(1) unsigned NOT NULL DEFAULT '1' COMMENT '用户状态 0-禁用 1-启用',
-  `create_time` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '绑定时间',
-  `update_time` int(11) unsigned DEFAULT NULL COMMENT '更新绑定时间',
-  `expire_time` int(11) unsigned DEFAULT NULL COMMENT '到期时间，特指OAuth2登录',
+  `ctime` int(11) unsigned NOT NULL DEFAULT '0' COMMENT '绑定时间',
+  `mtime` int(11) unsigned DEFAULT NULL COMMENT '更新绑定时间',
+  `etime` int(11) unsigned DEFAULT NULL COMMENT '到期时间，特指OAuth2登录',
   `refresh_token` varchar(255) DEFAULT NULL COMMENT '第三方登录刷新token',
   PRIMARY KEY (`id`),
   UNIQUE KEY `identifier` (`identifier`) USING BTREE,
   KEY `status` (`status`) USING BTREE,
   KEY `idx_uid` (`uid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
+) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
 
 -- ----------------------------
 -- Table structure for user_loginlog
@@ -64,7 +64,7 @@ CREATE TABLE `user_loginlog` (
   `login_type` tinyint(2) unsigned NOT NULL DEFAULT '1' COMMENT '登录类型 同identity_type',
   `login_ip` varchar(15) NOT NULL COMMENT '登录IP',
   `login_area` varchar(200) DEFAULT NULL COMMENT '登录地点',
-  `login_time` char(19) NOT NULL COMMENT '登录时间',
+  `login_time` int(10) NOT NULL COMMENT '登录时间',
   `user_agent` varchar(255) NOT NULL COMMENT '用户代理',
   `browser_type` varchar(10) CHARACTER SET utf8 DEFAULT NULL COMMENT '浏览器终端类型，入pc mobile bot tablet',
   `browser_device` varchar(30) CHARACTER SET utf8 DEFAULT NULL COMMENT '浏览器设备，如pc，xiaomi，iphone',
@@ -82,15 +82,15 @@ CREATE TABLE `user_profile` (
   `uid` char(22) NOT NULL COMMENT '用户id',
   `register_source` tinyint(2) unsigned NOT NULL DEFAULT '0' COMMENT '注册来源 同identity_type 不可更改',
   `register_ip` varchar(15) NOT NULL COMMENT '注册IP地址，不可更改',
-  `nick_name` varchar(32) DEFAULT NULL COMMENT '用户昵称',
-  `domain_name` varchar(32) CHARACTER SET utf8 DEFAULT NULL COMMENT '个性域名',
+  `nick_name` varchar(49) DEFAULT NULL COMMENT '用户昵称',
+  `domain_name` varchar(32) CHARACTER SET utf8 COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '个性域名',
   `gender` tinyint(1) unsigned DEFAULT '2' COMMENT '用户性别 0-女 1-男 2-保密',
-  `birthday` bigint(20) unsigned DEFAULT NULL COMMENT '用户生日',
+  `birthday` int(10) unsigned DEFAULT NULL COMMENT '用户生日时间戳',
   `signature` varchar(140) DEFAULT NULL COMMENT '用户个人签名',
   `avatar` varchar(255) DEFAULT NULL COMMENT '头像',
   `location` varchar(50) DEFAULT NULL COMMENT '地址',
-  `ctime` int(11) unsigned NOT NULL COMMENT '账号创建时间',
-  `mtime` int(11) unsigned DEFAULT NULL COMMENT '资料修改时间',
+  `ctime` int(10) unsigned NOT NULL COMMENT '账号创建时间',
+  `mtime` int(10) unsigned DEFAULT NULL COMMENT '资料修改时间',
   `is_realname` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否实名认证 0-未实名 1-已实名',
   `is_admin` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否管理员 0-否 1-是',
   PRIMARY KEY (`uid`),

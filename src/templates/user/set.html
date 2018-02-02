@@ -17,16 +17,16 @@
                         <div class="layui-form-item">
                             <label for="nick_name" class="layui-form-label">个性昵称</label>
                             <div class="layui-input-inline">
-                                <input type="text" id="nick_name" name="nick_name" required lay-verify="required" autocomplete="off" value="" class="layui-input" placeholder='起一个喜欢的别名吧'>
+                                <input type="text" id="nick_name" name="nick_name" required lay-verify="required|nick_name" lay-verType="tips" autocomplete="off" value="" class="layui-input" placeholder='起一个喜欢的别名吧'>
                             </div>
                             <div class="layui-form-mid layui-word-aux">
-                                每月仅能修改一次，其他用户可以艾特你的昵称哦！
+                                每月仅能修改一次，其他用户可以艾特你的昵称哦，请勿使用诸如?%;等违规字符！
                             </div>
                         </div>
                         <div class="layui-form-item">
                             <label for="domain_name" class="layui-form-label">个性域名</label>
                             <div class="layui-input-inline">
-                                <input type="text" id="domain_name" name="domain_name" value="" class="layui-input" placeholder='独一无二的主页标识' lay-verify="domain_name">
+                                <input type="text" id="domain_name" name="domain_name" value="" class="layui-input" placeholder='独一无二的主页标识' lay-verify="domain_name" lay-verType="tips">
                             </div>
                             <div class="layui-form-mid layui-word-aux">
                                 {{ SYSTEM.PersonalizedDomainNamePrefix }}<b id="domain_name_suffix"></b>
@@ -66,10 +66,9 @@
                 <div class="layui-form layui-form-pane layui-tab-item">
                     <div class="layui-form-item">
                         <div class="avatar-add">
-                            <p>建议尺寸168*168，支持jpg、png、gif，最大不能超过50KB</p>
+                            <p>建议尺寸168*168，支持jpg、jpeg、png、gif，最大不能超过1MB</p>
                             <button type="button" class="layui-btn upload-img" id="uploadAvatar"><i class="layui-icon">&#xe67c;</i>上传头像</button>
                             <img id="avatar">
-                            <span class="loading"></span>
                         </div>
                     </div>
                 </div>
@@ -134,6 +133,18 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
         gender: "性别",
         signature: "签名"
     };
+    function safeCheck(s) {
+        try {
+            if (s.indexOf("'")!=-1||s.indexOf('"')!=-1||s.indexOf("?")!=-1||s.indexOf("%")!=-1||s.indexOf(";")!=-1||s.indexOf("*")!=-1||s.indexOf("=")!=-1) {
+                return false
+            } else {
+                return true;
+            }
+        }
+        catch(e) {
+            return false;
+        }
+    }
     //获取用户信息
     $.getJSON({
         url: "{{ url_for('api.userprofile') }}",
@@ -143,8 +154,12 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
                 var data = res.data;
                 $('#nick_name').val(data.nick_name);
                 $('#domain_name').val(data.domain_name);
+                if (data.domain_name) {
+                    $('#domain_name_suffix').html(data.domain_name);
+                }
                 if (data.birthday) {
-                    $('#birthday').val(util.toDateString(data.birthday*1000, "yyyy-MM-dd"));
+                    data.birthday = util.toDateString(data.birthday*1000, "yyyy-MM-dd");
+                    $('#birthday').val(data.birthday);
                 }
                 $('#location').val(data.location);
                 if (data.gender===1) {
@@ -158,6 +173,9 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
                 form.render();
                 //更新头像
                 $('#avatar').attr('src', data.avatar);
+                //缓存
+                layui.cache.user = data;
+                console.log(layui.cache.user);
             }
         }
     });
@@ -174,27 +192,41 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
     $('#domain_name').on("input propertychange", function() {
         var value = $(this).val();
         $('#domain_name_suffix').html(value);
+        layui.cache.user.domain_name = value;
     });
     //表单自定义校验
     form.verify({
+        nick_name: function(value, item){ //value：表单的值、item：表单的DOM对象
+            if (value) {
+                if (safeCheck(value)===false) {
+                    return '昵称存在违规特殊字符';
+                }
+                if (value.length<2||value.length>49) {
+                    return '昵称长度不能小于2或大于49';
+                }
+            }
+        },
         domain_name: function(value, item){ //value：表单的值、item：表单的DOM对象
-            if(!new RegExp("^[a-z][a-z0-9_\\s·]+$").test(value)){
-                return '个性域名不合法：以英文开头全部小写且无特殊字符';
-            }
-            if(/(^\_)|(\__)|(\_+$)/.test(value)){
-                return '个性域名首尾不能出现下划线\'_\'';
-            }
-            if(/^\d+\d+\d$/.test(value)){
-                return '个性域名不能全为数字';
-            }
-            if (value.length<5||value.length>32) {
-                return '个性域名长度不能小于5或大于32';
+            if (value) {
+                if(!new RegExp("^[a-z][a-z0-9_\\s·]+$").test(value)){
+                    return '个性域名不合法：以英文开头全部小写且无特殊字符';
+               }
+               if(/(^\_)|(\__)|(\_+$)/.test(value)){
+                    return '个性域名首尾不能出现下划线\'_\'';
+                }
+                if(/^\d+\d+\d$/.test(value)){
+                    return '个性域名不能全为数字';
+                }
+                if (value.length<5||value.length>32) {
+                    return '个性域名长度不能小于5或大于32';
+                }
             }
         }
     });
     //监听新建应用提交
     form.on('submit(profile)', function(data){
-        field = data.field; //当前容器的全部表单字段，键值对形式：{name: value}
+        var field = data.field; //当前容器的全部表单字段，键值对形式：{name: value}
+        console.log(field);
         $.ajax({
             url: "{{ url_for('api.userprofile', Action='profile') }}",
             method: "PUT",
@@ -202,6 +234,11 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
             success: function(res) {
                 if (res.code==0) {
                     layer.msg("已修改基本资料");
+                    //更新缓存
+                    for (var key in field) {
+                        layui.cache.user[key] = field[key];
+                    }
+                    console.log(layui.cache.user);
                 } else {
                     var tip = res.msg;
                     var err = '';
@@ -218,32 +255,30 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
         return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
     });
     //上传头像
-    var avatarAdd = $('.avatar-add');
     upload.render({
         elem: '#uploadAvatar'
-        ,url: "{{ url_for('api.userupload') }}"
+        ,url: "{{ url_for('api.userupload', callableAction='UpdateAvatar') }}"
         ,method: "post"
         ,accept: "images"
         ,exts: "jpg|png|gif|jpeg"
-        //,size: 50
+        ,size: 1024
         ,auto: true
         ,before: function(){
-            avatarAdd.find('.loading').show();
+            layer.load();
         }
         ,done: function(res){
-            if(res.status == 0){
-                $.post('/user/set/', {
-                  avatar: res.url
-                }, function(res){
-                  location.reload();
-                });
+            if(res.code == 0){
+                layer.msg("已更新头像");
+                layui.cache.user.avatar = res.imgUrl;
+                $('#avatar').attr('src', res.imgUrl);
+                $('#nav_avatar').attr('src', res.imgUrl);
             } else {
                 layer.msg(res.msg, {icon: 5});
             }
-            avatarAdd.find('.loading').hide();
+            layer.closeAll('loading');
         }
         ,error: function(){
-            avatarAdd.find('.loading').hide();
+            layer.closeAll('loading');
         }
     });
 });

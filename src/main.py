@@ -89,6 +89,15 @@ def before_request():
     before_request_hook = plugin.get_all_cep.get("before_request_hook")
     for cep_func in before_request_hook():
         cep_func(request=request, g=g)
+    before_request_return = plugin.get_all_cep.get("before_request_return")
+    for cep_func in before_request_return():
+        resp = cep_func(request=request, g=g)
+        try:
+            success = resp.is_before_request_return
+        except:
+            logger.warn("Plugin returns abnormalities when before_request_return")
+        else:
+            return resp
     #app.logger.debug(app.url_map)
 
 @app.after_request
@@ -115,6 +124,9 @@ def teardown_request(exception):
         g.redis.connection_pool.disconnect()
     if hasattr(g, "mysql"):
         g.mysql.close()
+    teardown_request_hook = plugin.get_all_cep.get("teardown_request_hook")
+    for cep_func in teardown_request_hook():
+        cep_func(request=request, g=g, exception=exception)
 
 @app.errorhandler(500)
 def server_error(error=None):
