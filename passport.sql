@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50720
 File Encoding         : 65001
 
-Date: 2018-02-02 17:48:22
+Date: 2018-02-05 18:32:27
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -30,7 +30,7 @@ CREATE TABLE `sso_apps` (
   `mtime` int(10) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user_auth
@@ -52,7 +52,7 @@ CREATE TABLE `user_auth` (
   UNIQUE KEY `identifier` (`identifier`) USING BTREE,
   KEY `status` (`status`) USING BTREE,
   KEY `idx_uid` (`uid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=15 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
+) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
 
 -- ----------------------------
 -- Table structure for user_loginlog
@@ -72,7 +72,7 @@ CREATE TABLE `user_loginlog` (
   `browser_family` varchar(30) CHARACTER SET utf8 DEFAULT NULL COMMENT '浏览器种类及版本，如chrome 60.0.3122',
   PRIMARY KEY (`id`),
   KEY `idx_uid_type_time` (`uid`,`login_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
+) ENGINE=InnoDB AUTO_INCREMENT=45 DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
 
 -- ----------------------------
 -- Table structure for user_profile
@@ -87,7 +87,7 @@ CREATE TABLE `user_profile` (
   `gender` tinyint(1) unsigned DEFAULT '2' COMMENT '用户性别 0-女 1-男 2-保密',
   `birthday` int(10) unsigned DEFAULT NULL COMMENT '用户生日时间戳',
   `signature` varchar(140) DEFAULT NULL COMMENT '用户个人签名',
-  `avatar` varchar(255) DEFAULT NULL COMMENT '头像',
+  `avatar` varchar(255) DEFAULT '/static/images/avatar/default.png' COMMENT '头像',
   `location` varchar(50) DEFAULT NULL COMMENT '地址',
   `ctime` int(10) unsigned NOT NULL COMMENT '账号创建时间',
   `mtime` int(10) unsigned DEFAULT NULL COMMENT '资料修改时间',

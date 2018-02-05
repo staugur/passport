@@ -12,6 +12,7 @@
 import json
 from libs.base import ServiceBase
 from utils.tool import logger, get_current_timestamp, timestring_to_timestamp, domain_name_pat, avatar_check, sql_safestring_check
+from utils.web import oauth2_type2name
 from torndb import IntegrityError
 from config import SYSTEM
 
@@ -23,7 +24,22 @@ class UserProfileManager(ServiceBase):
         super(UserProfileManager, self).__init__()
         self.cache_enable = True if SYSTEM["CACHE_ENABLE"]["UserProfile"] in ("true", "True", True) else False
 
-    def getUserProfile(self, uid):
+    def listUserBind(self, uid):
+        """ 查询用户绑定的社交账号 
+        @param uid str: 用户唯一id
+        """
+        bind = []
+        if uid:
+            sql = "SELECT id,identity_type,ctime,mtime,etime FROM user_auth WHERE identity_type in (3, 4, 5, 6, 7, 8, 9) AND status=1 AND uid=%s"
+            try:
+                data = self.mysql.query(sql, uid)
+            except Exception,e:
+                logger.error(e, exc_info=True)
+            else:
+                bind = [ {"identity_type": oauth2_type2name(i["identity_type"]), "ctime": i["ctime"], "mtime": i["mtime"]} for i in data ]
+        return bind
+
+    def getUserProfile(self, uid, getBind=False):
         """ 查询用户资料
         @param uid str: 用户id
         """
@@ -34,8 +50,7 @@ class UserProfileManager(ServiceBase):
             data = json.loads(self.redis.get(key))
             logger.info("Hit getUserProfile Cache")
         except:
-            sql = "SELECT uid,register_source,register_ip,nick_name,domain_name,gender,birthday,signature,avatar,location,ctime,mtime,is_realname FROM user_profile WHERE uid=%s"
-            #sql2 = "SELECT uid,identity_type,identifier,certificate,verified,status,create_time,update_time,expire_time FROM user_auth"
+            sql = "SELECT register_source,register_ip,nick_name,domain_name,gender,birthday,signature,avatar,location,ctime,mtime,is_realname FROM user_profile WHERE uid=%s"
             if uid and isinstance(uid, (str, unicode)) and len(uid) == 22:
                 try:
                     data = self.mysql.get(sql, uid)
@@ -52,6 +67,8 @@ class UserProfileManager(ServiceBase):
                 res.update(msg="There are invalid parameters", code=2)
         else:
             res.update(data=data, code=0)
+        if res.get("data") and isinstance(res.get("data"), dict) and getBind is True:
+            res['data']['bind'] = self.listUserBind(uid)
         return res
 
     def refreshUserProfile(self, uid):

@@ -44,7 +44,7 @@ __license_file__= "LICENSE"
 __readme_file__ = "README"
 #: Plugin state, enabled or disabled, default: enabled
 #: 插件状态, enabled、disabled, 默认enabled
-__state__       = "enabled"
+__state__       = "disabled"
 
 
 #: 返回插件主类
@@ -60,6 +60,7 @@ class RateLimiter(PluginBase):
         根据用户
         """
         # 获取外部参数
+        return
         ip = request.headers.get('X-Real-Ip', request.remote_addr)
         key = "passport:ratelimit:"
         response = make_response(jsonify(msg="RateLimiter"),429)

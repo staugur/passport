@@ -138,7 +138,8 @@ def userapp():
 def userprofile():
     res = dict()
     if request.method == "GET":
-        res = g.api.userprofile.getUserProfile(g.uid)
+        getBind = True if request.args.get("getBind") in ("true", "True", True) else False
+        res = g.api.userprofile.getUserProfile(g.uid, getBind)
     elif request.method == "PUT":
         """修改个人资料，包含：基本资料、密码、头像、社交账号绑定"""
         Action = request.args.get("Action")

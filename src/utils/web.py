@@ -87,6 +87,12 @@ def adminlogin_required(f):
         return abort(404)
     return decorated_function
 
+def tpl_adminlogin_required():
+    """模板中判断是否为管理员用户"""
+    if g.signin and g.uid and sbs.isAdmin(g.uid):
+        return True
+    return False
+
 def apilogin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -110,19 +116,33 @@ def oauth2_name2type(name):
     1手机号 2邮箱 3GitHub 4qq 5微信 6百度 7新浪微博 8Coding 9码云
     """
     BIND = dict(
-            mobile = 1,
-            email = 2,
-            github = 3,
-            qq = 4,
-            wechat = 5,
-            wexin = 5,
-            baidu = 6,
-            weibo = 7,
-            sinaweibo = 7,
-            coding = 8,
-            gitee = 9
+        mobile = 1,
+        email = 2,
+        github = 3,
+        qq = 4,
+        wechat = 5,
+        baidu = 6,
+        weibo = 7,
+        coding = 8,
+        gitee = 9
     )
     return BIND[name]
+
+def oauth2_type2name(otype):
+    """将第三方登录根据name转化为对应数字
+    @param name str: OAuth name
+    1手机号 2邮箱 3GitHub 4qq 5微信 6百度 7新浪微博 8Coding 9码云
+    """
+    BIND = {
+        3 : "github",
+        4 : "qq",
+        5 : "wechat",
+        6 : "baidu",
+        7 : "weibo",
+        8 : "coding",
+        9 : "gitee"
+    }
+    return BIND[otype]
 
 def oauth2_genderconverter(gender):
     """性别转换器"""

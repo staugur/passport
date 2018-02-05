@@ -195,9 +195,9 @@ class Authentication(object):
             identity_type = 2
             # NO.2 检查账号
             if password and 6 <= len(password) < 30:
-                sql = "SELECT uid,certificate FROM user_auth WHERE identity_type=%d AND identifier=%s AND status=1"
+                sql = "SELECT uid,certificate FROM user_auth WHERE identity_type={} AND identifier=%s AND status=1".format(identity_type)
                 try:
-                    data = self.db.get(sql, identity_type, account)
+                    data = self.db.get(sql, account)
                 except Exception,e:
                     logger.error(e, exc_info=True)
                     res.update(msg="System is abnormal")

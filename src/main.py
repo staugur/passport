@@ -15,11 +15,10 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import jinja2, os, sys
-from config import GLOBAL, SYSTEM
+import jinja2, os, sys, config
 from version import __version__
 from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO
-from utils.web import verify_cookie, analysis_cookie
+from utils.web import verify_cookie, analysis_cookie, tpl_adminlogin_required
 from libs.plugins import PluginManager
 from hlm import UserAppManager, UserProfileManager
 from views import FrontBlueprint, AdminBlueprint, ApiBlueprint
@@ -36,7 +35,8 @@ __date__    = '2018-01-09'
 #初始化定义application
 app = Flask(__name__)
 app.config.update(
-    SECRET_KEY = os.urandom(24)
+    SECRET_KEY = os.urandom(24),
+    MAX_CONTENT_LENGTH = 2 * 1024 * 1024
 )
 
 # 初始化接口管理器
@@ -72,7 +72,7 @@ app.register_blueprint(ApiBlueprint, url_prefix="/api")
 # 添加模板上下文变量
 @app.context_processor  
 def GlobalTemplateVariables():  
-    data = {"Version": __version__, "Author": __author__, "Email": __email__, "Doc": __doc__, "SYSTEM": SYSTEM}
+    data = {"Version": __version__, "Author": __author__, "Email": __email__, "Doc": __doc__, "CONFIG": config, "tpl_adminlogin_required": tpl_adminlogin_required}
     return data
 
 @app.before_request
@@ -157,4 +157,4 @@ def Permission_denied(error=None):
     return jsonify(message), 403
 
 if __name__ == '__main__':
-    app.run(host=GLOBAL["Host"], port=int(GLOBAL["Port"]), debug=True)
+    app.run(host=config.GLOBAL["Host"], port=int(config.GLOBAL["Port"]), debug=True)

@@ -4,8 +4,7 @@
     <meta charset="utf-8">
     <title>{% block title %}{% endblock %} - SaintIC Passport</title>
     <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    <link href="{{ url_for('static', filename='images/favicon.ico') }}" rel="icon" type="image/x-icon" />
-    <link href="{{ url_for('static', filename='images/favicon.ico') }}" rel="shortcut icon" type="image/x-icon" />
+    {% include "public/favicon.html" %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     {% block head %}{% endblock %}
 </head>

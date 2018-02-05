@@ -29,7 +29,7 @@
                                 <input type="text" id="domain_name" name="domain_name" value="" class="layui-input" placeholder='独一无二的主页标识' lay-verify="domain_name" lay-verType="tips">
                             </div>
                             <div class="layui-form-mid layui-word-aux">
-                                {{ SYSTEM.PersonalizedDomainNamePrefix }}<b id="domain_name_suffix"></b>
+                                {{ CONFIG.SYSTEM.PersonalizedDomainNamePrefix }}<b id="domain_name_suffix"></b>
                             </div>
                         </div>
                         <div class="layui-form-item">
@@ -99,21 +99,44 @@
                     </form>
                 </div>
                 <div class="layui-form layui-form-pane layui-tab-item">
+                    <blockquote class="layui-elem-quote">我绑定的第三方社会化帐号</blockquote>
                     <ul class="app-bind">
-                        <li class="fly-msg app-havebind">
-                            <i class="iconfont icon-qq"></i>
-                            <span>已成功绑定，您可以使用QQ帐号直接登录Fly社区，当然，您也可以</span>
-                            <a href="javascript:;" class="acc-unbind" type="qq_id">解除绑定</a>
-                            <!-- <a href="" onclick="layer.msg('正在绑定微博QQ', {icon:16, shade: 0.1, time:0})" class="acc-bind" type="qq_id">立即绑定</a>
-                            <span>，即可使用QQ帐号登录Fly社区</span> -->
+                        {% if CONFIG.PLUGINS.qq.ENABLE in ("true", "True", True) %}
+                        <li class="fly-msg" id="oauth-qq">
+                            <img src="/static/images/qq.png">
+                            <span id="oauth-qq-tip">尚未绑定，绑定后可以使用QQ帐号登录，您可以<a href="{{ url_for('oauth2_qq.login') }}" type="qq">立即绑定</a></span>
                         </li>
-                        <li class="fly-msg">
-                            <i class="iconfont icon-weibo"></i>
-                            <!-- <span>已成功绑定，您可以使用微博直接登录Fly社区，当然，您也可以</span>
-                            <a href="javascript:;" class="acc-unbind" type="weibo_id">解除绑定</a> -->
-                            <a href="" class="acc-weibo" type="weibo_id"  onclick="layer.msg('正在绑定微博', {icon:16, shade: 0.1, time:0})" >立即绑定</a>
-                            <span>，即可使用微博帐号登录Fly社区</span>
+                        {% endif %}
+                        {% if CONFIG.PLUGINS.weibo.ENABLE in ("true", "True", True) %}
+                        <li class="fly-msg" id="oauth-weibo">
+                            <img src="/static/images/weibo.png">
+                            <span id="oauth-weibo-tip">尚未绑定，绑定后可以使用微博帐号登录，您可以<a href="{{ url_for('oauth2_weibo.login') }}" type="weibo">立即绑定</a></span>
                         </li>
+                        {% endif %}
+                        {% if CONFIG.PLUGINS.github.ENABLE in ("true", "True", True) %}
+                        <li class="fly-msg" id="oauth-github">
+                            <img src="/static/images/github.png">
+                            <span id="oauth-github-tip">尚未绑定，绑定后可以使用GitHub帐号登录，您可以<a href="{{ url_for('oauth2_github.login') }}" type="github">立即绑定</a></span>
+                        </li>
+                        {% endif %}
+                        {% if CONFIG.PLUGINS.coding.ENABLE in ("true", "True", True) %}
+                        <li class="fly-msg" id="oauth-coding">
+                            <img src="/static/images/coding.png">
+                            <span id="oauth-coding-tip">尚未绑定，绑定后可以使用Coding帐号登录，您可以<a href="{{ url_for('oauth2_coding.login') }}" type="coding">立即绑定</a></span>
+                        </li>
+                        {% endif %}
+                        {% if CONFIG.PLUGINS.gitee.ENABLE in ("true", "True", True) %}
+                        <li class="fly-msg" id="oauth-gitee">
+                            <img src="/static/images/gitee.png">
+                            <span id="oauth-gitee-tip">尚未绑定，绑定后可以使用码云帐号登录，您可以<a href="{{ url_for('oauth2_gitee.login') }}" type="gitee">立即绑定</a></span>
+                        </li>
+                        {% endif %}
+                        {% if CONFIG.PLUGINS.baidu.ENABLE in ("true", "True", True) %}
+                        <li class="fly-msg" id="oauth-baidu">
+                            <img src="/static/images/baidu.png">
+                            <span id="oauth-baidu-tip">尚未绑定，绑定后可以使用百度帐号登录，您可以<a href="{{ url_for('oauth2_baidu.login') }}" type="baidu">立即绑定</a></span>
+                        </li>
+                        {% endif %}
                     </ul>
                 </div>
             </div>
@@ -133,6 +156,16 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
         gender: "性别",
         signature: "签名"
     };
+    var namemap = {
+        github: "GitHub",
+        qq: "QQ",
+        wechat: "微信",
+        baidu: "百度",
+        weibo: "微博",
+        coding: "Coding",
+        gitee: "码云"
+    }
+    //字符串安全检查
     function safeCheck(s) {
         try {
             if (s.indexOf("'")!=-1||s.indexOf('"')!=-1||s.indexOf("?")!=-1||s.indexOf("%")!=-1||s.indexOf(";")!=-1||s.indexOf("*")!=-1||s.indexOf("=")!=-1) {
@@ -145,12 +178,23 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
             return false;
         }
     }
+    //显示当前tab
+    if(location.hash){
+        element.tabChange('user', location.hash.replace(/^#/, ''));
+    }
+    //监听tab切换
+    element.on('tab(user)', function(){
+        var othis = $(this), layid = othis.attr('lay-id');
+        if(layid){
+            location.hash = layid;
+        }
+    });
     //获取用户信息
     $.getJSON({
-        url: "{{ url_for('api.userprofile') }}",
+        url: "{{ url_for('api.userprofile', getBind=true) }}",
         success: function(res) {
             console.log(res);
-            if (res.code===0) {
+            if (res.code==0) {
                 var data = res.data;
                 $('#nick_name').val(data.nick_name);
                 $('#domain_name').val(data.domain_name);
@@ -173,10 +217,18 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
                 form.render();
                 //更新头像
                 $('#avatar').attr('src', data.avatar);
+                //社交账号绑定
+               for (var index = 0; index < data.bind.length ; index++) {
+                    var identity_type = data.bind[index].identity_type;
+                    $("#oauth-"+identity_type).addClass("app-havebind");
+                    $("#oauth-"+identity_type+"-tip").html('已成功绑定，您可以使用'+namemap[identity_type]+'帐号直接登录，当然，您也可以<a href="#" class="acc-unbind" type="'+identity_type+'">解除绑定</a>');
+                }
                 //缓存
                 layui.cache.user = data;
-                console.log(layui.cache.user);
             }
+        },
+        error: function() {
+            layer.msg("系统异常，请稍后再试");
         }
     });
     //初始化生日输入框时间选择器
@@ -226,7 +278,6 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
     //监听新建应用提交
     form.on('submit(profile)', function(data){
         var field = data.field; //当前容器的全部表单字段，键值对形式：{name: value}
-        console.log(field);
         $.ajax({
             url: "{{ url_for('api.userprofile', Action='profile') }}",
             method: "PUT",
@@ -238,7 +289,6 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
                     for (var key in field) {
                         layui.cache.user[key] = field[key];
                     }
-                    console.log(layui.cache.user);
                 } else {
                     var tip = res.msg;
                     var err = '';

@@ -20,12 +20,14 @@
       基本设置
     </a>
   </li>
+  {% if tpl_adminlogin_required() %}
   <li class="layui-nav-item {% if request.endpoint == 'front.userapp' %}layui-this{% endif %}">
     <a href="{{ url_for('front.userapp') }}">
       <i class="layui-icon">&#xe857;</i>
       应用管理
     </a>
   </li>
+  {% endif %}
   <!--
   <li class="layui-nav-item {% if request.endpoint == 'front.userset' %}layui-this{% endif %}">
     <a href="message.html">
