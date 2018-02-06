@@ -18,7 +18,7 @@ class ServiceBase(object):
     """ 所有服务的基类 """
 
     def __init__(self):
-        #设置全局超时时间(如连接超时)
+        # 设置全局超时时间(如连接超时)
         self.timeout = 2
         self.redis = create_redis_engine()
         self.mysql = create_mysql_engine()
@@ -29,12 +29,13 @@ class ServiceBase(object):
         """ 用户列表缓存 """
         key = "passport:user:admins"
         try:
-            if self.cache_admin is False: raise
+            if self.cache_admin is False:
+                raise
             data = json.loads(self.redis.get(key))
             logger.info("Hit listAdminUsers Cache")
         except:
             sql = "SELECT uid FROM user_profile WHERE is_admin = 1"
-            data = [ item['uid'] for item in self.mysql.query(sql) ]
+            data = [item['uid'] for item in self.mysql.query(sql)]
             pipe = self.redis.pipeline()
             pipe.set(key, json.dumps(data))
             pipe.expire(key, 600)
@@ -54,7 +55,7 @@ class ServiceBase(object):
 
 class PluginBase(ServiceBase):
     """ 插件基类: 提供插件所需要的公共接口与扩展点 """
-    
+
     def __init__(self):
         super(PluginBase, self).__init__()
         self.logger = plugin_logger

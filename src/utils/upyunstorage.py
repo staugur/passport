@@ -27,7 +27,7 @@ class CloudStorage(upyun.UpYun):
          文件或者目录是否存在，返回True或者False
         '''
         try:
-            self.getinfo(key)  #若不存在，会抛出异常
+            self.getinfo(key)  # 若不存在，会抛出异常
             return True
         except:
             return False
@@ -62,12 +62,12 @@ class CloudStorage(upyun.UpYun):
         '''
         if self.isfile(key):
             info = self.getinfo(key)
-            yield {'path':key, 'time':info['file-date'],
-                          'type':'file','size':info['file-size']}
+            yield {'path': key, 'time': info['file-date'],
+                   'type': 'file', 'size': info['file-size']}
             return
         # is dir
         info = self.getinfo(key)
-        yield {'path':key, 'type':'folder'}
+        yield {'path': key, 'type': 'folder'}
         dirs = [key]
         dirs_index = 0
         while dirs_index < len(dirs):
@@ -78,10 +78,10 @@ class CloudStorage(upyun.UpYun):
                 path = self.__combine_path(dirs[dirs_index], item['name'])
                 if item['type'] == 'F':
                     dirs.append(path)
-                    yield {'path':path, 'type':'folder'}
+                    yield {'path': path, 'type': 'folder'}
                 else:
-                    yield {'path':path,'time':item['time'] ,
-                                  'type':'file','size':item['size']}
+                    yield {'path': path, 'time': item['time'],
+                           'type': 'file', 'size': item['size']}
             dirs_index += 1
 
     def make_dirs(self, key):
@@ -97,9 +97,9 @@ class CloudStorage(upyun.UpYun):
         start = 2
         while start <= len(key_split):
             logger.debug('/'.join(key_split[0:start]))
-            dirs.append( '/'.join(key_split[0:start]) )
+            dirs.append('/'.join(key_split[0:start]))
             start += 1
-        dirs.sort(key=lambda x:len(x))
+        dirs.sort(key=lambda x: len(x))
         for dir_name in dirs:
             self.mkdir(dir_name)
         if self.debug:
@@ -116,7 +116,7 @@ class CloudStorage(upyun.UpYun):
             return key
         elif self.isfile(key):
             s = key.split('/')
-            s.pop() #pop the last element
+            s.pop()  # pop the last element
             return '/'.join(s)
         else:
             raise upyun.UpYunClientException(str(key) + ' not found')
@@ -131,7 +131,7 @@ class CloudStorage(upyun.UpYun):
         else:
             raise upyun.UpYunClientException(str(key) + ' is dir or  not found')
 
-    def __unify_path(self,path):
+    def __unify_path(self, path):
         '''
         统一路径分割符
         '''
@@ -142,4 +142,4 @@ class CloudStorage(upyun.UpYun):
         path2 = self.__unify_path(path2)
         if len(path1) == 0:
             return path2
-        return (path1 + '/' + path2).replace('//', '/').replace('///','/')
+        return (path1 + '/' + path2).replace('//', '/').replace('///', '/')

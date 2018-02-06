@@ -9,14 +9,32 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import hashlib, hmac, time, datetime, random, base64, json
+import hashlib
+import hmac
+import time
+import datetime
+import random
+import base64
+import json
 from config import SYSTEM
 from .tool import logger
 
-class JWTException(Exception): pass
-class SignatureBadError(JWTException): pass
-class TokenExpiredError(JWTException): pass
-class InvalidTokenError(JWTException): pass
+
+class JWTException(Exception):
+    pass
+
+
+class SignatureBadError(JWTException):
+    pass
+
+
+class TokenExpiredError(JWTException):
+    pass
+
+
+class InvalidTokenError(JWTException):
+    pass
+
 
 class JWTUtil(object):
     """ Json Web Token Utils """
@@ -35,7 +53,7 @@ class JWTUtil(object):
             jti: 唯一身份标识
         """
         self.secretkey = SYSTEM["JWT_SECRET_KEY"]
-        self._header  = {
+        self._header = {
             "typ": "JWT",
             "alg": "HS256"
         }
@@ -58,13 +76,13 @@ class JWTUtil(object):
 
     def timestamp_after_timestamp(self, timestamp=None, seconds=0, minutes=0, hours=0, days=0):
         """ 给定时间戳,计算该时间戳之后多少秒、分钟、小时、天的时间戳(本地时间) """
-        #1. 默认时间戳为当前时间
+        # 1. 默认时间戳为当前时间
         timestamp = self.get_current_timestamp() if timestamp is None else timestamp
-        #2. 先转换为datetime
+        # 2. 先转换为datetime
         d1 = datetime.datetime.fromtimestamp(timestamp)
-        #3. 根据相关时间得到datetime对象并相加给定时间戳的时间
+        # 3. 根据相关时间得到datetime对象并相加给定时间戳的时间
         d2 = d1 + datetime.timedelta(seconds=int(seconds), minutes=int(minutes), hours=int(hours), days=int(days))
-        #4. 返回某时间后的时间戳
+        # 4. 返回某时间后的时间戳
         return int(time.mktime(d2.timetuple()))
 
     def signatureJWT(self, message):
@@ -80,7 +98,7 @@ class JWTUtil(object):
         @param payload dict: 自定义公有或私有载荷, 存放有效信息的地方;
         @param expiredSeconds int: Token过期时间,单位秒,签发时间是本地当前时间戳,此参数指定签发时间之后多少秒过期;
         """
-        #1. check params
+        # 1. check params
         if isinstance(payload, dict):
             for i in self._payloadkey:
                 if i in payload:
@@ -88,7 +106,7 @@ class JWTUtil(object):
         else:
             raise TypeError("payload is not a dict")
 
-        #2. predefined data
+        # 2. predefined data
         payload.update(self._payload)
         payload.update(
             # exp: 根据秒数生成过期时间戳
@@ -97,15 +115,15 @@ class JWTUtil(object):
             iat=self.get_current_timestamp()
         )
 
-        #3. base64 urlsafe encode
-        #头部编码
-        first_part  = base64.urlsafe_b64encode(json.dumps(self._header, sort_keys=True, separators=(',', ':')))
-        #载荷消息体编码
+        # 3. base64 urlsafe encode
+        # 头部编码
+        first_part = base64.urlsafe_b64encode(json.dumps(self._header, sort_keys=True, separators=(',', ':')))
+        # 载荷消息体编码
         second_part = base64.urlsafe_b64encode(json.dumps(payload, sort_keys=True, separators=(',', ':')))
-        #签名以上两部分: 把header、playload的base64url编码加密后再次base64编码
-        third_part  = base64.urlsafe_b64encode(self.signatureJWT("{0}.{1}".format(first_part, second_part)))
+        # 签名以上两部分: 把header、playload的base64url编码加密后再次base64编码
+        third_part = base64.urlsafe_b64encode(self.signatureJWT("{0}.{1}".format(first_part, second_part)))
 
-        #4. returns the available token
+        # 4. returns the available token
         token = first_part + '.' + second_part + '.' + third_part
         logger.debug("Generating token ok")
         return token
@@ -128,7 +146,7 @@ class JWTUtil(object):
         >> 3. payload一致性验证后, 验证过期时间;
         >> 4. 根据header、payload用密钥签名对比请求的signature;
         """
-        #1. 拆分解析
+        # 1. 拆分解析
         if isinstance(token, (str, unicode)):
             if token.count(".") == 2:
                 token = self.analysisJWT(token)
@@ -137,28 +155,29 @@ class JWTUtil(object):
         else:
             raise InvalidTokenError("token is in string or Unicode format")
 
-        #2. 验证header
+        # 2. 验证header
         if self._header == token["header"]:
             payload = token["payload"]
         else:
             raise InvalidTokenError("header missmatch")
 
-        #3. 验证payload
+        # 3. 验证payload
         for i in self._payloadkey:
-            if i in ("exp", "iat"): continue
+            if i in ("exp", "iat"):
+                continue
             if payload.get(i) != self._payload.get(i):
                 raise InvalidTokenError("payload contains standard declaration keys")
         if self.get_current_timestamp() > payload["exp"]:
             raise TokenExpiredError("token expired")
 
-        #4. 验证签名
-        #头部编码
-        first_part  = base64.urlsafe_b64encode(json.dumps(token["header"], sort_keys=True, separators=(',', ':')))
-        #载荷消息体编码
+        # 4. 验证签名
+        # 头部编码
+        first_part = base64.urlsafe_b64encode(json.dumps(token["header"], sort_keys=True, separators=(',', ':')))
+        # 载荷消息体编码
         second_part = base64.urlsafe_b64encode(json.dumps(token["payload"], sort_keys=True, separators=(',', ':')))
-        #签名以上两部分: 把header、playload的base64url编码加密后再次base64编码.
-        third_part  = self.signatureJWT("{0}.{1}".format(first_part, second_part))
-        #校验签名
+        # 签名以上两部分: 把header、playload的base64url编码加密后再次base64编码.
+        third_part = self.signatureJWT("{0}.{1}".format(first_part, second_part))
+        # 校验签名
         if token["signature"] == third_part:
             logger.debug("verify token pass")
             return True

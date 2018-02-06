@@ -8,7 +8,8 @@
     :copyright: (c) 2017 by staugur.
     :license: MIT, see LICENSE for more details.
 """
-import json, os.path
+import json
+import os.path
 from config import VAPTCHA, UPYUN as Upyun
 from utils.send_email_msg import SendMail
 from utils.upyunstorage import CloudStorage
@@ -19,13 +20,13 @@ from flask import Blueprint, request, jsonify, g
 from werkzeug import secure_filename
 
 
-#初始化前台蓝图
+# 初始化前台蓝图
 ApiBlueprint = Blueprint("api", __name__)
-#初始化邮箱发送服务
+# 初始化邮箱发送服务
 sendmail = SendMail()
-#初始化手势验证码服务
+# 初始化手势验证码服务
 vaptcha = VaptchaApi(VAPTCHA["vid"], VAPTCHA["key"])
-#又拍云存储封装接口
+# 又拍云存储封装接口
 upyunapi = CloudStorage()
 
 
@@ -39,7 +40,7 @@ def misc_sendVcode():
         key = "passport:signUp:vcode:{}".format(email)
         try:
             hasKey = g.redis.exists(key)
-        except Exception,e:
+        except Exception, e:
             logger.error(e, exc_info=True)
             res.update(msg="System is abnormal")
         else:
@@ -47,12 +48,12 @@ def misc_sendVcode():
                 res.update(msg="Have sent the verification code, please check the mailbox")
             else:
                 vcode = generate_verification_code()
-                result = sendmail.SendMessage(to_addr=email, subject=u"Passport邮箱注册验证码", formatType="html", message=email_tpl %(email, u"注册", vcode))
+                result = sendmail.SendMessage(to_addr=email, subject=u"Passport邮箱注册验证码", formatType="html", message=email_tpl % (email, u"注册", vcode))
                 if result["success"]:
                     try:
                         g.redis.set(key, vcode)
                         g.redis.expire(key, 300)
-                    except Exception,e:
+                    except Exception, e:
                         logger.error(e, exc_info=True)
                         res.update(msg="System is abnormal")
                     else:
@@ -66,6 +67,7 @@ def misc_sendVcode():
     logger.debug(res)
     return jsonify(dfr(res))
 
+
 @ApiBlueprint.route("/miscellaneous/_getChallenge")
 def misc_getChallenge():
     """Vaptcha获取流水
@@ -73,6 +75,7 @@ def misc_getChallenge():
     """
     sceneid = request.args.get("sceneid") or ""
     return jsonify(json.loads(vaptcha.get_challenge(sceneid)))
+
 
 @ApiBlueprint.route("/miscellaneous/_getDownTime")
 def misc_getDownTime():
@@ -82,6 +85,7 @@ def misc_getDownTime():
     data = request.args.get("data")
     logger.info("vaptcha into downtime, get data: {}, query string: {}".format(data, request.args.to_dict()))
     return jsonify(json.loads(vaptcha.downtime(data)))
+
 
 @ApiBlueprint.route("/user/app/", methods=["GET", "POST", "PUT", "DELETE"])
 @apiadminlogin_required
@@ -107,7 +111,7 @@ def userapp():
             res.update(g.api.userapp.listUserApp())
             data = res.get("data")
             if data and isinstance(data, (list, tuple)):
-                data = [ i for i in sorted(data, reverse=False if sort == "asc" else True) ]
+                data = [i for i in sorted(data, reverse=False if sort == "asc" else True)]
                 count = len(data)
                 data = ListEqualSplit(data, limit)
                 pageCount = len(data)
@@ -133,6 +137,7 @@ def userapp():
     logger.info(res)
     return jsonify(dfr(res))
 
+
 @ApiBlueprint.route("/user/profile/", methods=["GET", "POST", "PUT"])
 @apilogin_required
 def userprofile():
@@ -152,7 +157,8 @@ def userprofile():
     logger.info(res)
     return jsonify(dfr(res))
 
-@ApiBlueprint.route('/user/upload/', methods=['POST','OPTIONS'])
+
+@ApiBlueprint.route('/user/upload/', methods=['POST', 'OPTIONS'])
 @apilogin_required
 def userupload():
     res = dict(code=1, msg=None)
@@ -160,12 +166,12 @@ def userupload():
     f = request.files.get('file')
     callableAction = request.args.get("callableAction")
     if f and allowed_file(f.filename):
-        filename = secure_filename(gen_rnd_filename() + "." + f.filename.split('.')[-1]) #随机命名
+        filename = secure_filename(gen_rnd_filename() + "." + f.filename.split('.')[-1])  # 随机命名
         basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
         imgUrl = os.path.join(basedir, filename)
         try:
             upyunapi.put(imgUrl, f.stream.read())
-        except Exception,e:
+        except Exception, e:
             logger.error(e, exc_info=True)
             res.update(code=2, msg="System is abnormal")
         else:

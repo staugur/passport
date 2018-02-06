@@ -190,10 +190,9 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
         }
     });
     //获取用户信息
-    $.getJSON({
+    $.ajax({
         url: "{{ url_for('api.userprofile', getBind=true) }}",
         success: function(res) {
-            console.log(res);
             if (res.code==0) {
                 var data = res.data;
                 $('#nick_name').val(data.nick_name);
@@ -218,13 +217,16 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
                 //更新头像
                 $('#avatar').attr('src', data.avatar);
                 //社交账号绑定
-               for (var index = 0; index < data.bind.length ; index++) {
+                var unbindUrl = "{{ url_for('front.unbind') }}?identity_name=";
+                for (var index = 0; index < data.bind.length ; index++) {
                     var identity_type = data.bind[index].identity_type;
                     $("#oauth-"+identity_type).addClass("app-havebind");
-                    $("#oauth-"+identity_type+"-tip").html('已成功绑定，您可以使用'+namemap[identity_type]+'帐号直接登录，当然，您也可以<a href="#" class="acc-unbind" type="'+identity_type+'">解除绑定</a>');
+                    $("#oauth-"+identity_type+"-tip").html('已成功绑定，您可以使用'+namemap[identity_type]+'帐号直接登录，当然，您也可以<a href="'+unbindUrl+identity_type+'" class="acc-unbind" type="'+identity_type+'">解除绑定</a>');
                 }
                 //缓存
                 layui.cache.user = data;
+            } else {
+                toastr.info("拉取用户信息失败，请刷新再试");
             }
         },
         error: function() {

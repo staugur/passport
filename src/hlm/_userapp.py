@@ -18,7 +18,6 @@ from config import SYSTEM
 
 class UserAppManager(ServiceBase):
 
-
     def __init__(self):
         super(UserAppManager, self).__init__()
         self.cache_enable = True if SYSTEM["CACHE_ENABLE"]["UserApps"] in ("true", "True", True) else False
@@ -28,14 +27,15 @@ class UserAppManager(ServiceBase):
         res = dict(msg=None, code=1)
         key = "passport:user:apps"
         try:
-            if self.cache_enable is False: raise
+            if self.cache_enable is False:
+                raise
             data = json.loads(self.redis.get(key))
             logger.info("Hit listUserApps Cache")
         except:
             sql = "SELECT id,name,description,app_id,app_secret,app_redirect_url,ctime,mtime FROM sso_apps"
             try:
                 data = self.mysql.query(sql)
-            except Exception,e:
+            except Exception, e:
                 logger.error(e, exc_info=True)
                 res.update(msg="System is abnormal")
             else:
@@ -69,7 +69,7 @@ class UserAppManager(ServiceBase):
                 self.mysql.insert(sql, name, description, app_id, app_secret, app_redirect_url, ctime)
             except IntegrityError:
                 res.update(msg="Name already exists", code=2)
-            except Exception,e:
+            except Exception, e:
                 logger.error(e, exc_info=True)
                 res.update(msg="System is abnormal", code=3)
             else:
@@ -92,7 +92,7 @@ class UserAppManager(ServiceBase):
                 self.mysql.update(sql, description, app_redirect_url, mtime, name)
             except IntegrityError:
                 res.update(msg="Name already exists", code=2)
-            except Exception,e:
+            except Exception, e:
                 logger.error(e, exc_info=True)
                 res.update(msg="System is abnormal", code=3)
             else:
@@ -110,7 +110,7 @@ class UserAppManager(ServiceBase):
             sql = "DELETE FROM sso_apps WHERE name=%s"
             try:
                 self.mysql.execute(sql, name)
-            except Exception,e:
+            except Exception, e:
                 logger.error(e, exc_info=True)
                 res.update(msg="System is abnormal", code=3)
             else:

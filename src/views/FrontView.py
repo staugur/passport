@@ -10,7 +10,7 @@
 """
 import json
 from config import VAPTCHA
-from utils.web import login_required, anonymous_required, adminlogin_required, dfr, set_cookie
+from utils.web import login_required, anonymous_required, adminlogin_required, dfr, set_cookie, oauth2_name2type
 from utils.tool import logger, email_check, phone_check
 from libs.auth import Authentication
 from vaptchasdk import vaptcha as VaptchaApi
@@ -114,6 +114,24 @@ def signIn():
             flash(u"人机验证失败")
         return redirect(url_for('.signIn'))
     return render_template("auth/signIn.html")
+
+@FrontBlueprint.route("/unbind")
+@login_required
+def unbind():
+    identity_name = request.args.get("identity_name")
+    if identity_name:
+        auth = Authentication(g.mysql, g.redis)
+        identity_type = oauth2_name2type(identity_name)
+        res = auth.unbind(g.uid, identity_type)
+        res = dfr(res)
+        if res["code"] == 0:
+            flash(u"解绑成功")
+        else:
+            flash(res["msg"])
+    else:
+        flash(u"无效参数")
+    print url_for("front.userset", _anchor="bind")
+    return redirect(url_for("front.userset", _anchor="bind"))
 
 @FrontBlueprint.route("/OAuthGuide")
 @anonymous_required

@@ -22,6 +22,7 @@ from utils.tool import cli_logger, create_redis_engine, create_mysql_engine, get
 redis = create_redis_engine()
 mysql = create_mysql_engine()
 
+
 def execute_refresh_loginlog(times=30):
     """从redis读取登录记录刷入mysql"""
     key = "passport:loginlog"

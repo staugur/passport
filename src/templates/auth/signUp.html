@@ -71,11 +71,11 @@
         var password = $('#password').val();
         var repassword = $('#repassword').val();
         if(password!=repassword){
-            layer.msg("密码和重复密码不同，请重新输入！");
+            popup("密码和重复密码不同，请重新输入！");
             return false;
         }
         if(password.length<6||password.length>30||repassword.length<6||repassword.length>30){
-            layer.msg("密码长度应在6到30个字符之间！");
+            popup("密码长度应在6到30个字符之间！");
             return false;
         }
         return true;
@@ -94,13 +94,13 @@
                     if (res.success==true) {
                         check();
                     } else {
-                        layer.msg(res.msg);
+                        popup(res.msg);
                         enable_sendCode();
                     }
                 }
             });
         } else {
-            layer.msg("请填写邮箱或手机账号");
+            popup("请填写邮箱或手机账号");
         }
         function disable_sendCode() {
             $('#sms-tip-msg').attr("disabled", true);

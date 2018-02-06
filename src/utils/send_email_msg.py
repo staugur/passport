@@ -69,7 +69,7 @@ class SendMail(object):
                 server.login(self.useraddr, self.password)
                 server.sendmail(self.useraddr, to_addrs, msg.as_string())
                 server.quit()
-            except smtplib.SMTPException,e:
+            except smtplib.SMTPException, e:
                 logger.error(e, exc_info=True)
                 res.update(msg="Unable to send mail")
             else:

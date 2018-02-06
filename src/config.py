@@ -14,42 +14,42 @@ from os import getenv
 GLOBAL = {
 
     "ProcessName": "passport",
-    #Custom process, you can see it with "ps aux|grep ProcessName".
+    # Custom process, you can see it with "ps aux|grep ProcessName".
 
     "Host": getenv("passport_host", "0.0.0.0"),
-    #Application run network address, you can set it `0.0.0.0`, `127.0.0.1`, ``.
+    # Application run network address, you can set it `0.0.0.0`, `127.0.0.1`, ``.
 
     "Port": getenv("passport_port", 10030),
-    #Application run port, default port.
+    # Application run port, default port.
 
     "LogLevel": getenv("passport_loglevel", "DEBUG"),
-    #Application to write the log level, currently has DEBUG, INFO, WARNING, ERROR, CRITICAL.
+    # Application to write the log level, currently has DEBUG, INFO, WARNING, ERROR, CRITICAL.
 }
 
 
 MYSQL = getenv("passport_mysql_url")
-#MYSQL数据库连接信息
-#mysql://host:port:user:password:database?charset=&timezone=
+# MYSQL数据库连接信息
+# mysql://host:port:user:password:database?charset=&timezone=
 
 
 REDIS = getenv("passport_redis_url")
-#Redis数据库连接信息，格式：
-#redis://[:password]@host:port/db
-#host,port必填项,如有密码,记得密码前加冒号,默认localhost:6379/0
+# Redis数据库连接信息，格式：
+# redis://[:password]@host:port/db
+# host,port必填项,如有密码,记得密码前加冒号,默认localhost:6379/0
 
 
-#手势验证码配置段
+# 手势验证码配置段
 VAPTCHA = {
 
     "vid": getenv("passport_vaptcha_vid"),
-    #验证单元id
+    # 验证单元id
 
     "key": getenv("passport_vaptcha_key")
-    #验证单元key
+    # 验证单元key
 }
 
 
-#又拍云存储配置
+# 又拍云存储配置
 UPYUN = {
     "bucket": getenv("passport_upyun_bucket", ""),
     "username": getenv("passport_upyun_username", ""),
@@ -79,7 +79,7 @@ EMAIL = {
 }
 
 
-#插件配置段
+# 插件配置段
 PLUGINS = {
     "weibo": {
         "ENABLE": getenv("passport_weibo_enable", True),
@@ -120,7 +120,7 @@ PLUGINS = {
 }
 
 
-#系统配置
+# 系统配置
 SYSTEM = {
 
     "AES_CBC_KEY": getenv("passport_aes_cbc_key", "YRRGBRYQqrV1gv5A"),

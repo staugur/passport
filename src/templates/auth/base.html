@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
     {% include "public/favicon.html" %}
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <link rel="stylesheet" href="/static/spop-0.1.3/spop.min.css">
     {% block head %}{% endblock %}
 </head>
 <body>
@@ -21,7 +22,17 @@
     </footer>
 </div>
 <script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
-<script src="{{ url_for('static', filename='layer/layer.js') }}"></script>
+<script src="/static/spop-0.1.3/spop.min.js"></script>
+<script src="/static/layui/layui.js"></script>
+<script type="text/javascript">
+function popup(msg) {
+    spop({
+        template: msg,
+        position: 'top-center',
+        autoclose: 5000
+    });
+}
+</script>
 {% block script %}{% endblock %}
 </body>
 </html>

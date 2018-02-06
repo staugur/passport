@@ -19,7 +19,6 @@ from config import SYSTEM
 
 class UserProfileManager(ServiceBase):
 
-
     def __init__(self):
         super(UserProfileManager, self).__init__()
         self.cache_enable = True if SYSTEM["CACHE_ENABLE"]["UserProfile"] in ("true", "True", True) else False
@@ -33,10 +32,10 @@ class UserProfileManager(ServiceBase):
             sql = "SELECT id,identity_type,ctime,mtime,etime FROM user_auth WHERE identity_type in (3, 4, 5, 6, 7, 8, 9) AND status=1 AND uid=%s"
             try:
                 data = self.mysql.query(sql, uid)
-            except Exception,e:
+            except Exception, e:
                 logger.error(e, exc_info=True)
             else:
-                bind = [ {"identity_type": oauth2_type2name(i["identity_type"]), "ctime": i["ctime"], "mtime": i["mtime"]} for i in data ]
+                bind = [{"identity_type": oauth2_type2name(i["identity_type"]), "ctime": i["ctime"], "mtime": i["mtime"]} for i in data]
         return bind
 
     def getUserProfile(self, uid, getBind=False):
@@ -46,7 +45,8 @@ class UserProfileManager(ServiceBase):
         res = dict(msg=None, code=1)
         key = "passport:user:profile:{}".format(uid)
         try:
-            if self.cache_enable is False: raise
+            if self.cache_enable is False:
+                raise
             data = json.loads(self.redis.get(key))
             logger.info("Hit getUserProfile Cache")
         except:
@@ -54,7 +54,7 @@ class UserProfileManager(ServiceBase):
             if uid and isinstance(uid, (str, unicode)) and len(uid) == 22:
                 try:
                     data = self.mysql.get(sql, uid)
-                except Exception,e:
+                except Exception, e:
                     logger.error(e, exc_info=True)
                     res.update(msg="System is abnormal")
                 else:
@@ -93,13 +93,13 @@ class UserProfileManager(ServiceBase):
         gender = profiles.get("gender")
         signature = profiles.get("signature")
         if nick_name and len(nick_name) <= 49:
-            sql += "nick_name='%s'," %nick_name
+            sql += "nick_name='%s'," % nick_name
         else:
             checked = False
             invalid.append("nick_name")
         if domain_name:
             if domain_name_pat.match(domain_name) and not domain_name.endswith('_') and not domain_name in ("admin", "system", "root", "administrator", "null", "none", "true", "false", "user"):
-                sql += "domain_name='%s'," %domain_name
+                sql += "domain_name='%s'," % domain_name
             else:
                 checked = False
                 invalid.append("domain_name")
@@ -110,9 +110,9 @@ class UserProfileManager(ServiceBase):
                 checked = False
                 invalid.append("birthday")
             else:
-                sql += "birthday=%d," %birthday
+                sql += "birthday=%d," % birthday
         if location:
-            sql += "location='%s'," %location
+            sql += "location='%s'," % location
         if gender:
             try:
                 gender = int(gender)
@@ -121,12 +121,12 @@ class UserProfileManager(ServiceBase):
                 invalid.append("gender")
             else:
                 if gender in (0, 1, 2):
-                    sql += "gender=%d," %gender
+                    sql += "gender=%d," % gender
                 else:
                     checked = False
                     invalid.append("gender")
         if signature:
-            sql += "signature='%s'," %signature
+            sql += "signature='%s'," % signature
         if not nick_name and \
                 not domain_name and \
                 not birthday and \
@@ -137,7 +137,7 @@ class UserProfileManager(ServiceBase):
             invalid.append("all")
         if checked:
             # 拼接sql的安全检测
-            for key,value in profiles.iteritems():
+            for key, value in profiles.iteritems():
                 checked = sql_safestring_check(value)
                 logger.debug("check {}, value: {}, result: {}".format(key, value, checked))
                 if checked is False:
@@ -146,11 +146,11 @@ class UserProfileManager(ServiceBase):
 
         if uid and checked:
             sql += "mtime={}".format(get_current_timestamp())
-            sql += " WHERE uid='%s'" %uid
+            sql += " WHERE uid='%s'" % uid
             logger.debug("update profile for {}, sql is: {}".format(uid, sql))
             try:
                 self.mysql.update(sql)
-            except IntegrityError,e:
+            except IntegrityError, e:
                 logger.warn(e, exc_info=True)
                 res.update(msg="Personal domain has been occupied", code=2)
             except Exception, e:

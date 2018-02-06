@@ -81,7 +81,7 @@
     function checkSubmit() {
         var password = $('#password').val();
         if(password.length<6||password.length>30){
-            layer.msg("密码长度应在6到30个字符之间！");
+            popup("密码长度应在6到30个字符之间！");
             return false;
         }
         return true;

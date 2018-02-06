@@ -49,7 +49,7 @@ class Signature(object):
         """ 校验accesskey_id
         @pram req_accesskey_id str: 请求参数中的用户标识id
         """
-        if req_accesskey_id in [ i['accesskey_id'] for i in self._accessKeys if "accesskey_id" in i ]:
+        if req_accesskey_id in [i['accesskey_id'] for i in self._accessKeys if "accesskey_id" in i]:
             return True
         return False
 
@@ -57,7 +57,7 @@ class Signature(object):
         """ 根据accesskey_id获取对应的accesskey_secret
         @pram accesskey_id str: 用户标识id
         """
-        return [ i['accesskey_secret'] for i in self._accessKeys if i.get('accesskey_id') == accesskey_id ][0]
+        return [i['accesskey_secret'] for i in self._accessKeys if i.get('accesskey_id') == accesskey_id][0]
 
     def _sign(self, parameters):
         """ MD5签名
@@ -84,10 +84,10 @@ class Signature(object):
             req_timestamp = req_params["timestamp"]
             req_accesskey_id = req_params["accesskey_id"]
             req_signature = req_params["signature"]
-        except KeyError,e:
+        except KeyError, e:
             logger.error(e, exc_info=True)
             res.update(msg="Invalid public params")
-        except Exception,e:
+        except Exception, e:
             logger.error(e, exc_info=True)
             res.update(msg="Unknown server error")
         else:

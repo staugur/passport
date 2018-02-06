@@ -10,7 +10,7 @@
 """
 
 import json
-from utils.tool import logger, get_current_timestamp, gen_uniqueId, email_check, phone_check
+from utils.tool import logger, get_current_timestamp, gen_uniqueId, email_check, phone_check, create_redis_engine, create_mysql_engine
 from utils.web import oauth2_name2type, cbc
 from torndb import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -19,9 +19,9 @@ from werkzeug.security import generate_password_hash, check_password_hash
 class Authentication(object):
     """ 登陆注册类 """
 
-    def __init__(self, mysql, redis):
-        self.db = mysql
-        self.rc = redis
+    def __init__(self, mysql=None, redis=None):
+        self.db = mysql if mysql else create_mysql_engine()
+        self.rc = redis if redis else create_redis_engine()
 
     def __check_hasUser(self, uid):
         """检查是否存在账号"""
@@ -29,7 +29,7 @@ class Authentication(object):
             sql = "SELECT count(uid) FROM user_auth WHERE uid=%s"
             try:
                 data = self.db.get(sql, uid)
-            except Exception,e:
+            except Exception, e:
                 logger.warn(e, exc_info=True)
             else:
                 logger.debug(data)
@@ -38,12 +38,12 @@ class Authentication(object):
         return False
 
     def __check_hasEmail(self, email):
-        """检查是否存在邮箱账号"""
+        """检查是否存在邮箱账号，不检测账号状态"""
         if email_check(email):
-            sql = "SELECT uid FROM user_auth WHERE identity_type=%d AND identifier=%s"
+            sql = "SELECT uid FROM user_auth WHERE identity_type=2 AND identifier=%s"
             try:
-                data = self.db.get(sql, 2, email)
-            except Exception,e:
+                data = self.db.get(sql, email)
+            except Exception, e:
                 logger.warn(e, exc_info=True)
             else:
                 logger.debug(data)
@@ -62,6 +62,52 @@ class Authentication(object):
             if self.rc.exists(key):
                 return self.rc.get(key) == vcode
         return False
+
+    def __list_identity_type(self, uid):
+        """查询用户id绑定的所有账号类型，不检测账号状态
+        @param uid str:用户id
+        """
+        if uid:
+            sql = "SELECT identity_type FROM user_auth WHERE uid=%s"
+            try:
+                data = self.db.query(sql, uid)
+            except Exception, e:
+                logger.error(e, exc_info=True)
+            else:
+                if data and isinstance(data, (list, tuple)):
+                    return tuple([ i["identity_type"] for i in data ])
+        return tuple()
+
+    def __remove_identity_type(self, uid, identity_type):
+        """删除用户某个绑定的`identity_type`
+        @param uid str:用户id
+        @param identity_type int: 账号类型，参见`oauth2_name2type`函数 
+        """
+        res = dict(msg=None)
+        if uid and identity_type in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9):
+            sql = "DELETE FROM user_auth WHERE identity_type={} AND uid=%s".format(identity_type)
+            try:
+                data = self.db.execute(sql, uid)
+            except Exception, e:
+                logger.error(e, exc_info=True)
+                res.update(msg="System is abnormal")
+            else:
+                res.update(code=0)
+        else:
+            res.update(msg="Check failed")
+        return res
+
+    def __get_registerSource(self, uid):
+        """获取用户的注册源"""
+        sql = "SELECT register_source FROM user_profile where uid=%s"
+        if uid:
+            try:
+                data = self.db.get(sql, uid)
+            except Exception, e:
+                logger.error(e, exc_info=True)
+            else:
+                if data and isinstance(data, dict):
+                    return int(data["register_source"])
 
     def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified, register_ip="", expire_time="0", use_profile_sql=True, define_profile_sql=None):
         ''' begin的方式使用事务注册账号，
@@ -101,7 +147,7 @@ class Authentication(object):
                     info = self.db.insert(sql_1, guid, identity_type, identifier, certificate, verified, 1, ctime, expire_time)
                 except IntegrityError:
                     res.update(msg="Account already exists")
-                except Exception,e:
+                except Exception, e:
                     logger.error(e, exc_info=True)
                     res.update(msg="System is abnormal")
                 else:
@@ -198,7 +244,7 @@ class Authentication(object):
                 sql = "SELECT uid,certificate FROM user_auth WHERE identity_type={} AND identifier=%s AND status=1".format(identity_type)
                 try:
                     data = self.db.get(sql, account)
-                except Exception,e:
+                except Exception, e:
                     logger.error(e, exc_info=True)
                     res.update(msg="System is abnormal")
                 else:
@@ -215,7 +261,7 @@ class Authentication(object):
                 res.update(msg="Invalid password: length unqualified")
         elif phone_check(account):
             # 账号类型：手机
-            res.update(msg="Temporarily do not support phone number login")
+            res.update(msg="Not support phone number login")
         else:
             # 账号类型：非法，拒绝
             res.update(msg="Invalid account")
@@ -233,11 +279,11 @@ class Authentication(object):
         if isinstance(signInResult, dict):
             if signInResult["success"]:
                 data = dict(
-                    uid = signInResult["uid"],
-                    identity_type = signInResult["identity_type"],
-                    login_ip = login_ip,
-                    user_agent = user_agent,
-                    login_time = get_current_timestamp()
+                    uid=signInResult["uid"],
+                    identity_type=signInResult["identity_type"],
+                    login_ip=login_ip,
+                    user_agent=user_agent,
+                    login_time=get_current_timestamp()
                 )
                 key = "passport:loginlog"
                 return self.rc.rpush(key, json.dumps(data))
@@ -247,7 +293,7 @@ class Authentication(object):
         sql = "SELECT uid FROM user_auth WHERE identifier=%s"
         try:
             data = self.db.get(sql, openid)
-        except Exception,e:
+        except Exception, e:
             logger.error(e, exc_info=True)
         else:
             if data and isinstance(data, dict):
@@ -336,7 +382,7 @@ class Authentication(object):
                 logger.debug("signin true, uid: {}".format(uid))
                 if uid:
                     guid = self.__oauth2_getUid(openid)
-                    logger.debug("signin true, openid: {}, guid: {}, is equal: {}".format(openid, guid, uid==guid))
+                    logger.debug("signin true, openid: {}, guid: {}, is equal: {}".format(openid, guid, uid == guid))
                     if guid:
                         if uid == guid:
                             # 更新绑定的数据
@@ -389,7 +435,7 @@ class Authentication(object):
             expire_time = userinfo.get("expire_time") or 0
             guid = gen_uniqueId()
             logger.debug("check test: guid length: {}, identifier: {}, identity_type:{}, identity_type: {}, certificate: {}".format(len(guid), openid, identity_type, type(identity_type), access_token))
-            define_profile_sql = "INSERT INTO user_profile (uid, register_source, register_ip, nick_name, gender, signature, avatar, location, ctime, is_realname, is_admin) VALUES ('%s', %d, '%s', '%s', %d, '%s', '%s', '%s', %d, %d, %d)" %(guid, identity_type, register_ip, nick_name, gender, signature, avatar, location, get_current_timestamp(), 0, 0)
+            define_profile_sql = "INSERT INTO user_profile (uid, register_source, register_ip, nick_name, gender, signature, avatar, location, ctime, is_realname, is_admin) VALUES ('%s', %d, '%s', '%s', %d, '%s', '%s', '%s', %d, %d, %d)" % (guid, identity_type, register_ip, nick_name, gender, signature, avatar, location, get_current_timestamp(), 0, 0)
             upts = self.__signUp_transacion(guid=guid, identifier=openid, identity_type=identity_type, certificate=access_token, verified=1, register_ip=register_ip, expire_time=expire_time, define_profile_sql=define_profile_sql)
             res.update(upts)
             if res["success"]:
@@ -424,6 +470,41 @@ class Authentication(object):
                 res.update(upts)
                 if res["success"] is True:
                     self.__oauth2_delUserinfo(openid)
+        else:
+            res.update(msg="Check failed")
+        logger.info(res)
+        return res
+
+    def unbind(self, uid, identity_type):
+        """解绑账号，要求已经登录系统
+        参数：
+            @param uid str: 用户id
+            @param identity_type int: 账号类型，参见`oauth2_name2type`函数
+        流程：
+            1. 检测此`identity_type`是否是否为注册源
+            2. 是注册源（使用此`identity_type`直接登录用户）：
+                2.1 只有绑定了邮箱、手机以及设置了密码才允许解绑；
+                2.2 上一条校验通过，则删除`user_auth`中`identity_type`对应条目
+            3. 不是注册源（使用此`identity_type`绑定的用户）：
+                3.1 直接删除`user_auth`中`identity_type`对应条目
+        """
+        res = dict(msg=None, code=1)
+        if uid and identity_type and identity_type in (3, 4, 5, 6, 7, 8, 9):
+            register_source = self.__get_registerSource(uid)
+            if register_source and isinstance(register_source, int):
+                if register_source == identity_type:
+                    # 是注册源流程
+                    identity_types = self.__list_identity_type(uid)
+                    if 2 in identity_types or 1 in identity_types:
+                        # 这里需设计为绑定了2-email、3-mobile时已经设置密码
+                        res.update(self.__remove_identity_type(uid, identity_type))
+                    else:
+                        res.update(msg="Please bind the email or phone first", code=2)
+                else:
+                    # 非注册源流程
+                    res.update(self.__remove_identity_type(uid, identity_type))
+            else:
+                res.update(msg="System is abnormal")
         else:
             res.update(msg="Check failed")
         logger.info(res)

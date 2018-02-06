@@ -15,7 +15,10 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import jinja2, os, sys, config
+import jinja2
+import os
+import sys
+import config
 from version import __version__
 from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO
 from utils.web import verify_cookie, analysis_cookie, tpl_adminlogin_required
@@ -26,17 +29,17 @@ from flask import Flask, request, g, jsonify, url_for, render_template
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
-__author__  = 'staugur'
-__email__   = 'staugur@saintic.com'
-__doc__     = '统一认证与单点登录系统'
-__date__    = '2018-01-09'
+__author__ = 'staugur'
+__email__ = 'staugur@saintic.com'
+__doc__ = '统一认证与单点登录系统'
+__date__ = '2018-01-09'
 
 
-#初始化定义application
+# 初始化定义application
 app = Flask(__name__)
 app.config.update(
-    SECRET_KEY = os.urandom(24),
-    MAX_CONTENT_LENGTH = 2 * 1024 * 1024
+    SECRET_KEY=os.urandom(24),
+    MAX_CONTENT_LENGTH=2 * 1024 * 1024
 )
 
 # 初始化接口管理器
@@ -45,18 +48,18 @@ api = DO({
     "userprofile": UserProfileManager(),
 })
 
-#初始化插件管理器(自动扫描并加载运行)
+# 初始化插件管理器(自动扫描并加载运行)
 plugin = PluginManager()
 
-#注册多模板文件夹
+# 注册多模板文件夹
 loader = jinja2.ChoiceLoader([
     app.jinja_loader,
-    jinja2.FileSystemLoader([ p.get("plugin_tpl_path") for p in plugin.get_enabled_plugins if os.path.isdir(os.path.join(app.root_path, p["plugin_tpl_path"])) ]),
+    jinja2.FileSystemLoader([p.get("plugin_tpl_path") for p in plugin.get_enabled_plugins if os.path.isdir(os.path.join(app.root_path, p["plugin_tpl_path"]))]),
 ])
 app.jinja_loader = loader
 
-#注册全局模板扩展点
-for tep_name,tep_func in plugin.get_all_tep.iteritems():
+# 注册全局模板扩展点
+for tep_name, tep_func in plugin.get_all_tep.iteritems():
     app.add_template_global(tep_func, tep_name)
 
 # 注册蓝图扩展点
@@ -70,10 +73,13 @@ app.register_blueprint(AdminBlueprint, url_prefix="/admin")
 app.register_blueprint(ApiBlueprint, url_prefix="/api")
 
 # 添加模板上下文变量
-@app.context_processor  
-def GlobalTemplateVariables():  
+
+
+@app.context_processor
+def GlobalTemplateVariables():
     data = {"Version": __version__, "Author": __author__, "Email": __email__, "Doc": __doc__, "CONFIG": config, "tpl_adminlogin_required": tpl_adminlogin_required}
     return data
+
 
 @app.before_request
 def before_request():
@@ -85,7 +91,7 @@ def before_request():
     g.ref = request.referrer
     g.redirect_uri = g.ref or url_for('front.index') if request.endpoint and request.endpoint in ("logout", ) else request.url
     #access_logger.debug("referrer: {}, redirect_uri: {}".format(g.ref, g.redirect_uri))
-    #上下文扩展点之请求后(返回前)
+    # 上下文扩展点之请求后(返回前)
     before_request_hook = plugin.get_all_cep.get("before_request_hook")
     for cep_func in before_request_hook():
         cep_func(request=request, g=g)
@@ -98,7 +104,8 @@ def before_request():
             logger.warn("Plugin returns abnormalities when before_request_return")
         else:
             return resp
-    #app.logger.debug(app.url_map)
+    # app.logger.debug(app.url_map)
+
 
 @app.after_request
 def after_request(response):
@@ -112,11 +119,12 @@ def after_request(response):
         "signin": g.signin
     }
     access_logger.info(data)
-    #上下文扩展点之请求后(返回前)
+    # 上下文扩展点之请求后(返回前)
     after_request_hook = plugin.get_all_cep.get("after_request_hook")
     for cep_func in after_request_hook():
         cep_func(request=request, response=response, data=data)
     return response
+
 
 @app.teardown_request
 def teardown_request(exception):
@@ -128,6 +136,7 @@ def teardown_request(exception):
     for cep_func in teardown_request_hook():
         cep_func(request=request, g=g, exception=exception)
 
+
 @app.errorhandler(500)
 def server_error(error=None):
     err_logger.error("500: {}".format(error), exc_info=True)
@@ -136,6 +145,7 @@ def server_error(error=None):
         "code": 500
     }
     return jsonify(message), 500
+
 
 @app.errorhandler(404)
 def not_found(error=None):
@@ -147,6 +157,7 @@ def not_found(error=None):
     resp = jsonify(message)
     resp.status_code = 404
     return resp
+
 
 @app.errorhandler(403)
 def Permission_denied(error=None):
