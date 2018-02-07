@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 50720
 File Encoding         : 65001
 
-Date: 2018-02-05 18:32:27
+Date: 2018-02-07 18:29:55
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -51,8 +51,9 @@ CREATE TABLE `user_auth` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `identifier` (`identifier`) USING BTREE,
   KEY `status` (`status`) USING BTREE,
-  KEY `idx_uid` (`uid`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
+  KEY `idx_uid` (`uid`) USING BTREE,
+  KEY `identity_type` (`identity_type`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=23 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
 
 -- ----------------------------
 -- Table structure for user_loginlog

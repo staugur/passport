@@ -130,7 +130,6 @@ def unbind():
             flash(res["msg"])
     else:
         flash(u"无效参数")
-    print url_for("front.userset", _anchor="bind")
     return redirect(url_for("front.userset", _anchor="bind"))
 
 @FrontBlueprint.route("/OAuthGuide")

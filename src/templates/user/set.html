@@ -165,19 +165,6 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
         coding: "Coding",
         gitee: "码云"
     }
-    //字符串安全检查
-    function safeCheck(s) {
-        try {
-            if (s.indexOf("'")!=-1||s.indexOf('"')!=-1||s.indexOf("?")!=-1||s.indexOf("%")!=-1||s.indexOf(";")!=-1||s.indexOf("*")!=-1||s.indexOf("=")!=-1) {
-                return false
-            } else {
-                return true;
-            }
-        }
-        catch(e) {
-            return false;
-        }
-    }
     //显示当前tab
     if(location.hash){
         element.tabChange('user', location.hash.replace(/^#/, ''));
@@ -190,49 +177,37 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
         }
     });
     //获取用户信息
-    $.ajax({
-        url: "{{ url_for('api.userprofile', getBind=true) }}",
-        success: function(res) {
-            if (res.code==0) {
-                var data = res.data;
-                $('#nick_name').val(data.nick_name);
-                $('#domain_name').val(data.domain_name);
-                if (data.domain_name) {
-                    $('#domain_name_suffix').html(data.domain_name);
-                }
-                if (data.birthday) {
-                    data.birthday = util.toDateString(data.birthday*1000, "yyyy-MM-dd");
-                    $('#birthday').val(data.birthday);
-                }
-                $('#location').val(data.location);
-                if (data.gender===1) {
-                    $("#gender1").attr("checked","checked");
-                } else if (data.gender===0) {
-                    $("#gender0").attr("checked","checked");
-                } else if (data.gender===2) {
-                    $("#gender2").attr("checked","checked");
-                }
-                $('#signature').val(data.signature);
-                form.render();
-                //更新头像
-                $('#avatar').attr('src', data.avatar);
-                //社交账号绑定
-                var unbindUrl = "{{ url_for('front.unbind') }}?identity_name=";
-                for (var index = 0; index < data.bind.length ; index++) {
-                    var identity_type = data.bind[index].identity_type;
-                    $("#oauth-"+identity_type).addClass("app-havebind");
-                    $("#oauth-"+identity_type+"-tip").html('已成功绑定，您可以使用'+namemap[identity_type]+'帐号直接登录，当然，您也可以<a href="'+unbindUrl+identity_type+'" class="acc-unbind" type="'+identity_type+'">解除绑定</a>');
-                }
-                //缓存
-                layui.cache.user = data;
-            } else {
-                toastr.info("拉取用户信息失败，请刷新再试");
-            }
-        },
-        error: function() {
-            layer.msg("系统异常，请稍后再试");
+    var userdata = layui.cache.user;
+    if (userdata) {
+        $('#nick_name').val(userdata.nick_name);
+        $('#domain_name').val(userdata.domain_name);
+        if (userdata.domain_name) {
+            $('#domain_name_suffix').html(userdata.domain_name);
         }
-    });
+        if (userdata.birthday) {
+            userdata.birthday = util.toDateString(userdata.birthday*1000, "yyyy-MM-dd");
+            $('#birthday').val(userdata.birthday);
+        }
+        $('#location').val(userdata.location);
+        if (userdata.gender===1) {
+            $("#gender1").attr("checked","checked");
+        } else if (userdata.gender===0) {
+            $("#gender0").attr("checked","checked");
+        } else if (userdata.gender===2) {
+            $("#gender2").attr("checked","checked");
+        }
+        $('#signature').val(userdata.signature);
+        form.render();
+        //更新头像
+        $('#avatar').attr('src', userdata.avatar);
+        //社交账号绑定
+        var unbindUrl = "{{ url_for('front.unbind') }}?identity_name=";
+        for (var index = 0; index < userdata.bind.length ; index++) {
+            var identity_type = userdata.bind[index].identity_type;
+            $("#oauth-"+identity_type).addClass("app-havebind");
+            $("#oauth-"+identity_type+"-tip").html('已成功绑定，您可以使用'+namemap[identity_type]+'帐号直接登录，当然，您也可以<a href="'+unbindUrl+identity_type+'" class="acc-unbind" type="'+identity_type+'">解除绑定</a>');
+        }
+    }
     //初始化生日输入框时间选择器
     laydate.render({
         elem: '#birthday'
@@ -246,7 +221,6 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
     $('#domain_name').on("input propertychange", function() {
         var value = $(this).val();
         $('#domain_name_suffix').html(value);
-        layui.cache.user.domain_name = value;
     });
     //表单自定义校验
     form.verify({
@@ -286,7 +260,7 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
             data: field,
             success: function(res) {
                 if (res.code==0) {
-                    layer.msg("已修改基本资料");
+                    popup("已修改基本资料");
                     //更新缓存
                     for (var key in field) {
                         layui.cache.user[key] = field[key];
@@ -297,11 +271,11 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
                     for (var index in res.invalid) {
                         err += profile[res.invalid[index]] + " ";
                     }
-                    layer.msg(tip+"："+err);
+                    popup(tip+"："+err);
                 }
             },
             error: function(error){
-                layer.msg("服务器异常！");
+                popup("服务器异常！");
             }
         });
         return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
@@ -320,12 +294,12 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
         }
         ,done: function(res){
             if(res.code == 0){
-                layer.msg("已更新头像");
+                popup("已更新头像");
                 layui.cache.user.avatar = res.imgUrl;
                 $('#avatar').attr('src', res.imgUrl);
                 $('#nav_avatar').attr('src', res.imgUrl);
             } else {
-                layer.msg(res.msg, {icon: 5});
+                popup(res.msg, {icon: 5});
             }
             layer.closeAll('loading');
         }

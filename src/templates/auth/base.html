@@ -1,11 +1,10 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8"/>
     <title>{% block title %}{% endblock %} - SaintIC Passport</title>
-    <meta name="viewport" content="width=device-width,initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
-    {% include "public/favicon.html" %}
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    {% include "public/header.html" %}
+    <link rel="stylesheet" href="/static/css/auth.css">
     <link rel="stylesheet" href="/static/spop-0.1.3/spop.min.css">
     {% block head %}{% endblock %}
 </head>
@@ -13,17 +12,11 @@
 <div id="container">
     {% block container %}{% endblock %}
     <footer class="footer">
-    <p id="copyright">
-        <a href="#">服务条款</a>&nbsp;
-        <a href="#">意见反馈</a>&nbsp;
-        <br/>
-        Copyright &copy; <script>document.write( new Date().getFullYear() );</script>&nbsp;SaintIC. All rights reserved.&nbsp;<a href="http://www.miitbeian.gov.cn/" target="_blank">京ICP备14058611号</a>
-    </p>
+        {% include "public/footer.html" %}
     </footer>
 </div>
-<script src="{{ url_for('static', filename='js/jquery.min.js') }}"></script>
+<script src="/static/js/jquery.min.js"></script>
 <script src="/static/spop-0.1.3/spop.min.js"></script>
-<script src="/static/layui/layui.js"></script>
 <script type="text/javascript">
 function popup(msg) {
     spop({

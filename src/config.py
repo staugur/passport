@@ -81,6 +81,7 @@ EMAIL = {
 
 # 插件配置段
 PLUGINS = {
+
     "weibo": {
         "ENABLE": getenv("passport_weibo_enable", True),
         "APP_ID": getenv("passport_weibo_appid"),
@@ -130,16 +131,23 @@ SYSTEM = {
     # utils.jwt.JWTUtil类中所用加密key
 
     "CACHE_ENABLE": {
+
         "UserAdmin": getenv("passport_cache_useradmin", True),
         # 开启管理员用户缓存
 
-        "UserProfile": getenv("passport_cache_userprofile", False),
+        "UserProfile": getenv("passport_cache_userprofile", True),
         # 开启用户资料缓存
 
-        "UserApps": getenv("passport_cache_userapps", False),
+        "UserApps": getenv("passport_cache_userapps", True),
         # 开启sso应用缓存
     },
+    # 缓存启用项
 
-    "PersonalizedDomainNamePrefix": "https://90era.vip/user/"
+    "PersonalizedDomainNamePrefix": "https://90era.vip/user/",
     # 个性域名前缀：业务系统中用户对公个人主页前缀地址
+
+    "ApiSignature": {
+
+        "ENABLE": False,
+    }
 }

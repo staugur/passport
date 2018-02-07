@@ -32,14 +32,20 @@ class ServiceBase(object):
             if self.cache_admin is False:
                 raise
             data = json.loads(self.redis.get(key))
-            logger.info("Hit listAdminUsers Cache")
+            if data:
+                logger.info("Hit listAdminUsers Cache")
+            else:
+                raise
         except:
             sql = "SELECT uid FROM user_profile WHERE is_admin = 1"
             data = [item['uid'] for item in self.mysql.query(sql)]
-            pipe = self.redis.pipeline()
-            pipe.set(key, json.dumps(data))
-            pipe.expire(key, 600)
-            pipe.execute()
+            try:
+                pipe = self.redis.pipeline()
+                pipe.set(key, json.dumps(data))
+                pipe.expire(key, 600)
+                pipe.execute()
+            except Exception, e:
+                logger.error(e, exc_info=True)
         return data
 
     @property

@@ -48,7 +48,10 @@ class UserProfileManager(ServiceBase):
             if self.cache_enable is False:
                 raise
             data = json.loads(self.redis.get(key))
-            logger.info("Hit getUserProfile Cache")
+            if data:
+                logger.info("Hit getUserProfile Cache")
+            else:
+                raise
         except:
             sql = "SELECT register_source,register_ip,nick_name,domain_name,gender,birthday,signature,avatar,location,ctime,mtime,is_realname FROM user_profile WHERE uid=%s"
             if uid and isinstance(uid, (str, unicode)) and len(uid) == 22:

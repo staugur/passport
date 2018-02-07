@@ -30,7 +30,10 @@ class UserAppManager(ServiceBase):
             if self.cache_enable is False:
                 raise
             data = json.loads(self.redis.get(key))
-            logger.info("Hit listUserApps Cache")
+            if data:
+                logger.info("Hit listUserApps Cache")
+            else:
+                raise
         except:
             sql = "SELECT id,name,description,app_id,app_secret,app_redirect_url,ctime,mtime FROM sso_apps"
             try:
