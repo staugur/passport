@@ -8,9 +8,9 @@
     :copyright: (c) 2017 by staugur.
     :license: MIT, see LICENSE for more details.
 """
-import json
+
 from config import VAPTCHA
-from utils.web import login_required, anonymous_required, adminlogin_required, dfr, set_cookie, oauth2_name2type
+from utils.web import login_required, anonymous_required, adminlogin_required, dfr, set_sessionId, oauth2_name2type
 from utils.tool import logger, email_check, phone_check
 from libs.auth import Authentication
 from vaptchasdk import vaptcha as VaptchaApi
@@ -35,6 +35,7 @@ def link():
 @FrontBlueprint.route('/user/')
 @login_required
 def userhome():
+    #貌似不需要
     return render_template("user/home.html")
 
 @FrontBlueprint.route('/user/setting/')
@@ -102,7 +103,7 @@ def signIn():
                 # 记录登录日志
                 auth.brush_loginlog(res, login_ip=login_ip, user_agent=request.headers.get("User-Agent"))
                 # 登录成功，设置cookie
-                sessionId = set_cookie(uid=res["uid"])
+                sessionId = set_sessionId(uid=res["uid"])
                 response = make_response(redirect(g.redirect_uri))
                 # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
                 secure = False if request.url_root.split("://")[0] == "http" else True
@@ -157,7 +158,7 @@ def OAuthDirectLogin():
                 # 记录登录日志
                 auth.brush_loginlog(res, login_ip=ip, user_agent=request.headers.get("User-Agent"))
                 # 登录成功，设置cookie
-                sessionId = set_cookie(uid=res["uid"])
+                sessionId = set_sessionId(uid=res["uid"])
                 response = make_response(redirect(url_for(".index")))
                 # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
                 secure = False if request.url_root.split("://")[0] == "http" else True
@@ -188,7 +189,7 @@ def OAuthBindAccount():
                 # 记录登录日志
                 auth.brush_loginlog(res, login_ip=request.headers.get('X-Real-Ip', request.remote_addr), user_agent=request.headers.get("User-Agent"))
                 # 登录成功，设置cookie
-                sessionId = set_cookie(uid=res["uid"])
+                sessionId = set_sessionId(uid=res["uid"])
                 response = make_response(redirect(url_for(".index")))
                 # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
                 secure = False if request.url_root.split("://")[0] == "http" else True
@@ -204,7 +205,7 @@ def OAuthBindAccount():
         if openid:
             return render_template("auth/OAuthBindAccount.html")
         else:
-            redirect(url_for(".index"))
+            return redirect(url_for(".index"))
 
 @FrontBlueprint.route("/logout")
 @login_required

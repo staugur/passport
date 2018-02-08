@@ -25,13 +25,13 @@ cbc = CBC()
 sbs = ServiceBase()
 
 
-def set_cookie(uid, seconds=10800):
+def set_sessionId(uid, seconds=10800):
     """设置cookie"""
     sessionId = jwt.createJWT(payload=dict(uid=uid), expiredSeconds=seconds)
     return cbc.encrypt(sessionId)
 
 
-def verify_cookie(cookie):
+def verify_sessionId(cookie):
     """验证cookie"""
     if cookie:
         try:
@@ -49,7 +49,7 @@ def verify_cookie(cookie):
     return False
 
 
-def analysis_cookie(cookie):
+def analysis_sessionId(cookie):
     """分析获取cookie中payload数据"""
     if cookie:
         try:
@@ -338,7 +338,7 @@ def dfr(res, default='en-US'):
     @param default str: 默认语言
     """
     try:
-        language = parseAcceptLanguage(request.headers.get('Accept-Language', default), default)
+        language = parseAcceptLanguage(request.cookies.get("locale", request.headers.get('Accept-Language', default)), default)
         if language == "zh-Hans-CN":
             language = "zh-CN"
     except:

@@ -38,6 +38,60 @@ class UserProfileManager(ServiceBase):
                 bind = [{"identity_type": oauth2_type2name(i["identity_type"]), "ctime": i["ctime"], "mtime": i["mtime"]} for i in data]
         return bind
 
+    def __getUserSetLock(self, uid):
+        """查询用户设置锁，比如个性域名、昵称"""
+        if uid:
+            return dict(
+                nick_name=self.__hasUserSetLock(uid, "nick_name"),
+                domain_name=self.__hasUserSetLock(uid, "domain_name"),
+            )
+        return dict()
+
+    def __setUserSetLock(self, uid, nick_name=False, domain_name=False):
+        """查询用户设置锁，比如个性域名、昵称
+        @param nick_name bool: 昵称是否设置锁过期，24h内只可以修改一次
+        @param domain_name bool: 个性域名是否设置锁过期，一旦设置不可修改
+        """
+        if uid:
+            key = "passport:user:lock:{}".format(uid)
+            pipe = self.redis.pipeline()
+            if nick_name is True:
+                # 设置昵称24小时后过期
+                pipe.hset(key, "nick_name", timestring_to_timestamp(hours=24))
+            if domain_name is True:
+                # 设置个性域名永久有效
+                pipe.hset(key, "domain_name", 0)
+            try:
+                pipe.execute()
+            except:
+                return False
+            else:
+                return True
+
+    def __hasUserSetLock(self, uid, item):
+        """检查用户某项是否加锁
+        参数：
+            @param item str: 有效项：`nick_name`, `domain_name`
+        规则：
+            1. 10位UNIX时间戳，小于当前时间即锁失效，可以修改
+            2. 结果为0表示永不过期即锁有效。不可以修改
+        返回：
+            True -> 加锁 -> 不可以修改
+            False -> 未加锁 -> 可修改
+        """
+        if uid:
+            key = "passport:user:lock:{}".format(uid)
+            now = get_current_timestamp()
+            etime = self.redis.hget(key, item)
+            try:
+                etime = int(etime)
+            except:
+                return False
+            else:
+                if etime != 0 and etime < now:
+                    return False
+        return True
+
     def getUserProfile(self, uid, getBind=False):
         """ 查询用户资料
         @param uid str: 用户id
@@ -70,8 +124,12 @@ class UserProfileManager(ServiceBase):
                 res.update(msg="There are invalid parameters", code=2)
         else:
             res.update(data=data, code=0)
-        if res.get("data") and isinstance(res.get("data"), dict) and getBind is True:
-            res['data']['bind'] = self.listUserBind(uid)
+        if res.get("data") and isinstance(res.get("data"), dict):
+            # 更新设置锁数据
+            res['data']['lock'] = self.__getUserSetLock(uid)
+            # 是否获取绑定账号数据
+            if getBind is True:
+                res['data']['bind'] = self.listUserBind(uid)
         return res
 
     def refreshUserProfile(self, uid):
@@ -85,24 +143,29 @@ class UserProfileManager(ServiceBase):
         @param profiles dict: 资料列表
         """
         res = dict(msg=None, code=1)
-        # 检测并组建sql
-        sql = "UPDATE user_profile SET "
-        checked = True
-        invalid = []
         nick_name = profiles.get("nick_name")
         domain_name = profiles.get("domain_name")
         birthday = profiles.get("birthday")
         location = profiles.get("location")
         gender = profiles.get("gender")
         signature = profiles.get("signature")
-        if nick_name and len(nick_name) <= 49:
+        # 定义
+        checked = True
+        invalid = []
+        can_lock_nick_name = False
+        can_lock_domain_name = False
+        # 检测并组建sql
+        sql = "UPDATE user_profile SET "
+        if nick_name and len(nick_name) <= 49 and self.__hasUserSetLock(uid, "nick_name") is False:
             sql += "nick_name='%s'," % nick_name
+            can_lock_nick_name = True
         else:
             checked = False
             invalid.append("nick_name")
         if domain_name:
-            if domain_name_pat.match(domain_name) and not domain_name.endswith('_') and not domain_name in ("admin", "system", "root", "administrator", "null", "none", "true", "false", "user"):
+            if domain_name_pat.match(domain_name) and not domain_name.endswith('_') and not domain_name in ("admin", "system", "root", "administrator", "null", "none", "true", "false", "user") and self.__hasUserSetLock(uid, "domain_name") is False:
                 sql += "domain_name='%s'," % domain_name
+                can_lock_domain_name = True
             else:
                 checked = False
                 invalid.append("domain_name")
@@ -161,6 +224,9 @@ class UserProfileManager(ServiceBase):
                 res.update(msg="System is abnormal", code=3)
             else:
                 res.update(code=0, refreshCache=self.refreshUserProfile(uid))
+                # 更新成功后设置锁
+                lock = self.__setUserSetLock(uid=uid, nick_name=can_lock_nick_name, domain_name=can_lock_domain_name)
+                res.update(locked=lock)
         else:
             res.update(msg="There are invalid parameters", code=4, invalid=invalid)
         return res

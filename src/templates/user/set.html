@@ -10,6 +10,7 @@
                 <li lay-id="avatar">头像</li>
                 <li lay-id="pass">密码</li>
                 <li lay-id="bind">帐号绑定</li>
+                <li lay-id="like">偏好设置</li>
             </ul>
             <div class="layui-tab-content" style="padding: 20px 0;">
                 <div class="layui-form layui-form-pane layui-tab-item layui-show">
@@ -17,19 +18,19 @@
                         <div class="layui-form-item">
                             <label for="nick_name" class="layui-form-label">个性昵称</label>
                             <div class="layui-input-inline">
-                                <input type="text" id="nick_name" name="nick_name" required lay-verify="required|nick_name" lay-verType="tips" autocomplete="off" value="" class="layui-input" placeholder='起一个喜欢的别名吧'>
+                                <input type="text" id="nick_name" name="nick_name" required lay-verify="required|nick_name" lay-verType="tips" autocomplete="off" value="" class="layui-input layui-disabled" placeholder='起一个喜欢的别名吧' disabled="disabled">
                             </div>
                             <div class="layui-form-mid layui-word-aux">
-                                每月仅能修改一次，其他用户可以艾特你的昵称哦，请勿使用诸如?%;等违规字符！
+                                24h内仅能修改一次，其他用户可以艾特你的昵称哦，请勿使用诸如?%;等违规字符！
                             </div>
                         </div>
                         <div class="layui-form-item">
                             <label for="domain_name" class="layui-form-label">个性域名</label>
                             <div class="layui-input-inline">
-                                <input type="text" id="domain_name" name="domain_name" value="" class="layui-input" placeholder='独一无二的主页标识' lay-verify="domain_name" lay-verType="tips">
+                                <input type="text" id="domain_name" name="domain_name" value="" class="layui-input layui-disabled" placeholder='独一无二的主页标识' lay-verify="domain_name" lay-verType="tips" disabled="disabled">
                             </div>
                             <div class="layui-form-mid layui-word-aux">
-                                {{ CONFIG.SYSTEM.PersonalizedDomainNamePrefix }}<b id="domain_name_suffix"></b>
+                                仅能修改一次，您的个性域名是：{{ CONFIG.SYSTEM.PersonalizedDomainNamePrefix }}<b id="domain_name_suffix"></b>
                             </div>
                         </div>
                         <div class="layui-form-item">
@@ -68,7 +69,7 @@
                         <div class="avatar-add">
                             <p>建议尺寸168*168，支持jpg、jpeg、png、gif，最大不能超过1MB</p>
                             <button type="button" class="layui-btn upload-img" id="uploadAvatar"><i class="layui-icon">&#xe67c;</i>上传头像</button>
-                            <img id="avatar">
+                            <img id="avatar" src="/static/images/avatar/default.png">
                         </div>
                     </div>
                 </div>
@@ -139,6 +140,22 @@
                         {% endif %}
                     </ul>
                 </div>
+                <div class="layui-form layui-form-pane layui-tab-item">
+                    <form method="post">
+                        <div class="layui-form-item">
+                            <label class="layui-form-label">语言</label>
+                            <div class="layui-input-inline">
+                                <select name="language" lay-filter="language">
+                                    <option value="zh-CN" selected="selected">中文(简体)</option>
+                                    <option value="zh-HK" disabled="disabled">中文(繁体)</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
+                            <button class="layui-btn" lay-filter="like" lay-submit>确认修改</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -165,6 +182,9 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
         coding: "Coding",
         gitee: "码云"
     }
+    function setCookie(name, value) {
+        document.cookie=name + "=" + escape(value) + "; path=/";
+    }
     //显示当前tab
     if(location.hash){
         element.tabChange('user', location.hash.replace(/^#/, ''));
@@ -183,6 +203,14 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
         $('#domain_name').val(userdata.domain_name);
         if (userdata.domain_name) {
             $('#domain_name_suffix').html(userdata.domain_name);
+        }
+        if (userdata.lock.nick_name === false) {
+            $('#nick_name').removeAttr("disabled");
+            $('#nick_name').removeClass("layui-disabled");
+        }
+        if (userdata.lock.domain_name === false) {
+            $('#domain_name').removeAttr("disabled");
+            $('#domain_name').removeClass("layui-disabled");
         }
         if (userdata.birthday) {
             userdata.birthday = util.toDateString(userdata.birthday*1000, "yyyy-MM-dd");
@@ -212,7 +240,6 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
     laydate.render({
         elem: '#birthday'
         ,theme: "molv"
-        ,calendar: true
         ,done: function(value, date, endDate){
             $('#birthday').val(value);
         }
@@ -306,6 +333,15 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
         ,error: function(){
             layer.closeAll('loading');
         }
+    });
+    //监听偏好设置提交
+    form.on('submit(like)', function(data){
+        var language = data.field.language;
+        if (language) {
+            setCookie("locale", language);
+        }
+        popup("已更新偏好设置");
+        return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
     });
 });
 </script>

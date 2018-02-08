@@ -21,7 +21,7 @@ import sys
 import config
 from version import __version__
 from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO
-from utils.web import verify_cookie, analysis_cookie, tpl_adminlogin_required
+from utils.web import verify_sessionId, analysis_sessionId, tpl_adminlogin_required
 from libs.plugins import PluginManager
 from hlm import UserAppManager, UserProfileManager
 from views import FrontBlueprint, AdminBlueprint, ApiBlueprint
@@ -85,8 +85,8 @@ def GlobalTemplateVariables():
 def before_request():
     g.redis = create_redis_engine()
     g.mysql = create_mysql_engine()
-    g.signin = verify_cookie(request.cookies.get("sessionId"))
-    g.uid = analysis_cookie(request.cookies.get("sessionId")).get("uid") if g.signin else None
+    g.signin = verify_sessionId(request.cookies.get("sessionId"))
+    g.uid = analysis_sessionId(request.cookies.get("sessionId")).get("uid") if g.signin else None
     g.api = api
     g.ref = request.referrer
     g.redirect_uri = g.ref or url_for('front.index') if request.endpoint and request.endpoint in ("logout", ) else request.url

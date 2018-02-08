@@ -16,7 +16,7 @@ from libs.base import PluginBase
 #: Import the other modules here, and if it's your own module, use the relative Import. eg: from .lib import Lib
 #: 在这里导入其他模块, 如果有自定义包目录, 使用相对导入, 如: from .lib import Lib
 from flask import Blueprint, request, jsonify, g, flash, redirect, url_for
-from utils.web import OAuth2, analysis_cookie, dfr, oauth2_name2type
+from utils.web import OAuth2, dfr, oauth2_name2type
 from config import PLUGINS
 from libs.auth import Authentication
 

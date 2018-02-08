@@ -13,6 +13,11 @@ html body{margin-top: 61px;}
 html{background-color: #F2F2F2;}
 i{font-style: normal;}
 
+/* 由于顶部导航，单独设置spop弹窗top-样式 */
+div.spop--top-left {margin-top: 61px;}
+div.spop--top-right {margin-top: 61px;}
+div.spop--top-center {margin-top: 61px;}
+
 /* 图标 */
 
 @font-face {font-family: "layui-icon-fly";

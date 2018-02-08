@@ -71,9 +71,6 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
                 }}
                 ,{fixed: 'right', width:160, align:'center', toolbar: '#userAppBar'} //这里的toolbar值是模板元素的选择器
             ]]
-            ,done: function(res) {
-                console.log(res)
-            }
         };
     //初始化渲染表格
     table.render(options);
@@ -101,16 +98,14 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
                     method: "DELETE",
                     data: {"name": data.name},
                     success: function(res) {
-                        console.log(res);
                         if (res.code==0) {
-                            layer.msg("已删除应用");
+                            popup("已删除应用");
                         } else {
-                            layer.msg(res.msg);
+                            popup(res.msg);
                         }
                     },
                     error: function(error){
-                        console.log(error);
-                        layer.alert("服务器异常！");
+                        popup("服务器异常！");
                     }
                 });
             });
@@ -153,7 +148,7 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
                                 document.getElementById("editView").value = '';
                             }
                         } catch(err) {
-                            console.error(err);
+                            console.warn(err);
                         }
                     }
                 }
@@ -177,24 +172,21 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
     //监听新建应用提交
     form.on('submit(newApp)', function(data){
         field = data.field; //当前容器的全部表单字段，名值对形式：{name: value}
-        console.log(field);
         $.ajax({
             url: "{{ url_for('api.userapp') }}",
             method: "POST",
             data: field,
             success: function(res) {
-                console.log(res);
                 if (res.code==0) {
-                    layer.msg("已新建应用");
+                    popup("已新建应用");
                     // 重载表格数据
                     table.reload("userapps", options);
                 } else {
-                    layer.msg(res.msg);
+                    popup(res.msg);
                 }
             },
             error: function(error){
-                console.log(error);
-                layer.alert("服务器异常！");
+                popup("服务器异常！");
             }
         });
         return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。

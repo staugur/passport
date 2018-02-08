@@ -17,7 +17,7 @@ from libs.base import PluginBase
 #: 在这里导入其他模块, 如果有自定义包目录, 使用相对导入, 如: from .lib import Lib
 import json
 from flask import Blueprint, request, jsonify, g, flash, redirect, url_for
-from utils.web import OAuth2, analysis_cookie, dfr, oauth2_name2type, oauth2_genderconverter
+from utils.web import OAuth2, dfr, oauth2_name2type, oauth2_genderconverter
 from config import PLUGINS
 from libs.auth import Authentication
 
@@ -85,7 +85,6 @@ def authorized():
         resp = json.loads(resp[10:-3])
     else:
         resp = qq.url_code(resp)
-    print "authorized_response:",resp
     if resp and isinstance(resp, dict) and "access_token" in resp:
         # 获取用户唯一标识
         openid = json.loads(qq.get_openid(resp["access_token"])[10:-3]).get("openid")
