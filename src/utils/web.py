@@ -11,7 +11,7 @@
 
 import json
 import requests
-from .tool import logger, gen_fingerprint, parseAcceptLanguage, get_current_timestamp, timestamp_after_timestamp
+from .tool import access_logger, logger, gen_fingerprint, parseAcceptLanguage, get_current_timestamp, timestamp_after_timestamp
 from .jwt import JWTUtil, JWTException
 from .aes_cbc import CBC
 from libs.base import ServiceBase
@@ -23,6 +23,27 @@ from werkzeug import url_decode
 jwt = JWTUtil()
 cbc = CBC()
 sbs = ServiceBase()
+
+
+def get_referrer_url():
+    """获取上一页地址"""
+    if request.referrer and request.referrer.startswith(request.host_url) and request.endpoint and not "api." in request.endpoint:
+        return request.referrer
+
+
+def get_redirect_url(endpoint="front.index"):
+    """获取重定向地址
+    NextUrl: 引导重定向下一步地址
+    ReturnUrl: 最终重定向地址
+    以上两个不存在时，如果定义了非默认endpoint，则首先返回；否则返回referrer地址，不存在时返回endpoint默认主页
+    """
+    url = request.args.get('NextUrl') or request.args.get('ReturnUrl')
+    if not url:
+        if endpoint != "front.index":
+            url = url_for(endpoint)
+        else:
+            url = g.ref or url_for(endpoint)
+    return url
 
 
 def set_sessionId(uid, seconds=10800):
@@ -80,7 +101,7 @@ def anonymous_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if g.signin:
-            return redirect(url_for('front.index'))
+            return redirect(g.redirect_uri)
         return f(*args, **kwargs)
     return decorated_function
 
@@ -93,13 +114,6 @@ def adminlogin_required(f):
                 return f(*args, **kwargs)
         return abort(404)
     return decorated_function
-
-
-def tpl_adminlogin_required():
-    """模板中判断是否为管理员用户"""
-    if g.signin and g.uid and sbs.isAdmin(g.uid):
-        return True
-    return False
 
 
 def apilogin_required(f):
@@ -119,6 +133,13 @@ def apiadminlogin_required(f):
                 return f(*args, **kwargs)
         return jsonify(dfr(dict(msg="Authentication failed or no permission to access", code=1)))
     return decorated_function
+
+
+def tpl_adminlogin_required():
+    """模板中判断是否为管理员用户"""
+    if g.signin and g.uid and sbs.isAdmin(g.uid):
+        return True
+    return False
 
 
 def oauth2_name2type(name):
@@ -306,8 +327,8 @@ class OAuth2(object):
 
     def goto_signIn(self, uid):
         """OAuth转入登录流程，表示登录成功，需要设置cookie"""
-        sessionId = set_cookie(uid=uid)
-        response = make_response(redirect(url_for("front.index")))
+        sessionId = set_sessionId(uid=uid)
+        response = make_response(redirect(g.redirect_uri))
         # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
         secure = False if request.url_root.split("://")[0] == "http" else True
         response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
@@ -327,6 +348,7 @@ class OAuth2(object):
         return data, such as {'access_token': 'E8BF2BCAF63B7CE749796519F5C5D5EB', 'expires_in': '7776000', 'refresh_token': '30AF0BD336324575029492BD2D1E134B'}
         '''
         return url_decode(content, charset=self._encoding).to_dict() if content else None
+
 
 # 邮件模板：参数依次是邮箱账号、使用场景、验证码
 email_tpl = u"""<!DOCTYPE html><html><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><style>a{text-decoration: none}</style></head><body><table style="width:550px;"><tr><td style="padding-top:10px; padding-left:5px; padding-bottom:5px; border-bottom:1px solid #D9D9D9; font-size:16px; color:#999;">SaintIC Passport</td></tr><tr><td style="padding:20px 0px 20px 5px; font-size:14px; line-height:23px;">尊敬的<b>%s</b>，您正在申请<i>%s</i><br><br>申请场景的邮箱验证码是 <b style="color: red">%s</b><br><br>5分钟有效，请妥善保管验证码，不要泄露给他人。<br></td></tr><tr><td style="padding-top:5px; padding-left:5px; padding-bottom:10px; border-top:1px solid #D9D9D9; font-size:12px; color:#999;">此为系统邮件，请勿回复<br/>请保管好您的邮箱，避免账户被他人盗用<br/><br/>如有任何疑问，可查看网站帮助 <a target="_blank" href="https://passport.saintic.com">https://passport.saintic.com</a></td></tr></table></body></html>"""

@@ -21,11 +21,11 @@ import sys
 import config
 from version import __version__
 from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO
-from utils.web import verify_sessionId, analysis_sessionId, tpl_adminlogin_required
+from utils.web import verify_sessionId, analysis_sessionId, tpl_adminlogin_required, get_referrer_url, get_redirect_url
 from libs.plugins import PluginManager
 from hlm import UserAppManager, UserProfileManager
 from views import FrontBlueprint, AdminBlueprint, ApiBlueprint
-from flask import Flask, request, g, jsonify, url_for, render_template
+from flask import Flask, request, g, jsonify, url_for, render_template, flash
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -73,24 +73,21 @@ app.register_blueprint(AdminBlueprint, url_prefix="/admin")
 app.register_blueprint(ApiBlueprint, url_prefix="/api")
 
 # 添加模板上下文变量
-
-
 @app.context_processor
 def GlobalTemplateVariables():
     data = {"Version": __version__, "Author": __author__, "Email": __email__, "Doc": __doc__, "CONFIG": config, "tpl_adminlogin_required": tpl_adminlogin_required}
     return data
-
 
 @app.before_request
 def before_request():
     g.redis = create_redis_engine()
     g.mysql = create_mysql_engine()
     g.signin = verify_sessionId(request.cookies.get("sessionId"))
-    g.uid = analysis_sessionId(request.cookies.get("sessionId")).get("uid") if g.signin else None
+    g.uid = analysis_sessionId(request.cookies.get("sessionId"))["uid"] if g.signin else None
     g.api = api
-    g.ref = request.referrer
-    g.redirect_uri = g.ref or url_for('front.index') if request.endpoint and request.endpoint in ("logout", ) else request.url
-    #access_logger.debug("referrer: {}, redirect_uri: {}".format(g.ref, g.redirect_uri))
+    # 仅是重定向页面快捷定义
+    g.ref = get_referrer_url()
+    g.redirect_uri = get_redirect_url()
     # 上下文扩展点之请求后(返回前)
     before_request_hook = plugin.get_all_cep.get("before_request_hook")
     for cep_func in before_request_hook():
@@ -103,9 +100,8 @@ def before_request():
         except:
             logger.warn("Plugin returns abnormalities when before_request_return")
         else:
-            return resp
-    # app.logger.debug(app.url_map)
-
+            if success is True:
+                return resp
 
 @app.after_request
 def after_request(response):
@@ -114,9 +110,8 @@ def after_request(response):
         "method": request.method,
         "ip": request.headers.get('X-Real-Ip', request.remote_addr),
         "url": request.url,
-        "referer": request.headers.get('Referer'),
+        "referer": g.ref or request.headers.get('Referer'),
         "agent": request.headers.get("User-Agent"),
-        "signin": g.signin
     }
     access_logger.info(data)
     # 上下文扩展点之请求后(返回前)
@@ -125,9 +120,9 @@ def after_request(response):
         cep_func(request=request, response=response, data=data)
     return response
 
-
 @app.teardown_request
 def teardown_request(exception):
+    err_logger.error(exception, exc_info=True)
     if hasattr(g, "redis"):
         g.redis.connection_pool.disconnect()
     if hasattr(g, "mysql"):
@@ -135,7 +130,6 @@ def teardown_request(exception):
     teardown_request_hook = plugin.get_all_cep.get("teardown_request_hook")
     for cep_func in teardown_request_hook():
         cep_func(request=request, g=g, exception=exception)
-
 
 @app.errorhandler(500)
 def server_error(error=None):
@@ -145,7 +139,6 @@ def server_error(error=None):
         "code": 500
     }
     return jsonify(message), 500
-
 
 @app.errorhandler(404)
 def not_found(error=None):
@@ -158,7 +151,6 @@ def not_found(error=None):
     resp.status_code = 404
     return resp
 
-
 @app.errorhandler(403)
 def Permission_denied(error=None):
     message = {
@@ -168,4 +160,6 @@ def Permission_denied(error=None):
     return jsonify(message), 403
 
 if __name__ == '__main__':
+    from werkzeug.contrib.fixers import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app)
     app.run(host=config.GLOBAL["Host"], port=int(config.GLOBAL["Port"]), debug=True)

@@ -40,8 +40,11 @@ start)
         gunicorn -w $cpu_count --threads 16 -b ${host}:${port} main:app -k gevent --daemon --pid $pidfile --log-file $logfile --max-requests 250 --name $procname
         sleep 1
         pid=$(cat $pidfile)
-        [ "$?" != "0" ] && exit 1
-        echo "$procname start over with pid ${pid}"
+        if [ "$?" != "0" ]; then
+            echo "$procname start failed" && exit 1
+        else
+            echo "$procname start over with pid ${pid}"
+        fi
     fi
     ;;
 

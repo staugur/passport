@@ -4,10 +4,10 @@
 
 {% block userpanel %}
     <div class="fly-panel fly-panel-user" pad20>
-        <div class="layui-tab layui-tab-brief" lay-filter="docDemoTabBrief">
+        <div class="layui-tab layui-tab-brief" lay-filter="appList">
             <ul class="layui-tab-title">
-                <li class="layui-this">应用列表</li>
-                <li>新建应用</li>
+                <li class="layui-this" lay-id="appList">应用列表</li>
+                <li lay-id="newApp">新建应用</li>
             </ul>
             <div class="layui-tab-content" style="height: 100px;">
                 <div class="layui-tab-item layui-show">
@@ -30,12 +30,12 @@
                         <div class="layui-form-item">
                             <label class="layui-form-label">回调地址</label>
                             <div class="layui-input-block">
-                                <input type="text" name="app_redirect_url" autocomplete="off" placeholder="应用回调地址，请书写完全合格域名" class="layui-input" value="" lay-verify="required|url">
+                                <input type="text" name="app_redirect_url" autocomplete="off" placeholder="应用回调根地址，请书写完全合格域名" class="layui-input" value="" lay-verify="required|url">
                             </div>
                         </div>
                         <input type="hidden" id="editView">
                         <div class="layui-form-item">
-                            <button class="layui-btn" lay-submit="" lay-filter="newApp">点击提交</button>
+                            <button class="layui-btn" lay-submit="" lay-filter="newApp" id="newAppSubmit">点击提交</button>
                         </div>
                     </form>
                 </div>
@@ -53,6 +53,17 @@
 <script type="text/javascript">
 layui.use(["table", "element", "form", "layer", "util"], function(){
     var table = layui.table, element = layui.element, form = layui.form, layer = layui.layer, $ = layui.jquery, util = layui.util;
+    //显示当前tab
+    if(location.hash){
+        element.tabChange('appList', location.hash.replace(/^#/, ''));
+    }
+    //监听tab切换
+    element.on('tab(appList)', function(){
+        var othis = $(this), layid = othis.attr('lay-id');
+        if(layid){
+            location.hash = layid;
+        }
+    });
     //定义渲染应用列表函数
     var options = {
             elem: "#userapps"
@@ -171,11 +182,16 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
     });
     //监听新建应用提交
     form.on('submit(newApp)', function(data){
-        field = data.field; //当前容器的全部表单字段，名值对形式：{name: value}
+        var field = data.field; //当前容器的全部表单字段，名值对形式：{name: value}
         $.ajax({
             url: "{{ url_for('api.userapp') }}",
             method: "POST",
             data: field,
+            beforeSend: function() {
+                //禁用按钮防止重复提交
+                $("#newAppSubmit").attr({ disabled: "disabled" });
+                $('#newAppSubmit').addClass("layui-disabled");
+            },
             success: function(res) {
                 if (res.code==0) {
                     popup("已新建应用");
@@ -187,6 +203,10 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
             },
             error: function(error){
                 popup("服务器异常！");
+            },
+            complete: function() {
+                $('#newAppSubmit').removeAttr("disabled");
+                $('#newAppSubmit').removeClass("layui-disabled");
             }
         });
         return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。

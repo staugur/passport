@@ -82,7 +82,7 @@ def authorized():
         user = baidu.get_userinfo(resp["access_token"])
         if user.get("error"):
             flash("{} error_description: {}".format(user.get("error"), user.get("error_description")))
-            return redirect(url_for("front.index"))
+            return redirect(g.redirect_uri)
         # 处理第三方登录逻辑
         auth = Authentication(g.mysql, g.redis)
         avatar = "http://tb.himg.baidu.com/sys/portrait/item/" + user["portrait"]
@@ -107,13 +107,13 @@ def authorized():
                 # 绑定失败，返回原页面
                 flash(goinfo["msg"])
             # 跳回原页面
-            return redirect(url_for("front.index"))
+            return redirect(g.redirect_uri)
     else:
         flash(u'Access denied: reason=%s error=%s' % (
             request.args.get('error'),
             request.args.get('error_description')
         ))
-    return redirect(url_for("front.index"))
+    return redirect(g.redirect_uri)
 
 #: 返回插件主类
 def getPluginClass():

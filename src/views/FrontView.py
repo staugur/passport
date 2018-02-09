@@ -10,7 +10,7 @@
 """
 
 from config import VAPTCHA
-from utils.web import login_required, anonymous_required, adminlogin_required, dfr, set_sessionId, oauth2_name2type
+from utils.web import login_required, anonymous_required, adminlogin_required, dfr, set_sessionId, oauth2_name2type, get_redirect_url
 from utils.tool import logger, email_check, phone_check
 from libs.auth import Authentication
 from vaptchasdk import vaptcha as VaptchaApi
@@ -26,17 +26,11 @@ def index():
     #首页
     return render_template("index.html")
 
-@FrontBlueprint.route('/link')
-def link():
-    """重定向链接"""
-    nextUrl = request.args.get("nextUrl") or url_for(".index")
-    return redirect(nextUrl)
-
 @FrontBlueprint.route('/user/')
 @login_required
 def userhome():
     #貌似不需要
-    return render_template("user/home.html")
+    return render_template("index.html")
 
 @FrontBlueprint.route('/user/setting/')
 @login_required
@@ -116,23 +110,6 @@ def signIn():
         return redirect(url_for('.signIn'))
     return render_template("auth/signIn.html")
 
-@FrontBlueprint.route("/unbind")
-@login_required
-def unbind():
-    identity_name = request.args.get("identity_name")
-    if identity_name:
-        auth = Authentication(g.mysql, g.redis)
-        identity_type = oauth2_name2type(identity_name)
-        res = auth.unbind(g.uid, identity_type)
-        res = dfr(res)
-        if res["code"] == 0:
-            flash(u"解绑成功")
-        else:
-            flash(res["msg"])
-    else:
-        flash(u"无效参数")
-    return redirect(url_for("front.userset", _anchor="bind"))
-
 @FrontBlueprint.route("/OAuthGuide")
 @anonymous_required
 def OAuthGuide():
@@ -140,7 +117,7 @@ def OAuthGuide():
     if request.args.get("openid"):
         return render_template("auth/OAuthGuide.html")
     else:
-        return redirect(url_for(".index"))
+        return redirect(g.redirect_uri)
 
 @FrontBlueprint.route("/OAuthGuide/DirectLogin", methods=["POST"])
 @anonymous_required
@@ -159,16 +136,16 @@ def OAuthDirectLogin():
                 auth.brush_loginlog(res, login_ip=ip, user_agent=request.headers.get("User-Agent"))
                 # 登录成功，设置cookie
                 sessionId = set_sessionId(uid=res["uid"])
-                response = make_response(redirect(url_for(".index")))
+                response = make_response(redirect(get_redirect_url("front.userset")))
                 # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
                 secure = False if request.url_root.split("://")[0] == "http" else True
                 response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
                 return response
             else:
                 flash(res["msg"])
-                return redirect(url_for('.index'))
+                return redirect(url_for("front.OAuthGuide", openid=openid))
         else:
-            return redirect(url_for(".index"))
+            return redirect(g.redirect_uri)
 
 @FrontBlueprint.route("/OAuthGuide/BindAccount", methods=["GET", "POST"])
 @anonymous_required
@@ -190,7 +167,7 @@ def OAuthBindAccount():
                 auth.brush_loginlog(res, login_ip=request.headers.get('X-Real-Ip', request.remote_addr), user_agent=request.headers.get("User-Agent"))
                 # 登录成功，设置cookie
                 sessionId = set_sessionId(uid=res["uid"])
-                response = make_response(redirect(url_for(".index")))
+                response = make_response(redirect(get_redirect_url("front.userset", _anchor="bind")))
                 # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
                 secure = False if request.url_root.split("://")[0] == "http" else True
                 response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
@@ -205,13 +182,28 @@ def OAuthBindAccount():
         if openid:
             return render_template("auth/OAuthBindAccount.html")
         else:
-            return redirect(url_for(".index"))
+            return redirect(g.redirect_uri)
 
 @FrontBlueprint.route("/logout")
 @login_required
 def logout():
-    response = make_response(redirect(url_for('.signIn')))
+    response = make_response(redirect(get_redirect_url('.signIn')))
     response.set_cookie(key='sessionId', value='', expires=0)
     return response
 
-
+@FrontBlueprint.route("/unbind")
+@login_required
+def unbind():
+    identity_name = request.args.get("identity_name")
+    if identity_name:
+        auth = Authentication(g.mysql, g.redis)
+        identity_type = oauth2_name2type(identity_name)
+        res = auth.unbind(g.uid, identity_type)
+        res = dfr(res)
+        if res["code"] == 0:
+            flash(u"解绑成功")
+        else:
+            flash(res["msg"])
+    else:
+        flash(u"无效参数")
+    return redirect(url_for("front.userset", _anchor="bind"))

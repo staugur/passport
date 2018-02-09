@@ -11,7 +11,7 @@
 
 import json
 from libs.base import ServiceBase
-from utils.tool import logger, get_current_timestamp, timestring_to_timestamp, domain_name_pat, avatar_check, sql_safestring_check
+from utils.tool import logger, get_current_timestamp, timestring_to_timestamp, timestamp_after_timestamp, domain_name_pat, avatar_check, sql_safestring_check
 from utils.web import oauth2_type2name
 from torndb import IntegrityError
 from config import SYSTEM
@@ -57,7 +57,7 @@ class UserProfileManager(ServiceBase):
             pipe = self.redis.pipeline()
             if nick_name is True:
                 # 设置昵称24小时后过期
-                pipe.hset(key, "nick_name", timestring_to_timestamp(hours=24))
+                pipe.hset(key, "nick_name", timestamp_after_timestamp(hours=24))
             if domain_name is True:
                 # 设置个性域名永久有效
                 pipe.hset(key, "domain_name", 0)
@@ -143,6 +143,7 @@ class UserProfileManager(ServiceBase):
         @param profiles dict: 资料列表
         """
         res = dict(msg=None, code=1)
+        logger.debug(profiles)
         nick_name = profiles.get("nick_name")
         domain_name = profiles.get("domain_name")
         birthday = profiles.get("birthday")
@@ -156,16 +157,18 @@ class UserProfileManager(ServiceBase):
         can_lock_domain_name = False
         # 检测并组建sql
         sql = "UPDATE user_profile SET "
-        if nick_name and len(nick_name) <= 49 and self.__hasUserSetLock(uid, "nick_name") is False:
-            sql += "nick_name='%s'," % nick_name
-            can_lock_nick_name = True
+        if nick_name and len(nick_name) <= 49:
+            if self.__hasUserSetLock(uid, "nick_name") is False:
+                sql += "nick_name='%s'," % nick_name
+                can_lock_nick_name = True
         else:
             checked = False
             invalid.append("nick_name")
         if domain_name:
-            if domain_name_pat.match(domain_name) and not domain_name.endswith('_') and not domain_name in ("admin", "system", "root", "administrator", "null", "none", "true", "false", "user") and self.__hasUserSetLock(uid, "domain_name") is False:
-                sql += "domain_name='%s'," % domain_name
-                can_lock_domain_name = True
+            if domain_name_pat.match(domain_name) and not domain_name.endswith('_') and not domain_name in ("admin", "system", "root", "administrator", "null", "none", "true", "false", "user"):
+                if self.__hasUserSetLock(uid, "domain_name") is False:
+                    sql += "domain_name='%s'," % domain_name
+                    can_lock_domain_name = True
             else:
                 checked = False
                 invalid.append("domain_name")
