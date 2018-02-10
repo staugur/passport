@@ -10,11 +10,12 @@
 """
 
 from config import VAPTCHA
-from utils.web import login_required, anonymous_required, adminlogin_required, dfr, set_sessionId, oauth2_name2type, get_redirect_url
+from utils.web import login_required, anonymous_required, adminlogin_required, dfr, set_sessionId, oauth2_name2type, get_redirect_url, verify_sessionId, analysis_sessionId
 from utils.tool import logger, email_check, phone_check
 from libs.auth import Authentication
 from vaptchasdk import vaptcha as VaptchaApi
-from flask import Blueprint, request, render_template, g, redirect, url_for, flash, make_response
+from flask import Blueprint, request, render_template, g, redirect, url_for, flash, make_response, jsonify, abort
+
 
 #初始化前台蓝图
 FrontBlueprint = Blueprint("front", __name__)
@@ -25,6 +26,10 @@ vaptcha = VaptchaApi(VAPTCHA["vid"], VAPTCHA["key"])
 def index():
     #首页
     return render_template("index.html")
+
+@FrontBlueprint.route("/test")
+def test():
+    return "test"
 
 @FrontBlueprint.route('/user/')
 @login_required
@@ -82,6 +87,22 @@ def signUp():
 @FrontBlueprint.route('/signIn', methods=['GET', 'POST'])
 @anonymous_required
 def signIn():
+    """ 单点登录、注销
+    登录流程
+        1. Client跳转到Server的/sso/页面，携带参数sso(所需sso信息的加密串)。
+        2. 校验参数通过后，Server跳转到/signIn/页面，设置ReturnUrl(从数据库读取)，且不携带参数；校验未通过不携带参数直接返回错误信息。
+        3. 用户在Server未登录时，输入用户名密码或第三方登录成功后，创建全局会话(设置Server登录态)、授权令牌(ticket)，根据ticket生成sid(登录态id)写入redis，并携带ticket返回ReturnUrl；
+           已登录时，创建ticket并携带跳回ReturnUrl。
+        4. Client用ticket到Server校验(通过api方式)，通过redis校验cookie是否存在
+        -- sso加密规则：
+            aes_cbc("app_name:app_id.app_secret")
+        -- sso校验流程：
+            根据sso参数，验证是否有效，解析参数获取name、id、secret等，并用name获取到对应信息一一校验
+        -- 备注：
+            第3步，需要signIn、OAuthGuide方面路由设置
+            第4步，需要在插件内增加api路由
+    注销流程
+    """
     if request.method == 'POST':
         sceneid = request.args.get("sceneid") or "01"
         token = request.form.get("token")
@@ -108,7 +129,23 @@ def signIn():
         else:
             flash(u"人机验证失败")
         return redirect(url_for('.signIn'))
-    return render_template("auth/signIn.html")
+    else:
+        sso = request.args.get("sso")
+        sso_isOk = False
+        sso_returnUrl = None
+        if verify_sessionId(sso):
+            # sso jwt payload
+            sso = analysis_sessionId(sso)
+            if sso and isinstance(sso, dict) and "app_name" in sso and "app_id" in sso and "app_secret" in sso:
+                # 通过app_name获取注册信息并校验参数
+                app_data = g.api.userapp.getUserApp(sso["app_name"])
+                if app_data:
+                    if sso["app_id"] == app_data["app_id"] and sso["app_secret"] == app_data["app_secret"]:
+                        sso_isOk = True
+                        sso_returnUrl = app_data["app_redirect_url"] + "?Action=login"
+                        return redirect(url_for("front.signIn", ReturnUrl=sso_returnUrl))
+        logger.debug("sso_isOk: {}, ReturnUrl: {}".format(sso_isOk, sso_returnUrl))
+        return render_template("auth/signIn.html")
 
 @FrontBlueprint.route("/OAuthGuide")
 @anonymous_required

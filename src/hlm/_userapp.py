@@ -22,6 +22,18 @@ class UserAppManager(ServiceBase):
         super(UserAppManager, self).__init__()
         self.cache_enable = True if SYSTEM["CACHE_ENABLE"]["UserApps"] in ("true", "True", True) else False
 
+    def getUserApp(self, name):
+        """ 通过app_name获取应用信息 """
+        if name:
+            res = self.listUserApp()
+            if res["code"] == 0:
+                try:
+                    data = ( i for i in res['data'] if i['name'] == name ).next()
+                except StopIteration:
+                    pass
+                else:
+                    return data
+
     def listUserApp(self):
         """ 查询userapp应用列表 """
         res = dict(msg=None, code=1)
@@ -48,7 +60,7 @@ class UserAppManager(ServiceBase):
                 pipe.expire(key, 600)
                 pipe.execute()
         else:
-            res.update(data=data)
+            res.update(data=data, code=0)
         return res
 
     def refreshUserApp(self):
@@ -121,3 +133,7 @@ class UserAppManager(ServiceBase):
         else:
             res.update(msg="There are invalid parameters", code=4)
         return res
+
+    def sso(self):
+        pass
+

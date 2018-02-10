@@ -42,7 +42,7 @@ def get_redirect_url(endpoint="front.index"):
         if endpoint != "front.index":
             url = url_for(endpoint)
         else:
-            url = g.ref or url_for(endpoint)
+            url = get_referrer_url() or url_for(endpoint)
     return url
 
 
@@ -211,6 +211,8 @@ class OAuth2(object):
             get_userinfo_method: 开放平台的用户信息请求方法，默认get，仅支持get、post
             get_openid_method: 开放平台的获取用户唯一标识请求方法，默认get，仅支持get、post
             content_type: 保留
+            verify_state: 是否验证state值
+            enable_autojump: 是否启用自动跳转
         """
         self._name = name
         self._consumer_key = client_id
@@ -228,6 +230,7 @@ class OAuth2(object):
         self._get_userinfo_method = kwargs.get("get_userinfo_method", "get").lower()
         self._content_type = kwargs.get("content_type", "application/json")
         self._verify_state = kwargs.get("verify_state", True)
+        self._enable_autojump = kwargs.get("enable_autojump", True)
         self._requests = requests.Session()
 
     @property
@@ -264,7 +267,7 @@ class OAuth2(object):
         _request_params = self._make_params(
             response_type=self._response_type,
             client_id=self._consumer_key,
-            redirect_uri=self._redirect_url,
+            redirect_uri=self._redirect_url + "?ReturnUrl=" + g.redirect_uri if self._enable_autojump is True else self._redirect_url,
             state=self.__make_state,
             scope=self._scope,
             **params

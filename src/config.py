@@ -124,6 +124,9 @@ PLUGINS = {
 # 系统配置
 SYSTEM = {
 
+    "HMAC_SHA256_KEY": getenv("passport_hmac_sha256_key", "273d32c8d797fa715190c7408ad73811"),
+    # hmac sha256 key
+
     "AES_CBC_KEY": getenv("passport_aes_cbc_key", "YRRGBRYQqrV1gv5A"),
     # utils.aes_cbc.CBC类中所用加密key
 

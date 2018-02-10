@@ -3,7 +3,7 @@
 {% block title %}登录{% endblock %}
 
 {% block container %}
-    <form action="{{ url_for('front.signIn', NextUrl=g.redirect_uri) }}" method="post" class="form" onsubmit="return checkSubmit();">
+    <form action="{{ url_for('front.signIn', ReturnUrl=g.redirect_uri) }}" method="post" class="form" onsubmit="return checkSubmit();">
 		<div class="form-head">
 			<h2>{{ self.title() }}</h2>
             <!--<p class="form-notice"></p>-->

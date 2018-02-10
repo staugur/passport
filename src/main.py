@@ -24,7 +24,7 @@ from utils.tool import logger, err_logger, access_logger, create_redis_engine, c
 from utils.web import verify_sessionId, analysis_sessionId, tpl_adminlogin_required, get_referrer_url, get_redirect_url
 from libs.plugins import PluginManager
 from hlm import UserAppManager, UserProfileManager
-from views import FrontBlueprint, AdminBlueprint, ApiBlueprint
+from views import FrontBlueprint, ApiBlueprint
 from flask import Flask, request, g, jsonify, url_for, render_template, flash
 reload(sys)
 sys.setdefaultencoding('utf-8')
@@ -69,7 +69,6 @@ for bep in plugin.get_all_bep:
 
 # 注册视图包中蓝图
 app.register_blueprint(FrontBlueprint)
-app.register_blueprint(AdminBlueprint, url_prefix="/admin")
 app.register_blueprint(ApiBlueprint, url_prefix="/api")
 
 # 添加模板上下文变量
@@ -86,7 +85,6 @@ def before_request():
     g.uid = analysis_sessionId(request.cookies.get("sessionId"))["uid"] if g.signin else None
     g.api = api
     # 仅是重定向页面快捷定义
-    g.ref = get_referrer_url()
     g.redirect_uri = get_redirect_url()
     # 上下文扩展点之请求后(返回前)
     before_request_hook = plugin.get_all_cep.get("before_request_hook")
@@ -102,6 +100,7 @@ def before_request():
         else:
             if success is True:
                 return resp
+    #print app.url_map
 
 @app.after_request
 def after_request(response):
@@ -110,7 +109,7 @@ def after_request(response):
         "method": request.method,
         "ip": request.headers.get('X-Real-Ip', request.remote_addr),
         "url": request.url,
-        "referer": g.ref or request.headers.get('Referer'),
+        "referer": request.headers.get('Referer'),
         "agent": request.headers.get("User-Agent"),
     }
     access_logger.info(data)

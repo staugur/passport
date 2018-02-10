@@ -101,7 +101,6 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
             });
         } else if(layEvent === 'del'){ //删除
             layer.confirm('真的删除 '+ data.name+' 应用么？', {icon: 3, title:'温馨提示'}, function(index){
-                obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
                 layer.close(index);
                 //向服务端发送删除指令
                 $.ajax({
@@ -111,6 +110,7 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
                     success: function(res) {
                         if (res.code==0) {
                             popup("已删除应用");
+                            obj.del(); //删除对应行（tr）的DOM结构，并更新缓存
                         } else {
                             popup(res.msg);
                         }

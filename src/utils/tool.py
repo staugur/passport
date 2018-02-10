@@ -23,7 +23,7 @@ from base64 import b32encode
 from redis import from_url
 from torndb import Connection
 from user_agents import parse as user_agents_parse
-from config import REDIS as REDIS_URL, MYSQL as MYSQL_URL
+from config import SYSTEM, REDIS as REDIS_URL, MYSQL as MYSQL_URL
 
 
 ip_pat = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
@@ -45,7 +45,7 @@ err_logger = Logger("error").getLogger
 plugin_logger = Logger("plugin").getLogger
 access_logger = Logger("access").getLogger
 md5 = lambda pwd: hashlib.md5(pwd).hexdigest()
-hmac_sha256 = lambda message: hmac.new(key="273d32c8d797fa715190c7408ad73811", msg=message, digestmod=hashlib.sha256).hexdigest()
+hmac_sha256 = lambda message: hmac.new(key=SYSTEM["HMAC_SHA256_KEY"], msg=message, digestmod=hashlib.sha256).hexdigest()
 gen_token = lambda n=32: b32encode(uuid4().hex)[:n]
 gen_requestId = lambda: str(uuid4())
 gen_fingerprint = lambda n=16, s=2: ":".join(["".join(random.sample("0123456789abcdef", s)) for i in range(0, n)])
