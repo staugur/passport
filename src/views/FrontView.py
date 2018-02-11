@@ -85,7 +85,6 @@ def signUp():
     return render_template("auth/signUp.html")
 
 @FrontBlueprint.route('/signIn', methods=['GET', 'POST'])
-@anonymous_required
 def signIn():
     """ 单点登录、注销
     登录流程
@@ -143,9 +142,12 @@ def signIn():
                     if sso["app_id"] == app_data["app_id"] and sso["app_secret"] == app_data["app_secret"]:
                         sso_isOk = True
                         sso_returnUrl = app_data["app_redirect_url"] + "?Action=login"
-                        return redirect(url_for("front.signIn", ReturnUrl=sso_returnUrl))
+                        #return redirect(url_for("front.signIn", ReturnUrl=sso_returnUrl))
         logger.debug("sso_isOk: {}, ReturnUrl: {}".format(sso_isOk, sso_returnUrl))
-        return render_template("auth/signIn.html")
+        if sso_isOk:
+            return render_template("auth/signIn.html", ReturnUrl=sso_returnUrl)
+        else:
+            return render_template("auth/signIn.html", ReturnUrl=g.redirect_uri)
 
 @FrontBlueprint.route("/OAuthGuide")
 @anonymous_required
