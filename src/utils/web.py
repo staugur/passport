@@ -46,7 +46,7 @@ def get_redirect_url(endpoint="front.index"):
     return url
 
 
-def set_sessionId(uid, seconds=10800):
+def set_sessionId(uid, seconds=43200):
     """设置cookie"""
     sessionId = jwt.createJWT(payload=dict(uid=uid), expiredSeconds=seconds)
     return cbc.encrypt(sessionId)

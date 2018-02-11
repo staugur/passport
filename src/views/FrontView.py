@@ -102,6 +102,8 @@ def signIn():
             第4步，需要在插件内增加api路由
     注销流程
     """
+    if g.signin:
+        return g.redirect_uri
     if request.method == 'POST':
         sceneid = request.args.get("sceneid") or "01"
         token = request.form.get("token")
