@@ -32,6 +32,7 @@ def execute_refresh_loginlog(times=30):
             data = json.loads(data)
         except:
             cli_logger.info("no loginlog")
+            break
         else:
             browserType, browserDevice, browserOs, browserFamily = parse_userAgent(data["user_agent"])
             login_area = getIpArea(data["login_ip"])

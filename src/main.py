@@ -121,7 +121,8 @@ def after_request(response):
 
 @app.teardown_request
 def teardown_request(exception):
-    err_logger.error(exception, exc_info=True)
+    if exception:
+        err_logger.error(exception, exc_info=True)
     if hasattr(g, "redis"):
         g.redis.connection_pool.disconnect()
     if hasattr(g, "mysql"):

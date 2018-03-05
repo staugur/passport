@@ -95,6 +95,7 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
                 type: 1,
                 skin: 'layui-layer-molv', //样式类名
                 shade: 0,
+                shadeClose: true,
                 area: ['510px', '340px'],
                 title: "查看 "+data.name+" 应用详情",
                 content: '<table class="layui-table"><colgroup><col width="150"><col width="200"><col></colgroup><tbody><tr><td>应用名</td><td>'+data.name+'</td></tr><tr><td>描述</td><td>'+data.description+'</td></tr><tr><td>app_id</td><td>'+data.app_id+'</td></tr><tr><td>app_secret</td><td>'+data.app_secret+'</td></tr><tr><td>回调地址</td><td>'+data.app_redirect_url+'</td></tr><tr><td>创建时间</td><td>'+util.toDateString(data.ctime*1000)+'</td></tr><tr><td>修改时间</td><td>'+mtime+'</td></tr></tbody></table>'
