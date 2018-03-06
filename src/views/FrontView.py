@@ -11,7 +11,7 @@
 
 from config import VAPTCHA
 from utils.web import login_required, anonymous_required, adminlogin_required, dfr, set_sessionId, oauth2_name2type, get_redirect_url, verify_sessionId, analysis_sessionId
-from utils.tool import logger, email_check, phone_check
+from utils.tool import logger, email_check, phone_check, md5
 from libs.auth import Authentication
 from vaptchasdk import vaptcha as VaptchaApi
 from flask import Blueprint, request, render_template, g, redirect, url_for, flash, make_response, jsonify, abort
@@ -86,70 +86,100 @@ def signUp():
 
 @FrontBlueprint.route('/signIn', methods=['GET', 'POST'])
 def signIn():
-    """ 单点登录、注销
+    """ 单点登录
     登录流程
-        1. Client跳转到Server的/sso/页面，携带参数sso(所需sso信息的加密串)。
-        2. 校验参数通过后，Server跳转到/signIn/页面，设置ReturnUrl(从数据库读取)，且不携带参数；校验未通过不携带参数直接返回错误信息。
-        3. 用户在Server未登录时，输入用户名密码或第三方登录成功后，创建全局会话(设置Server登录态)、授权令牌(ticket)，根据ticket生成sid(登录态id)写入redis，并携带ticket返回ReturnUrl；
-           已登录时，创建ticket并携带跳回ReturnUrl。
-        4. Client用ticket到Server校验(通过api方式)，通过redis校验cookie是否存在
+        1. Client跳转到Server的登录页，携带参数sso(所需sso信息的加密串)，验证并获取应用数据。
+        2. 未登录时，GET请求显示登录表单，输入用户名密码或第三方POST登录成功后(一处是signIn post；一处是OAuthDirectLogin post；一处是OAuthBindAccount post)，创建全局会话(设置Server登录态)、授权令牌ticket，根据ticket生成sid(全局会话id)写入redis，ReturnUrl组合ticket跳转；
+           已登录后，检查是否有sid，没有则创建ticket，ReturnUrl组合ticket跳转。
+        3. 校验参数通过后，设置ReturnUrl(从数据库读取)为Client登录地址；校验未通过时ReturnUrl为系统redirect_uri。
+        4. Client用ticket到Server校验(通过api方式)，通过redis校验cookie是否存在；存在则创建局部会话(设置Client登录态)，否则登录失败。
         -- sso加密规则：
-            aes_cbc("app_name:app_id.app_secret")
+            aes_cbc(jwt_encrypt("app_name:app_id.app_secret"))
         -- sso校验流程：
             根据sso参数，验证是否有效，解析参数获取name、id、secret等，并用name获取到对应信息一一校验
         -- 备注：
             第3步，需要signIn、OAuthGuide方面路由设置
             第4步，需要在插件内增加api路由
-    注销流程
     """
+    # 加密的sso参数值
+    sso = request.args.get("sso")
+    # 判断此次请求是否是正确的sso请求
+    sso_isOk = False
+    # 设置sso请求跳转返回的地址
+    sso_returnUrl = None
+    # 验证参数并赋值
+    if verify_sessionId(sso):
+        # sso jwt payload
+        sso = analysis_sessionId(sso)
+        if sso and isinstance(sso, dict) and "app_name" in sso and "app_id" in sso and "app_secret" in sso:
+            # 通过app_name获取注册信息并校验参数
+            app_data = g.api.userapp.getUserApp(sso["app_name"])
+            if app_data:
+                if sso["app_id"] == app_data["app_id"] and sso["app_secret"] == app_data["app_secret"]:
+                    sso_isOk = True
+                    sso_returnUrl = app_data["app_redirect_url"] + "?Action=ssoLogin"
+    logger.debug("sso_isOk: {}, ReturnUrl: {}".format(sso_isOk, sso_returnUrl))
     if g.signin:
-        return g.redirect_uri
-    if request.method == 'POST':
-        sceneid = request.args.get("sceneid") or "01"
-        token = request.form.get("token")
-        challenge = request.form.get("challenge")
-        if token and challenge and vaptcha.validate(challenge, token, sceneid):
-            account = request.form.get("account")
-            password = request.form.get("password")
-            login_ip = request.headers.get('X-Real-Ip', request.remote_addr)
-            auth = Authentication(g.mysql, g.redis)
-            res = auth.signIn(account=account, password=password)
-            res = dfr(res)
-            if res["success"]:
-                # 记录登录日志
-                auth.brush_loginlog(res, login_ip=login_ip, user_agent=request.headers.get("User-Agent"))
-                # 登录成功，设置cookie
-                sessionId = set_sessionId(uid=res["uid"])
-                response = make_response(redirect(g.redirect_uri))
-                # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
-                secure = False if request.url_root.split("://")[0] == "http" else True
-                response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
-                return response
+        # 已登录后流程
+        if sso_isOk and g.sid:
+            # 创建ticket，返回为真即是ticket
+            tickets = g.api.userapp.ssoCreateTicket(sid=g.sid)
+            if tickets:
+                ticket, sid = tickets
+                returnUrl = "{}&ticket={}".format(sso_returnUrl, ticket)
+                return redirect(returnUrl)
             else:
-                flash(res["msg"])
-        else:
-            flash(u"人机验证失败")
-        return redirect(url_for('.signIn'))
+                flash(dfr(dict(msg="Failed to create authorization ticket")))
+        return g.redirect_uri
     else:
-        sso = request.args.get("sso")
-        sso_isOk = False
-        sso_returnUrl = None
-        if verify_sessionId(sso):
-            # sso jwt payload
-            sso = analysis_sessionId(sso)
-            if sso and isinstance(sso, dict) and "app_name" in sso and "app_id" in sso and "app_secret" in sso:
-                # 通过app_name获取注册信息并校验参数
-                app_data = g.api.userapp.getUserApp(sso["app_name"])
-                if app_data:
-                    if sso["app_id"] == app_data["app_id"] and sso["app_secret"] == app_data["app_secret"]:
-                        sso_isOk = True
-                        sso_returnUrl = app_data["app_redirect_url"] + "?Action=login"
-                        #return redirect(url_for("front.signIn", ReturnUrl=sso_returnUrl))
-        logger.debug("sso_isOk: {}, ReturnUrl: {}".format(sso_isOk, sso_returnUrl))
-        if sso_isOk:
-            return render_template("auth/signIn.html", ReturnUrl=sso_returnUrl)
+        # 未登录时流程
+        if request.method == 'POST':
+            # POST请求不仅要设置登录态、还要设置全局会话
+            sceneid = request.args.get("sceneid") or "01"
+            token = request.form.get("token")
+            challenge = request.form.get("challenge")
+            if token and challenge and vaptcha.validate(challenge, token, sceneid):
+                account = request.form.get("account")
+                password = request.form.get("password")
+                auth = Authentication(g.mysql, g.redis)
+                res = auth.signIn(account=account, password=password)
+                res = dfr(res)
+                if res["success"]:
+                    # 记录登录日志
+                    auth.brush_loginlog(res, login_ip=g.ip, user_agent=request.headers.get("User-Agent"))
+                    sessionId = set_sessionId(uid=res["uid"])
+                    returnUrl = g.redirect_uri
+                    if sso_isOk:
+                        # 创建ticket，返回为真即是ticket
+                        tickets = g.api.userapp.ssoCreateTicket()
+                        logger.debug("signIn post tickets: {}".format(tickets))
+                        if tickets and isinstance(tickets, (list, tuple)) and len(tickets) == 2:
+                            ticket, sid = tickets
+                            sessionId = set_sessionId(uid=res["uid"], sid=sid)
+                            if g.api.userapp.ssoCreateSid(ticket=ticket, sessionId=sessionId, ReturnUrl=sso_returnUrl):
+                                returnUrl = "{}&ticket={}".format(sso_returnUrl, ticket)
+                            else:
+                                flash(dfr(dict(msg="Failed to create authorization ticket")))
+                        else:
+                            flash(dfr(dict(msg="Failed to create authorization ticket")))
+                    logger.debug("signIn post returnUrl: {}".format(returnUrl))
+                    # 登录成功，设置cookie
+                    response = make_response(redirect(returnUrl))
+                    # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
+                    secure = False if request.url_root.split("://")[0] == "http" else True
+                    response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
+                    return response
+                else:
+                    flash(res["msg"])
+            else:
+                flash(u"人机验证失败")
+            return redirect(url_for('.signIn'))
         else:
-            return render_template("auth/signIn.html", ReturnUrl=g.redirect_uri)
+            # GET请求仅用于设置ReturnUrl重定向到的地址
+            if sso_isOk:
+                return render_template("auth/signIn.html", ReturnUrl=sso_returnUrl)
+            else:
+                return render_template("auth/signIn.html", ReturnUrl=g.redirect_uri)
 
 @FrontBlueprint.route("/OAuthGuide")
 @anonymous_required

@@ -11,7 +11,7 @@
 
 import json
 from libs.base import ServiceBase
-from utils.tool import logger, md5, gen_token, Universal_pat, url_pat, get_current_timestamp
+from utils.tool import logger, md5, gen_token, gen_requestId, Universal_pat, url_pat, get_current_timestamp
 from torndb import IntegrityError
 from config import SYSTEM
 
@@ -134,6 +134,64 @@ class UserAppManager(ServiceBase):
             res.update(msg="There are invalid parameters", code=4)
         return res
 
-    def sso(self):
-        pass
+    def ssoCreateTicket(self, sid=None):
+        """创建授权令牌写入redis
+        说明：
+            授权令牌：临时鉴别使用，有效期3min，写入令牌集合中。
+        参数：
+            sid str: 当None时表明未登录，此时ticket是首次产生；当真时，说明已登录，此时ticket非首次产生，其值需要设置为有效的sid
+        """
+        ticket = gen_requestId()
+        tkey = "passport:sso:ticket:{}".format(ticket)
+        pipe = self.redis.pipeline()
+        pipe.set(tkey, sid or md5(ticket))
+        pipe.expire(tkey, 180)
+        try:
+            pipe.execute()
+        except Exception,e:
+            logger.error(e, exc_info=True)
+        else:
+            return (ticket, sid or md5(ticket))
 
+    def ssoCreateSid(self, ticket, sessionId, ReturnUrl):
+        """创建sid并写入redis
+        说明：
+            sid：可以理解为user-agent，sso server cookie(jwt payload)中携带
+        参数：
+            ticket str: 授权令牌
+            sessionId str: cookie中sessionId值
+            ReturnUrl str: 设置sso请求跳转返回的地址
+        """
+        if ticket and isinstance(ticket, basestring):
+            tkey = "passport:sso:ticket:{}".format(ticket)
+            sid = self.redis.get(tkey)
+            if sid:
+                skey = "passport:sso:sid:{}".format(sid)
+                pipe = self.redis.pipeline()
+                pipe.hmset(skey, dict(sessionId=sessionId, ReturnUrl=ReturnUrl))
+                #skey过期，即cookie过期，设置为jwt过期秒数，以后看情况设置为7d
+                pipe.expire(skey, 43200)
+                try:
+                    pipe.execute()
+                except Exception,e:
+                    logger.error(e, exc_info=True)
+                else:
+                    return True
+        return False
+
+    def ssoGetWithTicket(self, ticket):
+        """根据ticket查询对应sid数据"""
+        if ticket and isinstance(ticket, basestring):
+            tkey = "passport:sso:ticket:{}".format(ticket)
+            sid = self.redis.get(tkey)
+            if sid:
+                skey = "passport:sso:sid:{}".format(sid)
+                return self.redis.hgetall(skey)
+        return False
+
+    def ssoGetWithSid(self, sid):
+        """根据sid查询数据"""
+        if sid and isinstance(sid, basestring):
+            skey = "passport:sso:sid:{}".format(sid)
+            return self.redis.hgetall(skey)
+        return False

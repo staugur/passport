@@ -82,8 +82,9 @@ def before_request():
     g.redis = create_redis_engine()
     g.mysql = create_mysql_engine()
     g.signin = verify_sessionId(request.cookies.get("sessionId"))
-    g.uid = analysis_sessionId(request.cookies.get("sessionId"))["uid"] if g.signin else None
+    g.sid, g.uid = analysis_sessionId(request.cookies.get("sessionId"), "tuple") if g.signin else (None, None)
     g.api = api
+    g.ip = request.headers.get('X-Real-Ip', request.remote_addr)
     # 仅是重定向页面快捷定义
     g.redirect_uri = get_redirect_url()
     # 上下文扩展点之请求后(返回前)
@@ -107,7 +108,7 @@ def after_request(response):
     data = {
         "status_code": response.status_code,
         "method": request.method,
-        "ip": request.headers.get('X-Real-Ip', request.remote_addr),
+        "ip": g.ip,
         "url": request.url,
         "referer": request.headers.get('Referer'),
         "agent": request.headers.get("User-Agent"),

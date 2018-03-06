@@ -70,8 +70,9 @@ def verify_sessionId(cookie):
     return False
 
 
-def analysis_sessionId(cookie):
+def analysis_sessionId(cookie, ReturnType="dict"):
     """分析获取cookie中payload数据"""
+    data = dict()
     if cookie:
         try:
             sessionId = cbc.decrypt(cookie)
@@ -83,9 +84,13 @@ def analysis_sessionId(cookie):
             except JWTException, e:
                 logger.debug(e)
             else:
-                # 验证token无误即设置登录态，所以确保解密、验证两处key切不可丢失，否则随意伪造！
-                return jwt.analysisJWT(sessionId)["payload"]
-    return dict()
+                if success:
+                    # 验证token无误即设置登录态，所以确保解密、验证两处key切不可丢失，否则随意伪造！
+                    data = jwt.analysisJWT(sessionId)["payload"]
+    if ReturnType == "dict":
+        return data
+    else:
+        return data.get("sid"), data.get("uid")
 
 
 def login_required(f):
@@ -402,6 +407,7 @@ def dfr(res, default='en-US'):
             "Image address is not valid": u"图片地址不合法",
             "System rate-limit policy is blocked": u"系统限流策略阻止",
             "Please bind the email or phone first": u"请先绑定邮箱或手机",
+            "Failed to create authorization ticket": u"创建授权令牌失败",
         },
         # 繁体中文-香港
         "zh-HK": {
@@ -435,6 +441,7 @@ def dfr(res, default='en-US'):
             "Image address is not valid": u"圖片地址不合法",
             "System rate-limit policy is blocked": u"系統限流策略阻止",
             "Please bind the email or phone first": u"請先綁定郵箱或手機",
+            "Failed to create authorization ticket": u"創建授權令牌失敗",
         }
     }
     if isinstance(res, dict) and not "en" in language:
