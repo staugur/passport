@@ -87,6 +87,7 @@ def before_request():
     g.ip = request.headers.get('X-Real-Ip', request.remote_addr)
     # 仅是重定向页面快捷定义
     g.redirect_uri = get_redirect_url()
+    logger.debug("g.redirect_uri: {}, sid: {}, uid: {}".format(g.redirect_uri, g.sid, g.uid))
     # 上下文扩展点之请求后(返回前)
     before_request_hook = plugin.get_all_cep.get("before_request_hook")
     for cep_func in before_request_hook():
@@ -134,7 +135,8 @@ def teardown_request(exception):
 
 @app.errorhandler(500)
 def server_error(error=None):
-    err_logger.error("500: {}".format(error), exc_info=True)
+    if error:
+        err_logger.error("500: {}".format(error), exc_info=True)
     message = {
         "msg": "Server Error",
         "code": 500
@@ -143,7 +145,8 @@ def server_error(error=None):
 
 @app.errorhandler(404)
 def not_found(error=None):
-    err_logger.debug("404: {}".format(error))
+    if error:
+        err_logger.debug("404: {}".format(error))
     message = {
         'code': 404,
         'msg': 'Not Found: ' + request.url,

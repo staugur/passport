@@ -153,22 +153,22 @@ class UserAppManager(ServiceBase):
         else:
             return (ticket, sid or md5(ticket))
 
-    def ssoCreateSid(self, ticket, sessionId, ReturnUrl):
+    def ssoCreateSid(self, ticket, uid, app_name):
         """创建sid并写入redis
         说明：
             sid：可以理解为user-agent，sso server cookie(jwt payload)中携带
         参数：
             ticket str: 授权令牌
-            sessionId str: cookie中sessionId值
-            ReturnUrl str: 设置sso请求跳转返回的地址
+            uid str: 用户唯一id
+            app_name str: sso应用名
         """
-        if ticket and isinstance(ticket, basestring):
+        if ticket and isinstance(ticket, basestring) and uid and app_name:
             tkey = "passport:sso:ticket:{}".format(ticket)
             sid = self.redis.get(tkey)
             if sid:
                 skey = "passport:sso:sid:{}".format(sid)
                 pipe = self.redis.pipeline()
-                pipe.hmset(skey, dict(sessionId=sessionId, ReturnUrl=ReturnUrl))
+                pipe.hmset(skey, dict(uid=uid, sid=sid, app_name=app_name))
                 #skey过期，即cookie过期，设置为jwt过期秒数，以后看情况设置为7d
                 pipe.expire(skey, 43200)
                 try:
@@ -186,7 +186,14 @@ class UserAppManager(ServiceBase):
             sid = self.redis.get(tkey)
             if sid:
                 skey = "passport:sso:sid:{}".format(sid)
-                return self.redis.hgetall(skey)
+                try:
+                    data = self.redis.hgetall(skey)
+                except Exception,e:
+                    logger.error(e, exc_info=True)
+                else:
+                    if data and isinstance(data, dict):
+                        self.redis.delete(tkey)
+                        return data
         return False
 
     def ssoGetWithSid(self, sid):
@@ -194,4 +201,15 @@ class UserAppManager(ServiceBase):
         if sid and isinstance(sid, basestring):
             skey = "passport:sso:sid:{}".format(sid)
             return self.redis.hgetall(skey)
+        return False
+
+    def ssoRegisterClient(self, sid, app_name):
+        """ticket验证通过，向相应sid中注册app_name系统地址"""
+        if sid and app_name:
+            try:
+                self.redis.sadd("passport:sso:sid:{}:clients".format(sid), app_name)
+            except Exception,e:
+                logger.error(e, exc_info=True)
+            else:
+                return True
         return False

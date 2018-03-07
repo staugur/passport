@@ -27,9 +27,11 @@ def index():
     #首页
     return render_template("index.html")
 
-@FrontBlueprint.route("/test")
+@FrontBlueprint.route("/test", methods=['GET','POST'])
 def test():
-    return "test"
+    import time
+    time.sleep(2)
+    return jsonify(msg="test")
 
 @FrontBlueprint.route('/user/')
 @login_required
@@ -107,18 +109,24 @@ def signIn():
     sso_isOk = False
     # 设置sso请求跳转返回的地址
     sso_returnUrl = None
+    # 方便写入redis时识别注册的应用
+    sso_appName = None
     # 验证参数并赋值
     if verify_sessionId(sso):
+        logger.debug("verify_sessionId sso pass")
         # sso jwt payload
         sso = analysis_sessionId(sso)
+        logger.debug(sso)
         if sso and isinstance(sso, dict) and "app_name" in sso and "app_id" in sso and "app_secret" in sso:
             # 通过app_name获取注册信息并校验参数
             app_data = g.api.userapp.getUserApp(sso["app_name"])
+            logger.debug(app_data)
             if app_data:
                 if sso["app_id"] == app_data["app_id"] and sso["app_secret"] == app_data["app_secret"]:
                     sso_isOk = True
-                    sso_returnUrl = app_data["app_redirect_url"] + "?Action=ssoLogin"
-    logger.debug("sso_isOk: {}, ReturnUrl: {}".format(sso_isOk, sso_returnUrl))
+                    sso_appName = sso["app_name"]
+                    sso_returnUrl = "{}/sso/authorized?Action=ssoLogin".format(app_data["app_redirect_url"].strip("/"))
+    logger.debug("method: {}, sso_isOk: {}, ReturnUrl: {}".format(request.method, sso_isOk, sso_returnUrl))
     if g.signin:
         # 已登录后流程
         if sso_isOk and g.sid:
@@ -155,8 +163,10 @@ def signIn():
                         logger.debug("signIn post tickets: {}".format(tickets))
                         if tickets and isinstance(tickets, (list, tuple)) and len(tickets) == 2:
                             ticket, sid = tickets
+                            logger.debug(ticket)
+                            logger.debug(sid)
                             sessionId = set_sessionId(uid=res["uid"], sid=sid)
-                            if g.api.userapp.ssoCreateSid(ticket=ticket, sessionId=sessionId, ReturnUrl=sso_returnUrl):
+                            if g.api.userapp.ssoCreateSid(ticket=ticket, uid=res["uid"], app_name=sso_appName):
                                 returnUrl = "{}&ticket={}".format(sso_returnUrl, ticket)
                             else:
                                 flash(dfr(dict(msg="Failed to create authorization ticket")))

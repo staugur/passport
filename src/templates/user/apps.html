@@ -28,7 +28,7 @@
                             </div>
                         </div>
                         <div class="layui-form-item">
-                            <label class="layui-form-label">回调地址</label>
+                            <label class="layui-form-label">回调域名</label>
                             <div class="layui-input-block">
                                 <input type="text" name="app_redirect_url" autocomplete="off" placeholder="应用回调根地址，请书写完全合格域名" class="layui-input" value="" lay-verify="required|url">
                             </div>
@@ -76,7 +76,7 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
                 {field: 'id', title: 'ID', sort: true, width: 60}
                 ,{field: 'name', title: '应用名', width: 120}
                 ,{field: 'description', title: '应用描述', width: 120}
-                ,{field: 'app_redirect_url', title: '回调地址'}
+                ,{field: 'app_redirect_url', title: '回调域名'}
                 ,{field: 'ctime', title: '创建时间', width: 160, templet: function(d) {
                     return util.toDateString(d.ctime*1000);
                 }}
@@ -98,7 +98,7 @@ layui.use(["table", "element", "form", "layer", "util"], function(){
                 shadeClose: true,
                 area: ['510px', '340px'],
                 title: "查看 "+data.name+" 应用详情",
-                content: '<table class="layui-table"><colgroup><col width="150"><col width="200"><col></colgroup><tbody><tr><td>应用名</td><td>'+data.name+'</td></tr><tr><td>描述</td><td>'+data.description+'</td></tr><tr><td>app_id</td><td>'+data.app_id+'</td></tr><tr><td>app_secret</td><td>'+data.app_secret+'</td></tr><tr><td>回调地址</td><td>'+data.app_redirect_url+'</td></tr><tr><td>创建时间</td><td>'+util.toDateString(data.ctime*1000)+'</td></tr><tr><td>修改时间</td><td>'+mtime+'</td></tr></tbody></table>'
+                content: '<table class="layui-table"><colgroup><col width="150"><col width="200"><col></colgroup><tbody><tr><td>应用名</td><td>'+data.name+'</td></tr><tr><td>描述</td><td>'+data.description+'</td></tr><tr><td>app_id</td><td>'+data.app_id+'</td></tr><tr><td>app_secret</td><td>'+data.app_secret+'</td></tr><tr><td>回调域名</td><td>'+data.app_redirect_url+'</td></tr><tr><td>创建时间</td><td>'+util.toDateString(data.ctime*1000)+'</td></tr><tr><td>修改时间</td><td>'+mtime+'</td></tr></tbody></table>'
             });
         } else if(layEvent === 'del'){ //删除
             layer.confirm('真的删除 '+ data.name+' 应用么？', {icon: 3, title:'温馨提示'}, function(index){

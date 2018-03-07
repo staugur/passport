@@ -27,8 +27,14 @@ sbs = ServiceBase()
 
 def get_referrer_url():
     """获取上一页地址"""
+    if request.referrer:
+        logger.debug(request.referrer.startswith(request.host_url))
     if request.referrer and request.referrer.startswith(request.host_url) and request.endpoint and not "api." in request.endpoint:
-        return request.referrer
+        url = request.referrer
+    else:
+        url = None
+    logger.debug("get_referrer_url: {}".format(url))
+    return url
 
 
 def get_redirect_url(endpoint="front.index"):
@@ -38,17 +44,20 @@ def get_redirect_url(endpoint="front.index"):
     以上两个不存在时，如果定义了非默认endpoint，则首先返回；否则返回referrer地址，不存在时返回endpoint默认主页
     """
     url = request.args.get('NextUrl') or request.args.get('ReturnUrl')
+    logger.debug(url)
     if not url:
         if endpoint != "front.index":
             url = url_for(endpoint)
         else:
             url = get_referrer_url() or url_for(endpoint)
+    logger.debug(url)
     return url
 
 
-def set_sessionId(uid, seconds=43200):
+def set_sessionId(uid, seconds=43200, sid=None):
     """设置cookie"""
-    sessionId = jwt.createJWT(payload=dict(uid=uid), expiredSeconds=seconds)
+    payload = dict(uid=uid, sid=sid) if sid else dict(uid=uid)
+    sessionId = jwt.createJWT(payload=payload, expiredSeconds=seconds)
     return cbc.encrypt(sessionId)
 
 

@@ -15,8 +15,9 @@ from __future__ import absolute_import
 from libs.base import PluginBase
 #: Import the other modules here, and if it's your own module, use the relative Import. eg: from .lib import Lib
 #: 在这里导入其他模块, 如果有自定义包目录, 使用相对导入, 如: from .lib import Lib
-from flask import Blueprint, request, jsonify, g, abort, redirect, url_for
-from utils.web import get_redirect_url, verify_sessionId, analysis_sessionId
+from utils.tool import logger
+from utils.web import verify_sessionId
+from flask import Blueprint, request, jsonify, g, redirect, url_for
 
 #：Your plug-in name must be consistent with the plug-in directory name.
 #：你的插件名称，必须和插件目录名称等保持一致.
@@ -44,43 +45,45 @@ __license_file__= "LICENSE"
 __readme_file__ = "README"
 #: Plugin state, enabled or disabled, default: enabled
 #: 插件状态, enabled、disabled, 默认enabled
-__state__       = "disabled"
+__state__       = "enabled"
 
 sso_blueprint = Blueprint("sso", "sso")
 @sso_blueprint.route("/")
 def index():
-    """ 单点登录、注销
-    登录流程
-        1. Client跳转到Server的/sso/页面，携带参数sso(所需sso信息的加密串)。
-        2. 校验参数通过后，Server跳转到/signIn/页面，设置ReturnUrl(从数据库读取)，且不携带参数；校验未通过不携带参数直接返回错误信息。
-        3. 用户在Server未登录时，输入用户名密码或第三方登录成功后，创建全局会话(设置Server登录态)、授权令牌(ticket)，根据ticket生成sid(登录态id)写入redis，并携带ticket返回ReturnUrl；
-           已登录时，创建ticket并携带跳回ReturnUrl。
-        4. Client用ticket到Server校验(通过api方式)，通过redis校验cookie是否存在
-        -- sso加密规则：
-            aes_cbc("app_name:app_id.app_secret")
-        -- sso校验流程：
-            根据sso参数，验证是否有效，解析参数获取name、id、secret等，并用name获取到对应信息一一校验
-        -- 备注：
-            第3步，需要signIn、OAuthGuide方面路由设置
-            第4步，需要在插件内增加api路由
-    注销流程
-    """
+    """sso入口，仅判断是否为sso请求，最终重定向到登录页"""
     sso = request.args.get("sso")
     if verify_sessionId(sso):
-        # sso jwt payload
-        sso = analysis_sessionId(sso)
-        if sso and isinstance(sso, dict) and "app_name" in sso and "app_id" in sso and "app_secret" in sso:
-            # 通过app_name获取注册信息并校验参数
-            app_data = g.api.userapp.getUserApp(sso["app_name"])
-            if app_data:
-                if sso["app_id"] == app_data["app_id"] and sso["app_secret"] == app_data["app_secret"]:
-                    ReturnUrl = app_data["app_redirect_url"] + "?Action=login"
-                    return redirect(url_for("front.signIn", ReturnUrl=ReturnUrl))
-    return abort(404)
+        return redirect(url_for("front.signIn", sso=sso))
+    return redirect(url_for("front.signIn"))
 
-@sso_blueprint.route("/validate")
+@sso_blueprint.route("/validate", methods=["POST"])
 def validate():
-    pass
+    res = dict(msg=None, success=False)
+    Action = request.args.get("Action")
+    if request.method == "POST":
+        if Action == "validate_ticket":
+            ticket = request.form.get("ticket")
+            get_userinfo = True if request.form.get("get_userinfo") in (1, True, "1", "True", "true", "on") else False
+            get_userbind = True if request.form.get("get_userbind") in (1, True, "1", "True", "true", "on") else False
+            if ticket:
+                resp = g.api.userapp.ssoGetWithTicket(ticket)
+                logger.debug("sso validate ticket resp: {}".format(resp))
+                if resp and isinstance(resp, dict):
+                    # 此时表明ticket验证通过，应当返回如下信息：
+                    # dict(uid=必需, sid=必需，app_name=必需)
+                    res.update(success=True, uid=resp["uid"])
+                    # 有效，此sid已登录客户端中注册app_name
+                    res.update(register=g.api.userapp.ssoRegisterClient(sid=resp["sid"], app_name=resp["app_name"]))
+                    if get_userinfo is True:
+                        userinfo = g.api.userprofile.getUserProfile(uid=resp["uid"], getBind=get_userbind)
+                        res.update(userinfo=userinfo)
+                else:
+                    res.update(msg="Invaild ticket or expired")
+            else:
+                res.update(msg="Invaild ticket")
+        else:
+            res.update(msg="Invaild Action")
+    return jsonify(res)
 
 #: 返回插件主类
 def getPluginClass():
