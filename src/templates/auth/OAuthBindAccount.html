@@ -1,9 +1,9 @@
 {% extends "auth/base.html" %}
 
-{% block title %}第三方登录绑定账号{% endblock %}
+{% block title %}第三方账号登录绑定{% endblock %}
 
 {% block container %}
-    <form action="{{ url_for('front.OAuthBindAccount') }}" method="post" class="form" onsubmit="return checkSubmit();">
+    <form action="{{ url_for('front.OAuthBindAccount', sso=request.args.sso) }}" method="post" class="form" onsubmit="return checkSubmit();">
         <div class="form-head">
             <h2>{{ self.title() }}</h2>
             <!--<p class="form-notice"></p>-->
@@ -23,7 +23,7 @@
             <div class="ui-input">
                 <input type="password" placeholder="登录密码" name="password" id="password">
             </div>
-            <input type="hidden" name="openid" value="{{ request.args.get('openid') }}">
+            <input type="hidden" name="openid" value="{{ request.args.openid }}">
             {%- include "auth/vaptcha_form.html" %}
             <input type="submit" class="ui-button ui-button--primary" disabled="disabled" id="signInButton" value="绑定并登录">
         </div>

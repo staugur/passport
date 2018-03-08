@@ -17,7 +17,7 @@ from .aes_cbc import CBC
 from libs.base import ServiceBase
 from urllib import urlencode
 from functools import wraps
-from flask import g, request, redirect, url_for, make_response, abort, jsonify
+from flask import g, request, redirect, url_for, make_response, abort, jsonify, flash
 from werkzeug import url_decode
 
 jwt = JWTUtil()
@@ -100,6 +100,52 @@ def analysis_sessionId(cookie, ReturnType="dict"):
         return data
     else:
         return data.get("sid"), data.get("uid")
+
+
+def checkGet_ssoRequest(sso):
+    """检查是否是正确的sso请求并返回相应结果"""
+    # 判断此次请求是否是正确的sso请求
+    sso_isOk = False
+    # 设置sso请求跳转返回的地址
+    sso_returnUrl = None
+    # 方便写入redis时识别注册的应用
+    sso_appName = None
+    # 验证参数并赋值
+    if verify_sessionId(sso):
+        logger.debug("verify_sessionId sso pass")
+        # sso jwt payload
+        sso = analysis_sessionId(sso)
+        logger.debug(sso)
+        if sso and isinstance(sso, dict) and "app_name" in sso and "app_id" in sso and "app_secret" in sso:
+            # 通过app_name获取注册信息并校验参数
+            app_data = g.api.userapp.getUserApp(sso["app_name"])
+            logger.debug(app_data)
+            if app_data:
+                if sso["app_id"] == app_data["app_id"] and sso["app_secret"] == app_data["app_secret"]:
+                    sso_isOk = True
+                    sso_appName = sso["app_name"]
+                    sso_returnUrl = "{}/sso/authorized?Action=ssoLogin".format(app_data["app_redirect_url"].strip("/"))
+    return sso_isOk, sso_returnUrl, sso_appName
+
+
+def checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, uid, defaultReturnUrl=None):
+    sessionId = set_sessionId(uid=uid)
+    returnUrl = defaultReturnUrl or g.redirect_uri
+    if sso_isOk:
+        # 创建ticket，返回为真即是ticket
+        tickets = g.api.userapp.ssoCreateTicket()
+        logger.debug("checkSet_ssoTicketSid tickets: {}".format(tickets))
+        if tickets and isinstance(tickets, (list, tuple)) and len(tickets) == 2:
+            ticket, sid = tickets
+            logger.debug("checkSet_ssoTicketSid set sessionId for sid: {}, uid: {}".format(sid, uid))
+            sessionId = set_sessionId(uid=uid, sid=sid)
+            if g.api.userapp.ssoCreateSid(ticket=ticket, uid=uid, source_app_name=sso_appName):
+                returnUrl = "{}&ticket={}".format(sso_returnUrl, ticket)
+            else:
+                flash(dfr(dict(msg="Failed to create authorization ticket")))
+        else:
+            flash(dfr(dict(msg="Failed to create authorization ticket")))
+    return (sessionId, returnUrl)
 
 
 def login_required(f):
@@ -226,7 +272,6 @@ class OAuth2(object):
             get_openid_method: 开放平台的获取用户唯一标识请求方法，默认get，仅支持get、post
             content_type: 保留
             verify_state: 是否验证state值
-            enable_autojump: 是否启用自动跳转
         """
         self._name = name
         self._consumer_key = client_id
@@ -244,7 +289,6 @@ class OAuth2(object):
         self._get_userinfo_method = kwargs.get("get_userinfo_method", "get").lower()
         self._content_type = kwargs.get("content_type", "application/json")
         self._verify_state = kwargs.get("verify_state", True)
-        self._enable_autojump = kwargs.get("enable_autojump", True)
         self._requests = requests.Session()
 
     @property
@@ -278,10 +322,11 @@ class OAuth2(object):
         '''登录的第一步：请求授权页面以获取`Authorization Code`
         :params: 其他请求参数
         '''
+        sso = request.args.get("sso") or None
         _request_params = self._make_params(
             response_type=self._response_type,
             client_id=self._consumer_key,
-            redirect_uri=self._redirect_url + "?ReturnUrl=" + g.redirect_uri if self._enable_autojump is True else self._redirect_url,
+            redirect_uri=self._redirect_url + "?sso=" + sso if sso else self._redirect_url,
             state=self.__make_state,
             scope=self._scope,
             **params
@@ -342,18 +387,29 @@ class OAuth2(object):
             data = resp.text
         return data
 
-    def goto_signIn(self, uid):
-        """OAuth转入登录流程，表示登录成功，需要设置cookie"""
-        sessionId = set_sessionId(uid=uid)
-        response = make_response(redirect(g.redirect_uri))
-        # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
-        secure = False if request.url_root.split("://")[0] == "http" else True
-        response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
+    def goto_signIn(self, uid, sso=None):
+        """OAuth转入登录流程，表示登录成功
+        -- 如果sso存在则解析sso并跳转到sso对应回调地址
+        -- 否则直接设置cookie登录态
+        """
+        if not uid:
+            raise
+        if sso:
+            sso_isOk, sso_returnUrl, sso_appName = checkGet_ssoRequest(sso)
+            logger.debug("OAuth2, method: {}, sso_isOk: {}, ReturnUrl: {}".format(request.method, sso_isOk, sso_returnUrl))
+            sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, uid)
+            # 登录成功，设置cookie
+            response = make_response(redirect(returnUrl))
+        else:
+            sessionId = set_sessionId(uid=uid)
+            response = make_response(redirect(g.redirect_uri))
+        # sso正确时sessionId含有sid，且returnUrl是appName的回调地址；当不正确时，仅为uid，returnUrl为上一页地址
+        response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=False if request.url_root.split("://")[0] == "http" else True)
         return response
 
-    def goto_signUp(self, openid):
+    def goto_signUp(self, openid, sso=None):
         """OAuth转入注册绑定流程"""
-        return redirect(url_for("front.OAuthGuide", openid=openid))
+        return redirect(url_for("front.OAuthGuide", openid=openid, sso=sso)) if sso else redirect(url_for("front.OAuthGuide", openid=openid))
 
     def _make_params(self, **kwargs):
         """传入编码成url参数"""

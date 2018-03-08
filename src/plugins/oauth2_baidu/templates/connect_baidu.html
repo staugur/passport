@@ -1,1 +1,1 @@
-<a href="{{ url_for('oauth2_baidu.login', ReturnUrl=ReturnUrl) }}" title="使用百度账号登录"><img src="/static/images/baidu.png" class="socialImg" /></a>&nbsp;
+<a href="{{ url_for('oauth2_baidu.login', sso=request.args.sso) }}" title="使用百度账号登录"><img src="/static/images/baidu.png" class="socialImg" /></a>&nbsp;

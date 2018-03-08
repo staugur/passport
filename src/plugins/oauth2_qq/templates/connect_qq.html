@@ -1,1 +1,1 @@
-<a href="{{ url_for('oauth2_qq.login', ReturnUrl=ReturnUrl) }}" title="使用QQ账号登录"><img src="/static/images/qq.png" class="socialImg" /></a>&nbsp;
+<a href="{{ url_for('oauth2_qq.login', sso=request.args.sso) }}" title="使用QQ账号登录"><img src="/static/images/qq.png" class="socialImg" /></a>&nbsp;

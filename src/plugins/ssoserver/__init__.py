@@ -63,24 +63,32 @@ def validate():
     if request.method == "POST":
         if Action == "validate_ticket":
             ticket = request.form.get("ticket")
+            app_name = request.form.get("app_name")
             get_userinfo = True if request.form.get("get_userinfo") in (1, True, "1", "True", "true", "on") else False
             get_userbind = True if request.form.get("get_userbind") in (1, True, "1", "True", "true", "on") else False
-            if ticket:
+            if ticket and app_name:
                 resp = g.api.userapp.ssoGetWithTicket(ticket)
                 logger.debug("sso validate ticket resp: {}".format(resp))
                 if resp and isinstance(resp, dict):
                     # 此时表明ticket验证通过，应当返回如下信息：
-                    # dict(uid=必需, sid=必需，app_name=必需)
-                    res.update(success=True, uid=resp["uid"])
-                    # 有效，此sid已登录客户端中注册app_name
-                    res.update(register=g.api.userapp.ssoRegisterClient(sid=resp["sid"], app_name=resp["app_name"]))
-                    if get_userinfo is True:
-                        userinfo = g.api.userprofile.getUserProfile(uid=resp["uid"], getBind=get_userbind)
-                        res.update(userinfo=userinfo)
+                    # dict(uid=所需, sid=所需，source=xx)
+                    if g.api.userapp.getUserApp(app_name):
+                        # app_name有效，验证全部通过
+                        res.update(success=True, uid=resp["uid"])
+                        # 有效，此sid已登录客户端中注册app_name
+                        res.update(register=dict(
+                            Client = g.api.userapp.ssoRegisterClient(sid=resp["sid"], app_name=app_name),
+                            UserSid = g.api.userapp.ssoRegisterUserSid(uid=resp["uid"], sid=resp["sid"])
+                        ))
+                        if get_userinfo is True:
+                            userinfo = g.api.userprofile.getUserProfile(uid=resp["uid"], getBind=get_userbind)
+                            res.update(userinfo=userinfo)
+                    else:
+                        res.update(msg="No such app_name")
                 else:
                     res.update(msg="Invaild ticket or expired")
             else:
-                res.update(msg="Invaild ticket")
+                res.update(msg="Empty ticket or app_name")
         else:
             res.update(msg="Invaild Action")
     return jsonify(res)

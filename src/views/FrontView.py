@@ -10,7 +10,7 @@
 """
 
 from config import VAPTCHA
-from utils.web import login_required, anonymous_required, adminlogin_required, dfr, set_sessionId, oauth2_name2type, get_redirect_url, verify_sessionId, analysis_sessionId
+from utils.web import login_required, anonymous_required, adminlogin_required, dfr, set_sessionId, oauth2_name2type, get_redirect_url, checkGet_ssoRequest, checkSet_ssoTicketSid
 from utils.tool import logger, email_check, phone_check, md5
 from libs.auth import Authentication
 from vaptchasdk import vaptcha as VaptchaApi
@@ -29,8 +29,6 @@ def index():
 
 @FrontBlueprint.route("/test", methods=['GET','POST'])
 def test():
-    import time
-    time.sleep(2)
     return jsonify(msg="test")
 
 @FrontBlueprint.route('/user/')
@@ -104,28 +102,8 @@ def signIn():
             第4步，需要在插件内增加api路由
     """
     # 加密的sso参数值
-    sso = request.args.get("sso")
-    # 判断此次请求是否是正确的sso请求
-    sso_isOk = False
-    # 设置sso请求跳转返回的地址
-    sso_returnUrl = None
-    # 方便写入redis时识别注册的应用
-    sso_appName = None
-    # 验证参数并赋值
-    if verify_sessionId(sso):
-        logger.debug("verify_sessionId sso pass")
-        # sso jwt payload
-        sso = analysis_sessionId(sso)
-        logger.debug(sso)
-        if sso and isinstance(sso, dict) and "app_name" in sso and "app_id" in sso and "app_secret" in sso:
-            # 通过app_name获取注册信息并校验参数
-            app_data = g.api.userapp.getUserApp(sso["app_name"])
-            logger.debug(app_data)
-            if app_data:
-                if sso["app_id"] == app_data["app_id"] and sso["app_secret"] == app_data["app_secret"]:
-                    sso_isOk = True
-                    sso_appName = sso["app_name"]
-                    sso_returnUrl = "{}/sso/authorized?Action=ssoLogin".format(app_data["app_redirect_url"].strip("/"))
+    sso = request.args.get("sso") or None
+    sso_isOk, sso_returnUrl, sso_appName = checkGet_ssoRequest(sso)
     logger.debug("method: {}, sso_isOk: {}, ReturnUrl: {}".format(request.method, sso_isOk, sso_returnUrl))
     if g.signin:
         # 已登录后流程
@@ -138,7 +116,7 @@ def signIn():
                 return redirect(returnUrl)
             else:
                 flash(dfr(dict(msg="Failed to create authorization ticket")))
-        return g.redirect_uri
+        return redirect(g.redirect_uri)
     else:
         # 未登录时流程
         if request.method == 'POST':
@@ -155,46 +133,25 @@ def signIn():
                 if res["success"]:
                     # 记录登录日志
                     auth.brush_loginlog(res, login_ip=g.ip, user_agent=request.headers.get("User-Agent"))
-                    sessionId = set_sessionId(uid=res["uid"])
-                    returnUrl = g.redirect_uri
-                    if sso_isOk:
-                        # 创建ticket，返回为真即是ticket
-                        tickets = g.api.userapp.ssoCreateTicket()
-                        logger.debug("signIn post tickets: {}".format(tickets))
-                        if tickets and isinstance(tickets, (list, tuple)) and len(tickets) == 2:
-                            ticket, sid = tickets
-                            logger.debug(ticket)
-                            logger.debug(sid)
-                            sessionId = set_sessionId(uid=res["uid"], sid=sid)
-                            if g.api.userapp.ssoCreateSid(ticket=ticket, uid=res["uid"], app_name=sso_appName):
-                                returnUrl = "{}&ticket={}".format(sso_returnUrl, ticket)
-                            else:
-                                flash(dfr(dict(msg="Failed to create authorization ticket")))
-                        else:
-                            flash(dfr(dict(msg="Failed to create authorization ticket")))
+                    sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, res["uid"], get_redirect_url("front.userset"))
                     logger.debug("signIn post returnUrl: {}".format(returnUrl))
                     # 登录成功，设置cookie
                     response = make_response(redirect(returnUrl))
-                    # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
-                    secure = False if request.url_root.split("://")[0] == "http" else True
-                    response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
+                    response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=False if request.url_root.split("://")[0] == "http" else True)
                     return response
                 else:
                     flash(res["msg"])
             else:
                 flash(u"人机验证失败")
-            return redirect(url_for('.signIn'))
+            return redirect(url_for('.signIn', sso=sso)) if sso_isOk else redirect(url_for('.signIn'))
         else:
             # GET请求仅用于设置ReturnUrl重定向到的地址
-            if sso_isOk:
-                return render_template("auth/signIn.html", ReturnUrl=sso_returnUrl)
-            else:
-                return render_template("auth/signIn.html", ReturnUrl=g.redirect_uri)
+            return render_template("auth/signIn.html")
 
 @FrontBlueprint.route("/OAuthGuide")
 @anonymous_required
 def OAuthGuide():
-    """OAuth2登录未注册时引导路由，选择绑定已有账号或直接登录(首选)"""
+    """OAuth2登录未注册时引导路由(来源于OAuth goto_signUp)，选择绑定已有账号或直接登录(首选)"""
     if request.args.get("openid"):
         return render_template("auth/OAuthGuide.html")
     else:
@@ -205,26 +162,27 @@ def OAuthGuide():
 def OAuthDirectLogin():
     """OAuth2直接登录(首选)"""
     if request.method == 'POST':
+        sso = request.args.get("sso") or None
+        logger.debug("OAuthDirectLogin, sso type: {}, content: {}".format(type(sso), sso))
         openid = request.form.get("openid")
         if openid:
             auth = Authentication(g.mysql, g.redis)
             # 直接注册新账号并设置登录态
-            ip = request.headers.get('X-Real-Ip', request.remote_addr)
-            res = auth.oauth2_signUp(openid, ip)
+            res = auth.oauth2_signUp(openid, g.ip)
             res = dfr(res)
             if res["success"]:
                 # 记录登录日志
-                auth.brush_loginlog(res, login_ip=ip, user_agent=request.headers.get("User-Agent"))
+                auth.brush_loginlog(res, login_ip=g.ip, user_agent=request.headers.get("User-Agent"))
+                sso_isOk, sso_returnUrl, sso_appName = checkGet_ssoRequest(sso)
+                sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, res["uid"], url_for("front.userset", _anchor="bind"))
+                logger.debug("OAuthDirectLogin post returnUrl: {}".format(returnUrl))
                 # 登录成功，设置cookie
-                sessionId = set_sessionId(uid=res["uid"])
-                response = make_response(redirect(get_redirect_url("front.userset")))
-                # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
-                secure = False if request.url_root.split("://")[0] == "http" else True
-                response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
+                response = make_response(redirect(returnUrl))
+                response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=False if request.url_root.split("://")[0] == "http" else True)
                 return response
             else:
                 flash(res["msg"])
-                return redirect(url_for("front.OAuthGuide", openid=openid))
+                return redirect(url_for("front.OAuthGuide", openid=openid, sso=sso))
         else:
             return redirect(g.redirect_uri)
 
@@ -233,6 +191,8 @@ def OAuthDirectLogin():
 def OAuthBindAccount():
     """OAuth2绑定已有账号登录"""
     if request.method == 'POST':
+        sso = request.args.get("sso") or None
+        logger.debug("OAuthBindAccount, sso type: {}, content: {}".format(type(sso), sso))
         openid = request.form.get("openid")
         sceneid = request.args.get("sceneid") or "03"
         token = request.form.get("token")
@@ -245,19 +205,19 @@ def OAuthBindAccount():
             res = dfr(res)
             if res["success"]:
                 # 记录登录日志
-                auth.brush_loginlog(res, login_ip=request.headers.get('X-Real-Ip', request.remote_addr), user_agent=request.headers.get("User-Agent"))
+                auth.brush_loginlog(res, login_ip=g.ip, user_agent=request.headers.get("User-Agent"))
+                sso_isOk, sso_returnUrl, sso_appName = checkGet_ssoRequest(sso)
+                sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, res["uid"], url_for("front.userset", _anchor="bind"))
+                logger.debug("OAuthBindAccount post returnUrl: {}".format(returnUrl))
                 # 登录成功，设置cookie
-                sessionId = set_sessionId(uid=res["uid"])
-                response = make_response(redirect(get_redirect_url("front.userset", _anchor="bind")))
-                # 设置cookie根据浏览器周期过期，当无https时去除`secure=True`
-                secure = False if request.url_root.split("://")[0] == "http" else True
-                response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=secure)
+                response = make_response(redirect(returnUrl))
+                response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=False if request.url_root.split("://")[0] == "http" else True)
                 return response
             else:
                 flash(res["msg"])
         else:
             flash(u"人机验证失败")
-        return redirect(url_for('.OAuthBindAccount', openid=openid))
+        return redirect(url_for('.OAuthBindAccount', openid=openid, sso=sso))
     else:
         openid = request.args.get("openid")
         if openid:
@@ -278,8 +238,7 @@ def unbind():
     identity_name = request.args.get("identity_name")
     if identity_name:
         auth = Authentication(g.mysql, g.redis)
-        identity_type = oauth2_name2type(identity_name)
-        res = auth.unbind(g.uid, identity_type)
+        res = auth.unbind(g.uid, oauth2_name2type(identity_name))
         res = dfr(res)
         if res["code"] == 0:
             flash(u"解绑成功")
