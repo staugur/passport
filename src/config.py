@@ -107,16 +107,16 @@ PLUGINS = {
         "REDIRECT_URI": getenv("passport_coding_redirecturi", "https://passport.saintic.com/oauth2/coding/authorized")
     },
     "gitee": {
-        "ENABLE": getenv("passport_gitee_enable", True),
+        "ENABLE": getenv("passport_gitee_enable", False),
         "APP_ID": getenv("passport_gitee_appid"),
         "APP_KEY": getenv("passport_gitee_appkey"),
         "REDIRECT_URI": getenv("passport_gitee_redirecturi", "https://passport.saintic.com/oauth2/gitee/authorized")
     },
     "baidu": {
-        "ENABLE": getenv("passport_baidu_enable", True),
+        "ENABLE": getenv("passport_baidu_enable", False),
         "APP_ID": getenv("passport_baidu_appid"),
         "APP_KEY": getenv("passport_baidu_appkey"),
-        "REDIRECT_URI": getenv("passport_gitee_redirecturi", "https://passport.saintic.com/oauth2/baidu/authorized")
+        "REDIRECT_URI": getenv("passport_baidu_redirecturi", "https://passport.saintic.com/oauth2/baidu/authorized")
     },
 }
 

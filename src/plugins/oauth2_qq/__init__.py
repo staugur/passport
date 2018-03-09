@@ -17,7 +17,7 @@ from libs.base import PluginBase
 #: 在这里导入其他模块, 如果有自定义包目录, 使用相对导入, 如: from .lib import Lib
 import json
 from flask import Blueprint, request, jsonify, g, flash, redirect, url_for
-from utils.web import OAuth2, dfr, oauth2_name2type, oauth2_genderconverter
+from utils.web import OAuth2, dfr, oauth2_name2type, checkGet_ssoRequest, checkSet_ssoTicketSid, oauth2_genderconverter
 from config import PLUGINS
 from libs.auth import Authentication
 
@@ -79,6 +79,8 @@ def authorized():
     """ 授权回调路由
     此路由地址：/oauth2/qq/authorized
     """
+    # 加密的sso参数值
+    sso = request.args.get("sso") or None
     # 换取access_token
     resp = qq.authorized_response()
     if "callback" in resp:
@@ -99,24 +101,25 @@ def authorized():
         goinfo = auth.oauth2_go(name=name, signin=g.signin, tokeninfo=resp, userinfo=dict(openid=openid, nick_name=user["nickname"], gender=oauth2_genderconverter(user["gender"]), avatar=user["figureurl_qq_2"] or user["figureurl_qq_1"], location="%s %s" %(user.get("province"), user.get("city"))), uid=g.uid)
         goinfo = dfr(goinfo)
         if goinfo["pageAction"] == "goto_signIn":
-            """ 未登录流程->执行登录 """
+            """ 未登录流程->已经绑定过账号，需要设置登录态 """
+            uid = goinfo["goto_signIn_data"]["guid"]
             # 记录登录日志
-            auth.brush_loginlog(dict(identity_type=oauth2_name2type(name), uid=goinfo["goto_signIn_data"]["guid"], success=True), login_ip=request.headers.get('X-Real-Ip', request.remote_addr), user_agent=request.headers.get("User-Agent"))
+            auth.brush_loginlog(dict(identity_type=oauth2_name2type(name), uid=uid, success=True), login_ip=g.ip, user_agent=request.headers.get("User-Agent"))
             # 设置登录态
-            return qq.goto_signIn(uid=goinfo["goto_signIn_data"]["guid"])
+            return qq.goto_signIn(uid=uid, sso=sso)
         elif goinfo["pageAction"] == "goto_signUp":
-            """ 未登录流程->执行注册绑定功能 """
-            return qq.goto_signUp(openid=goinfo["goto_signUp_data"]["openid"])
+            """ 未登录流程->openid没有对应账号，执行注册或绑定功能 """
+            return qq.goto_signUp(openid=goinfo["goto_signUp_data"]["openid"], sso=sso)
         else:
-            # 已登录流程->反馈绑定结果
+            # 已登录流程->正在绑定第三方账号：反馈绑定结果
             if goinfo["success"]:
                 # 绑定成功，返回原页面
                 flash(u"已绑定")
             else:
                 # 绑定失败，返回原页面
                 flash(goinfo["msg"])
-            # 跳回原页面
-            return redirect(g.redirect_uri)
+            # 跳回绑定设置页面
+            return redirect(url_for("front.userset", _anchor="bind"))
     else:
         flash(u'Access denied: reason=%s error=%s' % (
             resp.get('error'),
