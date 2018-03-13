@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-from flask import Blueprint
+from flask import Blueprint, g
 
 
 #初始化前台蓝图
