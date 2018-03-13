@@ -47,9 +47,6 @@
             <a href="home.html"><i class="layui-icon">&#xe609;</i>我的主页</a>
         </li>
         -->
-        <li class="layui-nav-item {% if request.endpoint == 'front.userhome' %}layui-this{% endif %}">
-            <a href="{{ url_for('front.userhome') }}"><i class="layui-icon">&#xe612;</i>用户中心</a>
-        </li>
         <li class="layui-nav-item {% if request.endpoint == 'front.userset' %}layui-this{% endif %}">
             <a href="{{ url_for('front.userset') }}"><i class="layui-icon">&#xe620;</i>基本设置</a>
         </li>
