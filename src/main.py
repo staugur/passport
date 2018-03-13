@@ -163,6 +163,6 @@ def Permission_denied(error=None):
     return jsonify(message), 403
 
 if __name__ == '__main__':
-    #from werkzeug.contrib.fixers import ProxyFix
-    #app.wsgi_app = ProxyFix(app.wsgi_app)
+    from werkzeug.contrib.fixers import ProxyFix
+    app.wsgi_app = ProxyFix(app.wsgi_app)
     app.run(host=config.GLOBAL["Host"], port=int(config.GLOBAL["Port"]), debug=True)
