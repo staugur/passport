@@ -160,7 +160,7 @@ def anonymous_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
         if g.signin:
-            return redirect(g.redirect_uri)
+            return redirect(get_redirect_url())
         return f(*args, **kwargs)
     return decorated_function
 
