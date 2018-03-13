@@ -23,6 +23,12 @@ FrontBlueprint = Blueprint("front", __name__)
 #初始化手势验证码服务
 vaptcha = VaptchaApi(VAPTCHA["vid"], VAPTCHA["key"])
 
+@FrontBlueprint.route('/')
+@login_required
+def index():
+    # 未登录时跳转到登录页；已登录后跳转到个人设置页面
+    return redirect(url_for(".userset"))
+
 @FrontBlueprint.route('/user/setting/')
 @login_required
 def userset():
