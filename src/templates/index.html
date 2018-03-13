@@ -15,9 +15,10 @@
 
 {% if g.signin %}
 <p>UID:&nbsp;&nbsp;{{ g.uid }}</p>
+<p>SID:&nbsp;&nbsp;{{ g.sid }}</p>
 <a href="{{ url_for('front.userset') }}">用户中心</a>
 
-<a href="{{ url_for('front.logout') }}">注销</a>
+<a href="{{ url_for('front.signOut') }}">注销</a>
 {% else %}
 <a href="{{ url_for('front.signIn') }}">登录</a>&nbsp;或&nbsp;
 <a href="{{ url_for('front.signUp') }}">注册</a>

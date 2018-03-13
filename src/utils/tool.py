@@ -169,7 +169,6 @@ def getIpArea(ip):
             data = DO(data.data)
     else:
         data = DO(data.data)
-    logger.debug(data)
     if u'内网IP' in data.city:
         city = data.city
     else:
@@ -231,8 +230,6 @@ def generate_verification_code():
 
     myslice = random.sample(code_list, 6)  # 从list中随机获取6个元素，作为一个片断返回
     verification_code = ''.join(myslice)  # list to string
-    # print code_list
-    # print type(myslice)
     return verification_code
 
 

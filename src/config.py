@@ -79,6 +79,46 @@ EMAIL = {
 }
 
 
+# 系统配置
+SYSTEM = {
+
+    "HMAC_SHA256_KEY": getenv("passport_hmac_sha256_key", "273d32c8d797fa715190c7408ad73811"),
+    # hmac sha256 key
+
+    "AES_CBC_KEY": getenv("passport_aes_cbc_key", "YRRGBRYQqrV1gv5A"),
+    # utils.aes_cbc.CBC类中所用加密key
+
+    "JWT_SECRET_KEY": getenv("passport_jwt_secret_key", "WBlE7_#qDf2vRb@vM!Zw#lqrg@rdd3A6"),
+    # utils.jwt.JWTUtil类中所用加密key
+
+    "Sign": {
+        "version": getenv("passport_sign_version", "v1"),
+        "accesskey_id": getenv("passport_sign_accesskeyid", "accesskey_id"),
+        "accesskey_secret": getenv("passport_sign_accesskeysecret", "accesskey_secret"),
+    },
+    # utils.Signature.Signature类中所有签名配置
+
+    "CACHE_ENABLE": {
+
+        "UserAdmin": getenv("passport_cache_useradmin", True),
+        # 开启管理员用户缓存
+
+        "UserProfile": getenv("passport_cache_userprofile", True),
+        # 开启用户资料缓存
+
+        "UserApps": getenv("passport_cache_userapps", True),
+        # 开启sso应用缓存
+    },
+    # 缓存启用项
+
+    "PersonalizedDomainNamePrefix": getenv("passport_personalizeddomainnameprefix", "https://www.saintic.com/user/"),
+    # 个性域名前缀：业务系统中用户对公个人主页前缀地址
+
+    "SESSION_EXPIRE": int(getenv("passport_session_expire", 604800)),
+    # session过期时间，单位秒，默认7d
+}
+
+
 # 插件配置段
 PLUGINS = {
 
@@ -118,39 +158,4 @@ PLUGINS = {
         "APP_KEY": getenv("passport_baidu_appkey"),
         "REDIRECT_URI": getenv("passport_baidu_redirecturi", "https://passport.saintic.com/oauth2/baidu/authorized")
     },
-}
-
-
-# 系统配置
-SYSTEM = {
-
-    "HMAC_SHA256_KEY": getenv("passport_hmac_sha256_key", "273d32c8d797fa715190c7408ad73811"),
-    # hmac sha256 key
-
-    "AES_CBC_KEY": getenv("passport_aes_cbc_key", "YRRGBRYQqrV1gv5A"),
-    # utils.aes_cbc.CBC类中所用加密key
-
-    "JWT_SECRET_KEY": getenv("passport_jwt_secret_key", "WBlE7_#qDf2vRb@vM!Zw#lqrg@rdd3A6"),
-    # utils.jwt.JWTUtil类中所用加密key
-
-    "CACHE_ENABLE": {
-
-        "UserAdmin": getenv("passport_cache_useradmin", True),
-        # 开启管理员用户缓存
-
-        "UserProfile": getenv("passport_cache_userprofile", True),
-        # 开启用户资料缓存
-
-        "UserApps": getenv("passport_cache_userapps", True),
-        # 开启sso应用缓存
-    },
-    # 缓存启用项
-
-    "PersonalizedDomainNamePrefix": "https://90era.vip/user/",
-    # 个性域名前缀：业务系统中用户对公个人主页前缀地址
-
-    "ApiSignature": {
-
-        "ENABLE": False,
-    }
 }

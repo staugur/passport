@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-#使用gunicorn启动, 要求系统安装了gunicorn, gevent
+#使用uwsgi启动, 要求系统安装了uwsgi, 可以pip install uwsgi，也可以编译安装、yum安装
 #
 
 dir=$(cd $(dirname $0); pwd)
@@ -10,8 +10,8 @@ host=$(python -c "from config import GLOBAL;print GLOBAL['Host']")
 port=$(python -c "from config import GLOBAL;print GLOBAL['Port']")
 procname=$(python -c "from config import GLOBAL;print GLOBAL['ProcessName']")
 cpu_count=$[$(cat /proc/cpuinfo | grep "processor" | wc -l)*2]
-[ -d ${dir}/logs ] || mkdir -p ${dir}/logs
-logfile=${dir}/logs/gunicorn.log
+[ ! -d ${dir}/logs ] && mkdir ${dir}/logs
+logfile=${dir}/logs/uwsgi.log
 pidfile=${dir}/logs/${procname}.pid
 
 function Monthly2Number() {
@@ -37,14 +37,11 @@ start)
     if [ -f $pidfile ]; then
         echo "Has pid($(cat $pidfile)) in $pidfile, please check, exit." ; exit 1
     else
-        gunicorn -w $cpu_count --threads 16 -b ${host}:${port} main:app -k gevent --daemon --pid $pidfile --log-file $logfile --max-requests 250 --name $procname
+        uwsgi --http ${host}:${port} --module main --callable app --master --procname-master ${procname}.master --procname ${procname}.worker --workers $cpu_count --threads 16 --listen 1024 --chdir $dir --daemonize $logfile --pidfile $pidfile --max-requests 250 --disable-logging --log-maxsize 50000000
         sleep 1
         pid=$(cat $pidfile)
-        if [ "$?" != "0" ]; then
-            echo "$procname start failed" && exit 1
-        else
-            echo "$procname start over with pid ${pid}"
-        fi
+        [ "$?" != "0" ] && exit 1
+        echo "$procname start over with pid ${pid}"
     fi
     ;;
 
@@ -66,6 +63,7 @@ stop)
     ;;
 
 status)
+    #pid=$(ps aux | grep $procname | grep -vE "grep|worker|Team.Api\." | awk '{print $2}')
     if [ ! -f $pidfile ]; then
         echo -e "\033[39;31m${procname} has stopped.\033[0m"
         exit
@@ -88,8 +86,8 @@ status)
     ;;
 
 restart)
-    bash $(basename $0) stop
-    bash $(basename $0) start
+    sh $(basename $0) stop
+    sh $(basename $0) start
     ;;
 
 *)

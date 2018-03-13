@@ -9,18 +9,19 @@
     :license: MIT, see LICENSE for more details.
 """
 
+from config import SYSTEM
 from .tool import logger, md5, get_current_timestamp
 from functools import wraps
-from flask import request
+from flask import request, jsonify
 
 
 class Signature(object):
     """ 接口签名认证 """
 
     def __init__(self):
-        self._version = "v1"
+        self._version = SYSTEM["Sign"]["version"]
         self._accessKeys = [
-            {"accesskey_id": "U2JpQXBp", "accesskey_secret": "GBRDOOBSGIZGIZBZHE2TINJYGZQTKY3B"}
+            {"accesskey_id": SYSTEM["Sign"]["accesskey_id"], "accesskey_secret": SYSTEM["Sign"]["accesskey_secret"]}
         ]
         # 时间戳有效时长，单位秒
         self._timestamp_expiration = 30
@@ -120,5 +121,5 @@ class Signature(object):
             if res["success"] is True:
                 return f(*args, **kwargs)
             else:
-                return res
+                return jsonify(res)
         return decorated_function

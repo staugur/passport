@@ -19,6 +19,7 @@ from urllib import urlencode
 from functools import wraps
 from flask import g, request, redirect, url_for, make_response, abort, jsonify, flash
 from werkzeug import url_decode
+from config import SYSTEM
 
 jwt = JWTUtil()
 cbc = CBC()
@@ -27,34 +28,36 @@ sbs = ServiceBase()
 
 def get_referrer_url():
     """获取上一页地址"""
-    if request.referrer:
-        logger.debug(request.referrer.startswith(request.host_url))
     if request.referrer and request.referrer.startswith(request.host_url) and request.endpoint and not "api." in request.endpoint:
         url = request.referrer
     else:
         url = None
-    logger.debug("get_referrer_url: {}".format(url))
     return url
 
 
-def get_redirect_url(endpoint="front.index"):
+def get_redirect_url(endpoint="front.signIn"):
     """获取重定向地址
     NextUrl: 引导重定向下一步地址
     ReturnUrl: 最终重定向地址
     以上两个不存在时，如果定义了非默认endpoint，则首先返回；否则返回referrer地址，不存在时返回endpoint默认主页
     """
     url = request.args.get('NextUrl') or request.args.get('ReturnUrl')
-    logger.debug(url)
     if not url:
-        if endpoint != "front.index":
+        if endpoint != "front.signIn":
             url = url_for(endpoint)
         else:
             url = get_referrer_url() or url_for(endpoint)
-    logger.debug(url)
     return url
 
 
-def set_sessionId(uid, seconds=43200, sid=None):
+def set_loginstate(sessionId, returnUrl):
+    """设置登录态"""
+    response = make_response(redirect(returnUrl))
+    response.set_cookie(key="sessionId", value=sessionId, max_age=SYSTEM["SESSION_EXPIRE"], httponly=True, secure=False if request.url_root.split("://")[0] == "http" else True)
+    return response
+
+
+def set_sessionId(uid, seconds=SYSTEM["SESSION_EXPIRE"], sid=None):
     """设置cookie"""
     payload = dict(uid=uid, sid=sid) if sid else dict(uid=uid)
     sessionId = jwt.createJWT(payload=payload, expiredSeconds=seconds)
@@ -112,19 +115,16 @@ def checkGet_ssoRequest(sso):
     sso_appName = None
     # 验证参数并赋值
     if verify_sessionId(sso):
-        logger.debug("verify_sessionId sso pass")
         # sso jwt payload
         sso = analysis_sessionId(sso)
-        logger.debug(sso)
         if sso and isinstance(sso, dict) and "app_name" in sso and "app_id" in sso and "app_secret" in sso:
             # 通过app_name获取注册信息并校验参数
             app_data = g.api.userapp.getUserApp(sso["app_name"])
-            logger.debug(app_data)
             if app_data:
                 if sso["app_id"] == app_data["app_id"] and sso["app_secret"] == app_data["app_secret"]:
                     sso_isOk = True
                     sso_appName = sso["app_name"]
-                    sso_returnUrl = "{}/sso/authorized?Action=ssoLogin".format(app_data["app_redirect_url"].strip("/"))
+                    sso_returnUrl = "{}/sso/authorized?{}".format(app_data["app_redirect_url"].strip("/"), urlencode(dict(Action="ssoLogin", ReturnUrl=sso["ReturnUrl"] if sso.get("ReturnUrl") else "/")))
     return sso_isOk, sso_returnUrl, sso_appName
 
 
@@ -133,13 +133,12 @@ def checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, uid, defaultRetu
     returnUrl = defaultReturnUrl or g.redirect_uri
     if sso_isOk:
         # 创建ticket，返回为真即是ticket
-        tickets = g.api.userapp.ssoCreateTicket()
-        logger.debug("checkSet_ssoTicketSid tickets: {}".format(tickets))
+        tickets = g.api.usersso.ssoCreateTicket()
         if tickets and isinstance(tickets, (list, tuple)) and len(tickets) == 2:
             ticket, sid = tickets
             logger.debug("checkSet_ssoTicketSid set sessionId for sid: {}, uid: {}".format(sid, uid))
             sessionId = set_sessionId(uid=uid, sid=sid)
-            if g.api.userapp.ssoCreateSid(ticket=ticket, uid=uid, source_app_name=sso_appName):
+            if g.api.usersso.ssoCreateSid(ticket=ticket, uid=uid, source_app_name=sso_appName):
                 returnUrl = "{}&ticket={}".format(sso_returnUrl, ticket)
             else:
                 flash(dfr(dict(msg="Failed to create authorization ticket")))
@@ -355,7 +354,7 @@ class OAuth2(object):
             # 包含access_token、expires_in、refresh_token等数据
             return data
         else:
-            logger.info("Invalid code or state: {}".format(self.__verify_state(state)))
+            logger.info("Invalid code or state")
 
     def get_openid(self, access_token, **params):
         '''登录第三步准备：根据access_token获取用户唯一标识id'''
@@ -398,14 +397,10 @@ class OAuth2(object):
             sso_isOk, sso_returnUrl, sso_appName = checkGet_ssoRequest(sso)
             logger.debug("OAuth2, method: {}, sso_isOk: {}, ReturnUrl: {}".format(request.method, sso_isOk, sso_returnUrl))
             sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, uid)
-            # 登录成功，设置cookie
-            response = make_response(redirect(returnUrl))
         else:
-            sessionId = set_sessionId(uid=uid)
-            response = make_response(redirect(g.redirect_uri))
+            sessionId, returnUrl = set_sessionId(uid=uid), g.redirect_uri
         # sso正确时sessionId含有sid，且returnUrl是appName的回调地址；当不正确时，仅为uid，returnUrl为上一页地址
-        response.set_cookie(key="sessionId", value=sessionId, max_age=None, httponly=True, secure=False if request.url_root.split("://")[0] == "http" else True)
-        return response
+        return set_loginstate(sessionId, returnUrl)
 
     def goto_signUp(self, openid, sso=None):
         """OAuth转入注册绑定流程"""

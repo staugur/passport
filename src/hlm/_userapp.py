@@ -11,7 +11,7 @@
 
 import json
 from libs.base import ServiceBase
-from utils.tool import logger, md5, gen_token, gen_requestId, Universal_pat, url_pat, get_current_timestamp
+from utils.tool import logger, md5, gen_token, Universal_pat, url_pat, get_current_timestamp
 from torndb import IntegrityError
 from config import SYSTEM
 
@@ -133,102 +133,3 @@ class UserAppManager(ServiceBase):
         else:
             res.update(msg="There are invalid parameters", code=4)
         return res
-
-    def ssoCreateTicket(self, sid=None):
-        """创建授权令牌写入redis
-        说明：
-            授权令牌：临时鉴别使用，有效期3min，写入令牌集合中。
-        参数：
-            sid str: 当None时表明未登录，此时ticket是首次产生；当真时，说明已登录，此时ticket非首次产生，其值需要设置为有效的sid
-        """
-        ticket = gen_requestId()
-        sid = sid or md5(ticket)
-        tkey = "passport:sso:ticket:{}".format(ticket)
-        skey = "passport:sso:sid:{}".format(sid)
-        pipe = self.redis.pipeline()
-        pipe.set(tkey, sid)
-        #tkey过期，ticket授权令牌过期，应当给个尽可能小的时间，并且ticket使用过后要删除(一次性有效)
-        pipe.expire(tkey, 180)
-        #skey过期，即cookie过期，设置为jwt过期秒数，以后看情况设置为7d；每次创建ticket都要更新过期时间
-        pipe.expire(skey, 43200)
-        try:
-            pipe.execute()
-        except Exception,e:
-            logger.error(e, exc_info=True)
-        else:
-            return (ticket, sid)
-
-    def ssoCreateSid(self, ticket, uid, source_app_name):
-        """创建sid并写入redis
-        说明：
-            sid：可以理解为user-agent，sso server cookie(jwt payload)中携带
-        参数：
-            ticket str: 授权令牌
-            uid str: 用户唯一id
-            source_app_name str: sso应用名，本次sid对应的首个应用
-        """
-        if ticket and isinstance(ticket, basestring) and uid and source_app_name:
-            tkey = "passport:sso:ticket:{}".format(ticket)
-            sid = self.redis.get(tkey)
-            if sid:
-                skey = "passport:sso:sid:{}".format(sid)
-                try:
-                    self.redis.hmset(skey, dict(uid=uid, sid=sid, source=source_app_name))
-                except Exception,e:
-                    logger.error(e, exc_info=True)
-                else:
-                    return True
-        return False
-
-    def ssoGetWithTicket(self, ticket):
-        """根据ticket查询对应sid数据"""
-        if ticket and isinstance(ticket, basestring):
-            tkey = "passport:sso:ticket:{}".format(ticket)
-            sid = self.redis.get(tkey)
-            if sid:
-                skey = "passport:sso:sid:{}".format(sid)
-                try:
-                    data = self.redis.hgetall(skey)
-                except Exception,e:
-                    logger.error(e, exc_info=True)
-                else:
-                    if data and isinstance(data, dict):
-                        self.redis.delete(tkey)
-                        return data
-        return False
-
-    def ssoGetWithSid(self, sid):
-        """根据sid查询数据"""
-        if sid and isinstance(sid, basestring):
-            skey = "passport:sso:sid:{}".format(sid)
-            return self.redis.hgetall(skey)
-        return False
-
-    def ssoRegisterClient(self, sid, app_name):
-        """ticket验证通过，向相应sid中注册app_name系统地址"""
-        logger.debug("ssoRegisterClient for {}, with {}".format(sid, app_name))
-        if sid and app_name:
-            try:
-                skey = "passport:sso:sid:{}:clients".format(sid)
-                pipe = self.redis.pipeline()
-                pipe.sadd(skey, app_name)
-                pipe.expire(skey, 43200)
-                pipe.execute()
-            except Exception,e:
-                logger.error(e, exc_info=True)
-            else:
-                return True
-        return False
-
-    def ssoRegisterUserSid(self, uid, sid):
-        """记录uid已登录的sso应用的sid"""
-        logger.debug("ssoRegisterUserSid for uid: {}, with sid: {}".format(uid, sid))
-        if uid and sid:
-            try:
-                ukey = "passport:user:sid:{}".format(uid)
-                self.redis.sadd(ukey, sid)
-            except Exception,e:
-                logger.error(e, exc_info=True)
-            else:
-                return True
-        return False

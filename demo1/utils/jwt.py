@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 """
-    passport.utils.jwt
+    ProcessName_XXX.utils.jwt
     ~~~~~~~~~~~~~~
 
     Json Web Token

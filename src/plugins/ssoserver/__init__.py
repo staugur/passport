@@ -15,6 +15,7 @@ from __future__ import absolute_import
 from libs.base import PluginBase
 #: Import the other modules here, and if it's your own module, use the relative Import. eg: from .lib import Lib
 #: 在这里导入其他模块, 如果有自定义包目录, 使用相对导入, 如: from .lib import Lib
+from config import SYSTEM
 from utils.tool import logger
 from utils.web import verify_sessionId
 from flask import Blueprint, request, jsonify, g, redirect, url_for
@@ -67,18 +68,18 @@ def validate():
             get_userinfo = True if request.form.get("get_userinfo") in (1, True, "1", "True", "true", "on") else False
             get_userbind = True if request.form.get("get_userbind") in (1, True, "1", "True", "true", "on") else False
             if ticket and app_name:
-                resp = g.api.userapp.ssoGetWithTicket(ticket)
+                resp = g.api.usersso.ssoGetWithTicket(ticket)
                 logger.debug("sso validate ticket resp: {}".format(resp))
                 if resp and isinstance(resp, dict):
                     # 此时表明ticket验证通过，应当返回如下信息：
                     # dict(uid=所需, sid=所需，source=xx)
                     if g.api.userapp.getUserApp(app_name):
                         # app_name有效，验证全部通过
-                        res.update(success=True, uid=resp["uid"])
-                        # 有效，此sid已登录客户端中注册app_name
+                        res.update(success=True, uid=resp["uid"], sid=resp["sid"], expire=SYSTEM["SESSION_EXPIRE"])
+                        # 有效，此sid已登录客户端中注册app_name且向uid中注册已登录的sid
                         res.update(register=dict(
-                            Client = g.api.userapp.ssoRegisterClient(sid=resp["sid"], app_name=app_name),
-                            UserSid = g.api.userapp.ssoRegisterUserSid(uid=resp["uid"], sid=resp["sid"])
+                            Client = g.api.usersso.ssoRegisterClient(sid=resp["sid"], app_name=app_name),
+                            UserSid = g.api.usersso.ssoRegisterUserSid(uid=resp["uid"], sid=resp["sid"])
                         ))
                         if get_userinfo is True:
                             userinfo = g.api.userprofile.getUserProfile(uid=resp["uid"], getBind=get_userbind)
