@@ -66,6 +66,7 @@ def sso_request(url, params=None, data=None, timeout=5, num_retries=1):
     try:
         resp = requests.post(url, params=params, headers=headers, timeout=timeout, data=data).json()
     except requests.exceptions.Timeout,e:
+        logger.error(e, exc_info=True)
         if num_retries > 0:
             return sso_request(url, params=params, data=data, timeout=timeout, num_retries=num_retries-1)
     else:
