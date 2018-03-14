@@ -107,7 +107,7 @@ class UserProfileManager(ServiceBase):
             else:
                 raise
         except:
-            sql = "SELECT register_source,register_ip,nick_name,domain_name,gender,birthday,signature,avatar,location,ctime,mtime,is_realname FROM user_profile WHERE uid=%s"
+            sql = "SELECT register_source,register_ip,nick_name,domain_name,gender,birthday,signature,avatar,location,ctime,mtime,is_realname,is_admin FROM user_profile WHERE uid=%s"
             if uid and isinstance(uid, (str, unicode)) and len(uid) == 22:
                 try:
                     data = self.mysql.get(sql, uid)
