@@ -131,7 +131,7 @@ def checkGet_ssoRequest(sso):
 
 def checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, uid, defaultReturnUrl=None):
     sessionId = set_sessionId(uid=uid)
-    returnUrl = defaultReturnUrl or g.redirect_uri
+    returnUrl = defaultReturnUrl or url_for("front.userset")
     if sso_isOk:
         # 创建ticket，返回为真即是ticket
         tickets = g.api.usersso.ssoCreateTicket()
