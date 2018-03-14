@@ -47,6 +47,7 @@ def get_redirect_url(endpoint="front.signIn"):
             url = url_for(endpoint)
         else:
             url = get_referrer_url() or url_for(endpoint)
+    logger.debug(url)
     return url
 
 
@@ -398,7 +399,7 @@ class OAuth2(object):
             logger.debug("OAuth2, method: {}, sso_isOk: {}, ReturnUrl: {}".format(request.method, sso_isOk, sso_returnUrl))
             sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, uid)
         else:
-            sessionId, returnUrl = set_sessionId(uid=uid), g.redirect_uri
+            sessionId, returnUrl = set_sessionId(uid=uid), url_for("front.userset")
         # sso正确时sessionId含有sid，且returnUrl是appName的回调地址；当不正确时，仅为uid，returnUrl为上一页地址
         return set_loginstate(sessionId, returnUrl)
 

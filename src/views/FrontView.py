@@ -111,7 +111,7 @@ def signIn():
             else:
                 sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, g.uid, get_redirect_url("front.userset"))
                 return set_loginstate(sessionId, returnUrl)
-        return redirect(g.redirect_uri)
+        return redirect(url_for("front.userset"))
     else:
         # 未登录时流程
         if request.method == 'POST':
