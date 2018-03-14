@@ -109,7 +109,7 @@ class Authentication(object):
                 if data and isinstance(data, dict):
                     return int(data["register_source"])
 
-    def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified, register_ip="", expire_time="0", use_profile_sql=True, define_profile_sql=None):
+    def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified, register_ip="", expire_time=0, use_profile_sql=True, define_profile_sql=None):
         ''' begin的方式使用事务注册账号，
         参数：
             @param guid str: 系统账号唯一标识
