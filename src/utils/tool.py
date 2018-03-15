@@ -10,6 +10,7 @@
 """
 
 import re
+import json
 import hashlib
 import random
 import hmac
@@ -24,6 +25,7 @@ from redis import from_url
 from torndb import Connection
 from user_agents import parse as user_agents_parse
 from config import SYSTEM, REDIS as REDIS_URL, MYSQL as MYSQL_URL
+from version import __version__
 
 
 ip_pat = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
@@ -264,3 +266,27 @@ def parseAcceptLanguage(acceptLanguage, defaultLanguage="zh-CN"):
             q = language.split(";")[1].split("=")[1]
             locale_q_pairs.append((locale, q))
     return sorted(locale_q_pairs, key=lambda x: x[-1], reverse=True)[0][0] or defaultLanguage
+
+
+def sso_request(kwargs):
+    """post重试请求的封装
+    kwargs dict: 包含以下具体参数
+        @params dict: 请求查询参数
+        @data dict: 提交表单数据
+        @timeout int: 超时时间，单位秒
+        @num_retries int: 超时重试次数
+    """
+    if kwargs and isinstance(kwargs, dict):
+        url = kwargs["url"]
+        params = kwargs.get("params", None)
+        data = kwargs.get("data", None)
+        timeout = kwargs.get("timeout", 5)
+        num_retries = kwargs.get("num_retries", 0)
+        headers = {"User-Agent": "Mozilla/5.0 (X11; CentOS; Linux i686; rv:7.0.1406) Gecko/20100101 PassportClient/{}".format(__version__)}
+        try:
+            resp = requests.post(url, params=params, headers=headers, timeout=timeout, data=dict(data=json.dumps(data))).json()
+        except requests.exceptions.Timeout,e:
+            if num_retries > 0:
+                return sso_request(url, params=params, data=data, timeout=timeout, num_retries=num_retries-1)
+        else:
+            return resp

@@ -10,8 +10,9 @@
 """
 
 from libs.base import ServiceBase
-from utils.tool import logger, md5, gen_requestId
+from utils.tool import logger, md5, gen_requestId, sso_request, gen_token
 from config import SYSTEM
+from multiprocessing.dummy import Pool as ThreadPool
 
 
 class UserSSOManager(ServiceBase):
@@ -92,6 +93,30 @@ class UserSSOManager(ServiceBase):
             return data
         return False
 
+    def ssoSetSidConSyncTimes(self, sid):
+        """设置sid同步到客户端的次数"""
+        if sid and isinstance(sid, basestring):
+            skey = "passport:sso:sid:{}".format(sid)
+            try:
+                self.redis.hincrby(skey, "syncTimes", 1)
+            except Exception,e:
+                logger.error(e)
+            else:
+                return True
+        return False
+
+    def ssoSetSidConSyncToken(self, sid, token):
+        """设置sid同步到客户端的token标识，用以验证此次同步是否passport发起"""
+        if sid and isinstance(sid, basestring):
+            skey = "passport:sso:sid:{}".format(sid)
+            try:
+                self.redis.hset(skey, "syncToken", token)
+            except Exception,e:
+                logger.error(e)
+            else:
+                return True
+        return False
+
     def ssoRegisterClient(self, sid, app_name):
         """ticket验证通过，向相应sid中注册app_name系统地址"""
         logger.debug("ssoRegisterClient for {}, with {}".format(sid, app_name))
@@ -153,3 +178,37 @@ class UserSSOManager(ServiceBase):
             pipe.delete(skey)
             pipe.delete(ckey)
             pipe.execute()
+
+    def clientsConSync(self, sid, data):
+        """ 向sid各客户端并发同步数据
+        流程：
+            1. 根据sid查找注册的clients
+            2. 将data发送给client响应回调接口
+               client处理：根据data中`CallbackType`处理不同类型数据
+            3. 循环第2步，直到clients为空（所有已注册的局部会话已经注销）
+        参数：
+            @param sid str:客户端登录的标识
+            @param data dict: 回调数据，格式如：dict(CallbackType="user_profile", CallbackData=dict|list|tuple)
+                请求时json序列化传输，获取时使用json.loads(request.form.get("data")) -> 即data
+        """
+        # 检查参数
+        if sid and data and isinstance(data, dict) and "CallbackType" in data and "CallbackData" in data:
+            clients = self.ssoGetRegisteredClient(sid)
+            logger.debug("callback: has sid, get clients: {}".format(clients))
+            if clients and isinstance(clients, list) and len(clients) > 0:
+                # 生成验证token
+                token = gen_token()
+                # 向sid写入本次验证token
+                self.ssoSetSidConSyncToken(sid, token)
+                # 更新传递给客户端的data参数
+                data.update(sid=sid, token=token)
+                kwargs = []
+                for clientName in clients:
+                    clientData = g.api.userapp.getUserApp(clientName)
+                    kwargs.append(dict(url="{}/sso/authorized".format(clientData["app_redirect_url"].strip("/")), params=dict(Action="ssoConSync", signature=hmac_sha256("{}:{}:{}".format(clientData["name"], clientData["app_id"], clientData["app_secret"])).upper()), data=data, num_retries=0))
+                logger.debug("callback: kwargs: {}".format(kwargs))
+                if kwargs:
+                    pool = ThreadPool()
+                    resp = pool.map_async(sso_request, kwargs)
+                    resp.wait()
+                    logger.debug("callback: return: %s" %resp.get())
