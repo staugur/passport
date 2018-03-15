@@ -10,7 +10,7 @@
 """
 
 from libs.base import ServiceBase
-from utils.tool import logger, md5, gen_requestId, sso_request, gen_token
+from utils.tool import logger, md5, gen_requestId, sso_request, gen_token, hmac_sha256
 from config import SYSTEM
 from multiprocessing.dummy import Pool as ThreadPool
 
