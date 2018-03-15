@@ -93,7 +93,7 @@ def Logout():
     NextUrl = "{}/signOut?ReturnUrl={}".format(sso_server, ReturnUrl)
     return redirect(NextUrl)
 
-@sso_blueprint.route("/authorized")
+@sso_blueprint.route("/authorized", methods=["GET", "POST"])
 def authorized():
     """ Client SSO 单点登录、注销入口, 根据`Action`参数判断是`ssoLogin`还是`ssoLogout` """
     Action = request.args.get("Action")
