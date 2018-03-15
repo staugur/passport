@@ -98,7 +98,10 @@ class UserSSOManager(ServiceBase):
         if sid and isinstance(sid, basestring):
             skey = "passport:sso:sid:{}".format(sid)
             try:
-                self.redis.hincrby(skey, "syncTimes", 1)
+            	pipe = self.redis.pipeline()
+                pipe.hincrby(skey, "syncTimes", 1)
+                pipe.hdel(skey, "syncToken")
+                pipe.execute()
             except Exception,e:
                 logger.error(e)
             else:
@@ -217,4 +220,3 @@ class UserSSOManager(ServiceBase):
                         logger.debug("callback: return: %s" %resp.get())
                     except Exception,e:
                         logger.error(e, exc_info=True)
-        return "ok"
