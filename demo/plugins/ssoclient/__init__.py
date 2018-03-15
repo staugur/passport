@@ -143,7 +143,7 @@ def authorized():
                 if resp and isinstance(resp, dict) and resp.get("success") is True:
                     # 之后根据不同类型的ct处理cd
                     logger.plugin.debug("ssoConSync is ok")
-                    return jsonify(msg="Synchronization completed", success=True)
+                    return jsonify(msg="Synchronization completed", success=True, app_name=SSO["app_name"])
     return "Invalid Authorized"
 
 #: 返回插件主类
