@@ -179,7 +179,7 @@ class UserSSOManager(ServiceBase):
             pipe.delete(ckey)
             pipe.execute()
 
-    def clientsConSync(self, sid, data):
+    def clientsConSync(self, getUserApp, sid, data):
         """ 向sid各客户端并发同步数据
         流程：
             1. 根据sid查找注册的clients
@@ -204,7 +204,7 @@ class UserSSOManager(ServiceBase):
                 data.update(sid=sid, token=token)
                 kwargs = []
                 for clientName in clients:
-                    clientData = g.api.userapp.getUserApp(clientName)
+                    clientData = getUserApp(clientName)
                     kwargs.append(dict(url="{}/sso/authorized".format(clientData["app_redirect_url"].strip("/")), params=dict(Action="ssoConSync", signature=hmac_sha256("{}:{}:{}".format(clientData["name"], clientData["app_id"], clientData["app_secret"])).upper()), data=data, num_retries=0))
                 logger.debug("callback: kwargs: {}".format(kwargs))
                 if kwargs:

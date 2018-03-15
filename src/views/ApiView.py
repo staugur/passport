@@ -151,7 +151,7 @@ def userprofile():
         if Action == "profile":
             data = {k: v for k, v in request.form.iteritems() if k in ("nick_name", "domain_name", "birthday", "location", "gender", "signature")}
             res = g.api.userprofile.updateUserProfile(uid=g.uid, **data)
-            g.api.usersso.clientsConSync(g.sid, dict(CallbackType="user_profile", CallbackData=data))
+            g.api.usersso.clientsConSync(g.api.userapp.getUserApp, g.sid, dict(CallbackType="user_profile", CallbackData=data))
         elif Action == "password":
             pass
             #res = g.api.user_update_password(g.token["username"], request.form.get("OldPassword"), request.form.get("NewPassword"))
