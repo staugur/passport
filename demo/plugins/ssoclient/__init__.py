@@ -15,10 +15,10 @@ from __future__ import absolute_import
 from libs.base import PluginBase
 #: Import the other modules here, and if it's your own module, use the relative Import. eg: from .lib import Lib
 #: 在这里导入其他模块, 如果有自定义包目录, 使用相对导入, 如: from .lib import Lib
-import requests
+import requests, json
 from config import SSO
 from utils.web import login_required, anonymous_required, set_ssoparam, set_sessionId, get_redirect_url, get_referrer_url
-from utils.tool import url_check, logger
+from utils.tool import url_check, logger, hmac_sha256
 from flask import Blueprint, request, jsonify, g, redirect, url_for, make_response
 
 #：Your plugin name
@@ -98,6 +98,7 @@ def authorized():
     """ Client SSO 单点登录、注销入口, 根据`Action`参数判断是`ssoLogin`还是`ssoLogout` """
     Action = request.args.get("Action")
     if Action == "ssoLogin":
+        # 单点登录
         ticket = request.args.get("ticket")
         if ticket and g.signin == False:
             resp = sso_request("{}/sso/validate".format(sso_server), dict(Action="validate_ticket"), dict(ticket=ticket, app_name=SSO["app_name"], get_userinfo=False, get_userbind=False))
@@ -115,6 +116,7 @@ def authorized():
                     response.set_cookie(key="sessionId", value=sessionId, max_age=expire, httponly=True, secure=False if request.url_root.split("://")[0] == "http" else True)
                     return response
     elif Action == "ssoLogout":
+        # 单点注销
         ReturnUrl = request.args.get("ReturnUrl") or get_referrer_url() or url_for("front.index", _external=True)
         NextUrl   = "{}/signOut?ReturnUrl={}".format(sso_server, ReturnUrl)
         app_name  = request.args.get("app_name")
@@ -122,6 +124,25 @@ def authorized():
             response = make_response(redirect(NextUrl))
             response.set_cookie(key="sessionId", value="", expires=0)
             return response
+    elif Action == "ssoConSync":
+        # 数据同步：参数中必须包含大写的hmac_sha256(app_name:app_id:app_secret)的signature值
+        signature = request.args.get("signature")
+        if signature and signature == hmac_sha256("{}:{}:{}".format(SSO["app_name"], SSO["app_id"], SSO["app_secret"])).upper():
+            try:
+                data = json.loads(request.form.get("data"))
+                ct = data["CallbackType"]
+                cd = data["CallbackData"]
+                sid = data["sid"]
+                token = data["token"]
+            except Exception,e:
+                logger.plugin.warning(e)
+            else:
+                logger.plugin.info("ssoConSync with sid: {} -> {}: {}".format(sid, ct, cd))
+                resp = sso_request("{}/sso/validate".format(sso_server), dict(Action="validate_sync"), dict(token=token, sid=sid))
+                if resp and isinstance(resp, dict) and resp.get("success") is True:
+                    # 之后根据不同类型的ct处理cd
+                    logger.plugin.debug("ssoConSync is ok")
+                    return jsonify(msg="Synchronization completed", success=True)
     return "Invalid Authorized"
 
 #: 返回插件主类
