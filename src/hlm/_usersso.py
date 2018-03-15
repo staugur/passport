@@ -179,7 +179,7 @@ class UserSSOManager(ServiceBase):
             pipe.delete(ckey)
             pipe.execute()
 
-    def clientsConSync(self, getUserApp, sid, data):
+    def clientsConSync(self, getUserApp, sid, uid, data):
         """ 向sid各客户端并发同步数据
         流程：
             1. 根据sid查找注册的clients
@@ -189,6 +189,7 @@ class UserSSOManager(ServiceBase):
         参数：
             @param getUserApp func: userapp.UserAppManager.getUserApp
             @param sid str:客户端登录的标识
+            @param uid str:用户标识
             @param data dict: 回调数据，格式如：dict(CallbackType="user_profile|user_avatar", CallbackData=dict|list|tuple|str)
                 请求时json序列化传输，获取时使用json.loads(request.form.get("data")) -> 即data
         """
@@ -202,7 +203,7 @@ class UserSSOManager(ServiceBase):
                 # 向sid写入本次验证token
                 self.ssoSetSidConSyncToken(sid, token)
                 # 更新传递给客户端的data参数
-                data.update(sid=sid, token=token)
+                data.update(sid=sid, uid=uid, token=token)
                 kwargs = []
                 for clientName in clients:
                     clientData = getUserApp(clientName)

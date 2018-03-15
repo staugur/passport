@@ -153,7 +153,7 @@ def userprofile():
             res = g.api.userprofile.updateUserProfile(uid=g.uid, **data)
             if res["code"] == 0:
                 # 同步基本资料
-                g.api.usersso.clientsConSync(g.api.userapp.getUserApp, g.sid, dict(CallbackType="user_profile", CallbackData=data))
+                g.api.usersso.clientsConSync(g.api.userapp.getUserApp, g.sid, g.uid, dict(CallbackType="user_profile", CallbackData=data))
         elif Action == "password":
             pass
     logger.info(res)
@@ -184,7 +184,7 @@ def userupload():
                 res.update(resp)
                 if resp["code"] == 0:
                     # 同步头像
-                    g.api.usersso.clientsConSync(g.api.userapp.getUserApp, g.sid, dict(CallbackType="user_avatar", CallbackData=imgUrl))
+                    g.api.usersso.clientsConSync(g.api.userapp.getUserApp, g.sid, g.uid, dict(CallbackType="user_avatar", CallbackData=imgUrl))
     else:
         res.update(code=3, msg="Unsuccessfully obtained file or format is not allowed")
     logger.info(res)
