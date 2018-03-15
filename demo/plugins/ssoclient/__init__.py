@@ -100,7 +100,7 @@ def authorized():
     if Action == "ssoLogin":
         # 单点登录
         ticket = request.args.get("ticket")
-        if ticket and g.signin == False:
+        if request.method == "GET" and ticket and g.signin == False:
             resp = sso_request("{}/sso/validate".format(sso_server), dict(Action="validate_ticket"), dict(ticket=ticket, app_name=SSO["app_name"], get_userinfo=False, get_userbind=False))
             logger.debug("SSO check ticket resp: {}".format(resp))
             if resp and isinstance(resp, dict) and "success" in resp and "uid" in resp:
@@ -120,14 +120,14 @@ def authorized():
         ReturnUrl = request.args.get("ReturnUrl") or get_referrer_url() or url_for("front.index", _external=True)
         NextUrl   = "{}/signOut?ReturnUrl={}".format(sso_server, ReturnUrl)
         app_name  = request.args.get("app_name")
-        if NextUrl and app_name and g.signin == True and app_name == SSO["app_name"]:
+        if request.method == "GET" and NextUrl and app_name and g.signin == True and app_name == SSO["app_name"]:
             response = make_response(redirect(NextUrl))
             response.set_cookie(key="sessionId", value="", expires=0)
             return response
     elif Action == "ssoConSync":
         # 数据同步：参数中必须包含大写的hmac_sha256(app_name:app_id:app_secret)的signature值
         signature = request.args.get("signature")
-        if signature and signature == hmac_sha256("{}:{}:{}".format(SSO["app_name"], SSO["app_id"], SSO["app_secret"])).upper():
+        if request.method == "POST" and signature and signature == hmac_sha256("{}:{}:{}".format(SSO["app_name"], SSO["app_id"], SSO["app_secret"])).upper():
             try:
                 data = json.loads(request.form.get("data"))
                 ct = data["CallbackType"]
