@@ -86,11 +86,11 @@ def avatar_check(avatar):
 
 def sql_safestring_check(string):
     """检查拼接sql的字符串是否安全
-    诸如：含有问号、逗号、分号、百分号不予通过
+    诸如：含有问号、逗号、分号、百分号、转义符不予通过
     返回：True代表安全，False表示不安全
     """
     if string:
-        if "'" in string or '"' in string or '?' in string or '%' in string or ';' in string or '*' in string or '=' in string:
+        if "'" in string or '"' in string or '?' in string or '%' in string or ';' in string or '*' in string or '=' in string or "\\" in string:
             return False
     return True
 
