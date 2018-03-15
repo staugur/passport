@@ -151,10 +151,11 @@ def userprofile():
         if Action == "profile":
             data = {k: v for k, v in request.form.iteritems() if k in ("nick_name", "domain_name", "birthday", "location", "gender", "signature")}
             res = g.api.userprofile.updateUserProfile(uid=g.uid, **data)
-            g.api.usersso.clientsConSync(g.api.userapp.getUserApp, g.sid, dict(CallbackType="user_profile", CallbackData=data))
+            if res["code"] == 0:
+                # 同步基本资料
+                g.api.usersso.clientsConSync(g.api.userapp.getUserApp, g.sid, dict(CallbackType="user_profile", CallbackData=data))
         elif Action == "password":
             pass
-            #res = g.api.user_update_password(g.token["username"], request.form.get("OldPassword"), request.form.get("NewPassword"))
     logger.info(res)
     return jsonify(dfr(res))
 
@@ -179,7 +180,11 @@ def userupload():
             imgUrl = Upyun['dn'].strip("/") + imgUrl
             res.update(imgUrl=imgUrl, code=0)
             if callableAction == "UpdateAvatar":
-                res.update(g.api.userprofile.updateUserAvatar(uid=g.uid, avatarUrl=imgUrl))
+                resp = g.api.userprofile.updateUserAvatar(uid=g.uid, avatarUrl=imgUrl)
+                res.update(resp)
+                if resp["code"] == 0:
+                    # 同步头像
+                    g.api.usersso.clientsConSync(g.api.userapp.getUserApp, g.sid, dict(CallbackType="user_avatar", CallbackData=imgUrl))
     else:
         res.update(code=3, msg="Unsuccessfully obtained file or format is not allowed")
     logger.info(res)

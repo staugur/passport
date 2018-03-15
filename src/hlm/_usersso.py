@@ -187,8 +187,9 @@ class UserSSOManager(ServiceBase):
                client处理：根据data中`CallbackType`处理不同类型数据
             3. 循环第2步，直到clients为空（所有已注册的局部会话已经注销）
         参数：
+            @param getUserApp func: userapp.UserAppManager.getUserApp
             @param sid str:客户端登录的标识
-            @param data dict: 回调数据，格式如：dict(CallbackType="user_profile", CallbackData=dict|list|tuple)
+            @param data dict: 回调数据，格式如：dict(CallbackType="user_profile|user_avatar", CallbackData=dict|list|tuple|str)
                 请求时json序列化传输，获取时使用json.loads(request.form.get("data")) -> 即data
         """
         # 检查参数
