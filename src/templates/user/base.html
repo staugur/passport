@@ -15,6 +15,7 @@
 <div class="fly-header layui-bg-black">
     <div class="layui-container">
         <a class="fly-logo" href="/"><img src="/static/images/logo.png" alt="layui"></a>
+        {% if g.signin %}
         <ul class="layui-nav fly-nav-user">
             <li class="layui-nav-item">
                 <a class="fly-nav-avatar" href="javascript:;">
@@ -36,10 +37,12 @@
                 </dl>
             </li>
         </ul>
+        {% endif %}
     </div>
 </div>
 
 <div class="layui-container fly-marginTop fly-user-main">
+    {% block leftNav %}
     <!--左侧垂直导航-->
     <ul class="layui-nav layui-nav-tree layui-inline" lay-filter="user">
         <!--
@@ -69,6 +72,7 @@
         <i class="layui-icon">&#xe602;</i>
     </div>
     <div class="site-mobile-shade"></div>
+    {% endblock %}
     <!--主要内容-->
     {% block userpanel %}{% endblock %}
 </div>
@@ -88,7 +92,7 @@ function popup(msg) {
 //字符串安全检查
 function safeCheck(s) {
     try {
-        if (s.indexOf("'")!=-1||s.indexOf('"')!=-1||s.indexOf("?")!=-1||s.indexOf("%")!=-1||s.indexOf(";")!=-1||s.indexOf("*")!=-1||s.indexOf("=")!=-1) {
+        if (s.indexOf("'")!=-1||s.indexOf('"')!=-1||s.indexOf("?")!=-1||s.indexOf("%")!=-1||s.indexOf(";")!=-1||s.indexOf("*")!=-1||s.indexOf("=")!=-1||s.indexOf("\\")!=-1) {
             return false
         } else {
             return true;
@@ -105,6 +109,8 @@ popup('{{ msg }}');
 {%- endfor %}
 {%- endif %}
 {%- endwith %}
+
+{%- if g.signin %}
 layui.use("jquery", function(){
     var $ = layui.jquery;
     //获取用户信息
@@ -128,6 +134,7 @@ layui.use("jquery", function(){
         }
     });
 });
+{%- endif %}
 </script>
 {% block script %}{% endblock %}
 </body>

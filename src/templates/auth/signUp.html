@@ -2,6 +2,18 @@
 
 {% block title %}注册{% endblock %}
 
+{% block head %}
+<style>
+    label {font-size:12px;cursor:pointer;}
+    label i {font-size:12px;font-style:normal;display:inline-block;width:12px;height:12px;text-align:center;line-height:12px;color:#fff;vertical-align:middle;margin:-2px 2px 1px 0px;border:#2489c5 1px solid;}
+    input[type="checkbox"],input[type="radio"] {display:none;}
+    input[type="radio"] + i {border-radius:7px;}
+    input[type="checkbox"]:checked + i,input[type="radio"]:checked + i {background:#2489c5;}
+    input[type="checkbox"]:disabled + i,input[type="radio"]:disabled + i {border-color:#ccc;}
+    input[type="checkbox"]:checked:disabled + i,input[type="radio"]:checked:disabled + i {background:#ccc;}
+</style>
+{% endblock %}
+
 {% block container %}
     <form action="{{ url_for('front.signUp', NextUrl=g.redirect_uri) }}" method="post" class="form" onsubmit="return checkSubmit();">
 		<div class="form-head">
@@ -18,7 +30,7 @@
             {%- endwith %}
             </p>
 			<div class="ui-input">
-				<input type="text" placeholder="邮箱/手机号" name="account" id="account" required="required" maxlength="50" autofocus="autofocus">
+				<input type="text" placeholder="邮箱" name="account" id="account" required="required" maxlength="50" autofocus="autofocus">
 			</div>
 			<div class="ui-input narrow-input">
 				<input type="text" placeholder="验证码" name="vcode" id="vcode" required="required" maxlength="6">
@@ -30,6 +42,7 @@
             <div class="ui-input">
                 <input type="password" placeholder="确认密码" name="repassword" id="repassword" required="required">
             </div>
+            <br><label><input type="checkbox" checked id="terms"><i>✓</i><a href="{{ url_for('front.terms') }}" target="_blank" style="color: #999" title="阅读服务条款">同意服务条款</a></label><br>
             {%- include "auth/vaptcha_form.html" %}
 			<input type="submit" class="ui-button ui-button--primary" disabled="disabled" id="signUpButton" value="注册">
 		</div>
@@ -70,6 +83,10 @@
     function checkSubmit() {
         var password = $('#password').val();
         var repassword = $('#repassword').val();
+        if (!document.getElementById("terms").checked) {
+            popup("请阅读并同意服务条款后继续！");
+            return false;
+        }
         if(password!=repassword){
             popup("密码和重复密码不同，请重新输入！");
             return false;

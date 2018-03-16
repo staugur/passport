@@ -243,6 +243,7 @@ def signOut():
 @FrontBlueprint.route("/unbind")
 @login_required
 def unbind():
+    # 解绑账号
     identity_name = request.args.get("identity_name")
     if identity_name:
         auth = Authentication(g.mysql, g.redis)
@@ -255,3 +256,8 @@ def unbind():
     else:
         flash(u"无效参数")
     return redirect(url_for("front.userset", _anchor="bind"))
+
+@FrontBlueprint.route("/terms.html")
+def terms():
+    # 服务条款
+    return render_template("public/terms.html")
