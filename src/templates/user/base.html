@@ -111,8 +111,8 @@ popup('{{ msg }}');
 {%- endwith %}
 
 {%- if g.signin %}
-layui.use("jquery", function(){
-    var $ = layui.jquery;
+layui.use(["jquery", "element"], function(){
+    var $ = layui.jquery, element = layui.element;
     //获取用户信息
     $.ajax({
         url: "{{ url_for('api.userprofile', getBind=true) }}",
