@@ -92,15 +92,15 @@ def validate():
                 res.update(msg="Empty ticket or app_name")
         elif Action == "validate_sync":
             token = request.form.get("token")
-            sid = request.form.get("sid")
-            sdata = g.api.usersso.ssoGetWithSid(sid)
-            if token and sid and sdata and isinstance(sdata, dict) and "syncToken" in sdata:
-                if token == sdata["syncToken"]:
-                    res.update(success=g.api.usersso.ssoSetSidConSyncTimes(sid))
+            uid = request.form.get("uid")
+            if uid and token and len(uid) == 22 and len(token) == 32:
+                syncToken = g.api.usersso.ssoGetUidCronSyncToken(uid)
+                if syncToken and syncToken == token:
+                    res.update(success=g.api.usersso.ssoSetUidConSyncTimes(uid))
                 else:
                     res.update(msg="Invaild token")
             else:
-                res.update(msg="Invaild sid or token")
+                res.update(msg="Invaild uid or token")
         else:
             res.update(msg="Invaild Action")
     return jsonify(res)

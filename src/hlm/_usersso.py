@@ -93,14 +93,16 @@ class UserSSOManager(ServiceBase):
             return data
         return False
 
-    def ssoSetSidConSyncTimes(self, sid):
-        """设置sid同步到客户端的次数"""
-        if sid and isinstance(sid, basestring):
-            skey = "passport:sso:sid:{}".format(sid)
+    def ssoSetUidConSyncTimes(self, uid):
+        """设置uid同步到客户端的次数"""
+        if uid and isinstance(uid, basestring):
+            tkey = "passport:user:syncToken:{}".format(uid)
             try:
             	pipe = self.redis.pipeline()
-                pipe.hincrby(skey, "syncTimes", 1)
-                pipe.hdel(skey, "syncToken")
+                pipe.delete(tkey)
+                for sid in self.ssoGetRegisteredUserSid(uid):
+                    skey = "passport:sso:sid:{}".format(sid)
+                    pipe.hincrby(skey, "syncTimes", 1)
                 pipe.execute()
             except Exception,e:
                 logger.error(e)
@@ -108,17 +110,31 @@ class UserSSOManager(ServiceBase):
                 return True
         return False
 
-    def ssoSetSidConSyncToken(self, sid, token):
-        """设置sid同步到客户端的token标识，用以验证此次同步是否passport发起"""
-        if sid and isinstance(sid, basestring):
-            skey = "passport:sso:sid:{}".format(sid)
+    def ssoSetUidConSyncToken(self, uid, token):
+        """设置uid同步到客户端的token标识，用以验证此次同步是否passport发起"""
+        if uid and isinstance(uid, basestring):
+            tkey = "passport:user:syncToken:{}".format(uid)
             try:
-                self.redis.hset(skey, "syncToken", token)
+                pipe = self.redis.pipeline()
+                pipe.set(tkey, token)
+                pipe.expire(tkey, 30)
+                pipe.execute()
             except Exception,e:
                 logger.error(e)
             else:
                 return True
         return False
+
+    def ssoGetUidCronSyncToken(self, uid):
+        """查询uid同步到客户端的token"""
+        if uid and isinstance(uid, basestring):
+            tkey = "passport:user:syncToken:{}".format(uid)
+            try:
+                token = self.redis.get(tkey)
+            except Exception,e:
+                logger.error(e)
+            else:
+                return token
 
     def ssoRegisterClient(self, sid, app_name):
         """ticket验证通过，向相应sid中注册app_name系统地址"""
@@ -182,31 +198,32 @@ class UserSSOManager(ServiceBase):
             pipe.delete(ckey)
             pipe.execute()
 
-    def clientsConSync(self, getUserApp, sid, uid, data):
-        """ 向sid各客户端并发同步数据
+    def clientsConSync(self, getUserApp, uid, data):
+        """ 向uid注册的各sid并发同步数据
         流程：
-            1. 根据sid查找注册的clients
-            2. 将data发送给client响应回调接口
-               client处理：根据data中`CallbackType`处理不同类型数据
-            3. 循环第2步，直到clients为空（所有已注册的局部会话已经注销）
+            1. 根据uid查找注册的sid，根据sid查到注册的clients，并去重
+            2. 循环clients获取其sso信息组合，多线程并发回调其授权接口
+            3. client时，根据token请求passport验证，通过后可以根据data中`CallbackType`处理不同类型数据
         参数：
             @param getUserApp func: userapp.UserAppManager.getUserApp
-            @param sid str:客户端登录的标识
             @param uid str:用户标识
             @param data dict: 回调数据，格式如：dict(CallbackType="user_profile|user_avatar", CallbackData=dict|list|tuple|str)
                 请求时json序列化传输，获取时使用json.loads(request.form.get("data")) -> 即data
         """
         # 检查参数
-        if sid and data and isinstance(data, dict) and "CallbackType" in data and "CallbackData" in data:
-            clients = self.ssoGetRegisteredClient(sid)
-            logger.debug("callback: has sid, get clients: {}".format(clients))
+        if uid and data and isinstance(data, dict) and "CallbackType" in data and "CallbackData" in data:
+            clients = []
+            for sid in self.ssoGetRegisteredUserSid(uid):
+                clients += self.ssoGetRegisteredClient(sid)
+            clients = list(set(clients))
+            logger.debug("callback: user all sid, get clients: {}".format(clients))
             if clients and isinstance(clients, list) and len(clients) > 0:
                 # 生成验证token
                 token = gen_token()
-                # 向sid写入本次验证token
-                self.ssoSetSidConSyncToken(sid, token)
+                # 向uid写入本次验证token
+                self.ssoSetUidConSyncToken(uid, token)
                 # 更新传递给客户端的data参数
-                data.update(sid=sid, uid=uid, token=token)
+                data.update(uid=uid, token=token)
                 kwargs = []
                 for clientName in clients:
                     clientData = getUserApp(clientName)
