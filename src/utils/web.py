@@ -307,10 +307,12 @@ class OAuth2(object):
         if self._verify_state is False:
             return True
         key = "passport:oauth:state:{}".format(state)
-        if state and sbs.redis.exists(key):
+        if state:
             expire = sbs.redis.get(key)
-            if get_current_timestamp() <= int(expire):
-                return True
+            if expire:
+                if get_current_timestamp() <= int(expire):
+                    sbs.redis.delete(key)
+                    return True
         return False
 
     @property
