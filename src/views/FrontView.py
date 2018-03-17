@@ -45,6 +45,12 @@ def userapp():
     # 默认返回应用选项卡
     return render_template("user/apps.html")
 
+@FrontBlueprint.route('/sys/manager/')
+@adminlogin_required
+def sysmanager():
+    # 默认返回应用选项卡
+    return render_template("user/apps.html")
+
 @FrontBlueprint.route('/signUp', methods=['GET', 'POST'])
 @anonymous_required
 def signUp():

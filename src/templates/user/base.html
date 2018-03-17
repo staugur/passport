@@ -54,6 +54,9 @@
             <a href="{{ url_for('front.userset') }}"><i class="layui-icon">&#xe620;</i>基本设置</a>
         </li>
         {% if tpl_adminlogin_required() %}
+        <li class="layui-nav-item {% if request.endpoint == 'front.sysmanager' %}layui-this{% endif %}">
+            <a href="{{ url_for('front.sysmanager') }}"><i class="layui-icon">&#xe631;</i>系统设置</a>
+        </li>
         <li class="layui-nav-item {% if request.endpoint == 'front.userapp' %}layui-this{% endif %}">
             <a href="{{ url_for('front.userapp') }}"><i class="layui-icon">&#xe857;</i>应用管理</a>
         </li>
