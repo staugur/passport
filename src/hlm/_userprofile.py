@@ -151,7 +151,7 @@ class UserProfileManager(ServiceBase):
                 # 用户旧数据
                 user_old_data = user_old_data["data"]
                 # 昵称
-                if nick_name
+                if nick_name:
                     if len(nick_name) <= 49:
                         # nick_name可修改时拼接上sql
                         if user_old_data["lock"]["nick_name"] is False:
