@@ -280,17 +280,20 @@ class UserProfileManager(ServiceBase):
         """
         res = dict(msg=None, code=1)
         if uid and nowpass and 6 <= len(nowpass) <= 30 and newpass and newpass == repass and 6 <= len(newpass) <= 30:
-            if self.__checkUserPassword(uid, nowpass):
-                sql = "UPDATE user_auth SET certificate=%s WHERE identity_type IN (1,2) AND uid = %s"
-                try:
-                    self.mysql.update(sql, generate_password_hash(newpass), uid)
-                except Exception, e:
-                    logger.error(e, exc_info=True)
-                    res.update(msg="System is abnormal", code=2)
-                else:
-                    res.update(code=0)
+            if nowpass == newpass:
+                res.update(msg="The new password request is inconsistent with the current password", code=5)
             else:
-                res.update(msg="The current password is wrong", code=3)
+                if self.__checkUserPassword(uid, nowpass):
+                    sql = "UPDATE user_auth SET certificate=%s WHERE identity_type IN (1,2) AND uid = %s"
+                    try:
+                        self.mysql.update(sql, generate_password_hash(newpass), uid)
+                    except Exception, e:
+                        logger.error(e, exc_info=True)
+                        res.update(msg="System is abnormal", code=2)
+                    else:
+                        res.update(code=0)
+                else:
+                    res.update(msg="The current password is wrong", code=3)
         else:
             res.update(msg="There are invalid parameters", code=4)
         return res

@@ -284,6 +284,10 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
             }
         },
         newpass: function(value, item) {
+            var nowpass = $('#nowpass').val();
+            if (nowpass == value) {
+                return '新密码要求与当前密码不一致';
+            }
             if (value.length<6||value.length>30||value.indexOf(" ") != -1) {
                 return '新密码必须6到30位，且不能出现空格';
             }

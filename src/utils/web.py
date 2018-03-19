@@ -472,6 +472,7 @@ def dfr(res, default='en-US'):
             "Please bind the email or phone first": u"请先绑定邮箱或手机",
             "Failed to create authorization ticket": u"创建授权令牌失败",
             "The current password is wrong": u"当前密码错误",
+            "The new password request is inconsistent with the current password": u"新密码要求与当前密码不一致",
         },
         # 繁体中文-香港
         "zh-HK": {
@@ -507,6 +508,7 @@ def dfr(res, default='en-US'):
             "Please bind the email or phone first": u"請先綁定郵箱或手機",
             "Failed to create authorization ticket": u"創建授權令牌失敗",
             "The current password is wrong": u"當前密碼錯誤",
+            "The new password request is inconsistent with the current password": u"新密碼要求與當前密碼不一致",
         }
     }
     if isinstance(res, dict) and not "en" in language:
