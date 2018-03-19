@@ -19,6 +19,7 @@ import jinja2
 import os
 import sys
 import config
+import time
 from version import __version__
 from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO
 from utils.web import verify_sessionId, analysis_sessionId, tpl_adminlogin_required, get_redirect_url
@@ -80,6 +81,7 @@ def GlobalTemplateVariables():
 
 @app.before_request
 def before_request():
+    g.startTime = time.time()
     g.redis = create_redis_engine()
     g.mysql = create_mysql_engine()
     g.signin = verify_sessionId(request.cookies.get("sessionId"))
@@ -112,6 +114,7 @@ def after_request(response):
         "url": request.url,
         "referer": request.headers.get('Referer'),
         "agent": request.headers.get("User-Agent"),
+        "TimeInterval": "%0.2fs" %float(time.time() - g.startTime)
     }
     access_logger.info(data)
     # 上下文扩展点之请求后(返回前)
