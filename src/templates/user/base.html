@@ -92,6 +92,7 @@ function popup(msg) {
         autoclose: 5000
     });
 }
+
 //字符串安全检查
 function safeCheck(s) {
     try {
@@ -105,6 +106,7 @@ function safeCheck(s) {
         return false;
     }
 }
+
 {%- with messages = get_flashed_messages() %}
 {%- if messages %}
 {%- for msg in messages %}
@@ -116,14 +118,11 @@ popup('{{ msg }}');
 {%- if g.signin %}
 layui.use(["jquery", "element"], function(){
     var $ = layui.jquery, element = layui.element;
-    console.log("The userinfo cache, before ajax pull:");
-    console.log(layui.cache.user);
     //获取用户信息
     $.ajax({
         url: "{{ url_for('api.userprofile', getBind=true) }}",
         async: false,
         success: function(res) {
-            console.log(res);
             if (res.code==0) {
                 //更新昵称
                 $('#nav_nickname').text(res.data.nick_name || '');
@@ -132,16 +131,13 @@ layui.use(["jquery", "element"], function(){
                 //缓存
                 layui.cache.user = res.data;
             } else {
-                popup("拉取用户信息失败，请刷新再试");
-                popup(res.msg);
+                popup("拉取用户信息失败：" + res.msg);
             }
         },
         error: function() {
             popup("系统异常，请稍后再试");
         }
     });
-    console.log("The userinfo cache, after ajax pull:");
-    console.log(layui.cache.user);
 });
 {%- endif %}
 </script>
