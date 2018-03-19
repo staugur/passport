@@ -121,6 +121,7 @@ layui.use(["jquery", "element"], function(){
     //获取用户信息
     $.ajax({
         url: "{{ url_for('api.userprofile', getBind=true) }}",
+        async: false,
         success: function(res) {
             console.log(res);
             if (res.code==0) {
