@@ -74,7 +74,7 @@ class UserProfileManager(ServiceBase):
             else:
                 raise
         except:
-            sql = "SELECT register_source,register_ip,nick_name,domain_name,gender,birthday,signature,avatar,location,ctime,mtime,is_realname,is_admin,lock_nick_name,lock_domain_name FROM user_profile WHERE uid=%s"
+            sql = "SELECT register_source,register_ip,nick_name,domain_name,gender,birthday,signature,avatar,location,ctime,mtime,is_realname,lock_nick_name,lock_domain_name FROM user_profile WHERE uid=%s"
             if uid and isinstance(uid, (str, unicode)) and len(uid) == 22:
                 try:
                     data = self.mysql.get(sql, uid)
@@ -94,8 +94,8 @@ class UserProfileManager(ServiceBase):
         if res.get("data") and isinstance(res.get("data"), dict):
             # 更新设置锁数据
             res['data']['lock'] = dict(
-                nick_name = self.__checkUsersetLock(res["data"].get("lock_nick_name", -1)),
-                domain_name = self.__checkUsersetLock(res["data"].get("lock_domain_name", -1)),
+                nick_name = self.__checkUsersetLock(int(res["data"].get("lock_nick_name", -1))),
+                domain_name = self.__checkUsersetLock(int(res["data"].get("lock_domain_name", -1))),
             )
             # 是否获取绑定账号数据
             if getBind is True:
@@ -219,7 +219,7 @@ class UserProfileManager(ServiceBase):
                         logger.error(e, exc_info=True)
                         res.update(msg="System is abnormal", code=3)
                     else:
-                        res.update(code=0, refreshCache=self.refreshUserProfile(uid))
+                        res.update(code=0, refreshCache=self.refreshUserProfile(uid), layuiCache=timestamp_after_timestamp(minutes=3))
                         # 更新成功后设置锁
                         res.update(lock=dict(nick_name=can_lock_nick_name, domain_name=can_lock_domain_name))
                 else:
