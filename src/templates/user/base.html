@@ -122,6 +122,7 @@ layui.use(["jquery", "element"], function(){
     $.ajax({
         url: "{{ url_for('api.userprofile', getBind=true) }}",
         success: function(res) {
+            console.log(res);
             if (res.code==0) {
                 //更新昵称
                 $('#nav_nickname').text(res.data.nick_name || '');
