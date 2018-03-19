@@ -4,13 +4,13 @@ Navicat MySQL Data Transfer
 Source Server         : localhost
 Source Server Version : 50720
 Source Host           : localhost:3306
-Source Database       : passport
+Source Database       : saintic
 
 Target Server Type    : MYSQL
 Target Server Version : 50720
 File Encoding         : 65001
 
-Date: 2018-03-13 13:39:42
+Date: 2018-03-19 15:55:53
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -30,7 +30,7 @@ CREATE TABLE `sso_apps` (
   `mtime` int(10) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user_auth
@@ -53,7 +53,7 @@ CREATE TABLE `user_auth` (
   KEY `status` (`status`) USING BTREE,
   KEY `idx_uid` (`uid`) USING BTREE,
   KEY `identity_type` (`identity_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
+) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
 
 -- ----------------------------
 -- Table structure for user_loginlog
@@ -73,7 +73,7 @@ CREATE TABLE `user_loginlog` (
   `browser_family` varchar(30) CHARACTER SET utf8 DEFAULT NULL COMMENT '浏览器种类及版本，如chrome 60.0.3122',
   PRIMARY KEY (`id`),
   KEY `idx_uid_type_time` (`uid`,`login_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
+) ENGINE=InnoDB AUTO_INCREMENT=102 DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
 
 -- ----------------------------
 -- Table structure for user_profile
@@ -94,6 +94,8 @@ CREATE TABLE `user_profile` (
   `mtime` int(10) unsigned DEFAULT NULL COMMENT '资料修改时间',
   `is_realname` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否实名认证 0-未实名 1-已实名',
   `is_admin` tinyint(1) unsigned NOT NULL DEFAULT '0' COMMENT '是否管理员 0-否 1-是',
+  `lock_nick_name` int(10) DEFAULT '-1' COMMENT '昵称锁，有效时间戳内表示加锁，-1表示无锁',
+  `lock_domain_name` tinyint(1) DEFAULT '-1' COMMENT '域名锁，0表示加锁 -1表示无锁',
   PRIMARY KEY (`uid`),
   UNIQUE KEY `uid` (`uid`),
   UNIQUE KEY `dn` (`domain_name`)
