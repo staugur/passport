@@ -219,7 +219,7 @@ class UserProfileManager(ServiceBase):
                         logger.error(e, exc_info=True)
                         res.update(msg="System is abnormal", code=3)
                     else:
-                        res.update(code=0, refreshCache=self.refreshUserProfile(uid), layuiCache=timestamp_after_timestamp(minutes=3))
+                        res.update(code=0, refreshCache=self.refreshUserProfile(uid))
                         # 更新成功后设置锁
                         res.update(lock=dict(nick_name=can_lock_nick_name, domain_name=can_lock_domain_name))
                 else:
