@@ -15,6 +15,7 @@ from utils.tool import logger, get_current_timestamp, timestring_to_timestamp, t
 from utils.web import oauth2_type2name
 from torndb import IntegrityError
 from config import SYSTEM
+from werkzeug.security import generate_password_hash, check_password_hash
 
 
 class UserProfileManager(ServiceBase):
@@ -250,6 +251,46 @@ class UserProfileManager(ServiceBase):
                     res.update(code=0, refreshCache=self.refreshUserProfile(uid))
             else:
                 res.update(msg="Image address is not valid", code=3)
+        else:
+            res.update(msg="There are invalid parameters", code=4)
+        return res
+
+    def __checkUserPassword(self, uid, password):
+        """校验用户密码
+        @param password str: 要校验的密码
+        """
+        if uid and password and 6 <= len(password) <= 30:
+            sql = "SELECT certificate FROM user_auth WHERE identity_type IN (1,2) AND uid = %s"
+            try:
+                data = self.mysql.get(sql, uid)
+            except Exception, e:
+                logger.error(e, exc_info=True)
+            else:
+                if data and isinstance(data, dict) and "certificate" in data:
+                    certificate = data["certificate"]
+                    return check_password_hash(certificate, password)
+        return False
+
+    def updateUserPassword(self, uid, nowpass, newpass, repass):
+        """修改密码
+        @param uid str: 用户id
+        @param nowpass str: 当前密码
+        @param newpass str: 新密码
+        @param repass str: 确认新密码
+        """
+        res = dict(msg=None, code=1)
+        if uid and nowpass and 6 <= len(nowpass) <= 30 and newpass and newpass == repass and 6 <= len(newpass) <= 30:
+            if self.__checkUserPassword(uid, nowpass):
+                sql = "UPDATE user_auth SET certificate=%s WHERE identity_type IN (1,2) AND uid = %s"
+                try:
+                    self.mysql.update(sql, generate_password_hash(newpass), uid)
+                except Exception, e:
+                    logger.error(e, exc_info=True)
+                    res.update(msg="System is abnormal", code=2)
+                else:
+                    res.update(code=0)
+            else:
+                res.update(msg="The current password is wrong", code=3)
         else:
             res.update(msg="There are invalid parameters", code=4)
         return res

@@ -155,7 +155,10 @@ def userprofile():
                 # 同步基本资料
                 g.api.usersso.clientsConSync(g.api.userapp.getUserApp, g.uid, dict(CallbackType="user_profile", CallbackData=data))
         elif Action == "password":
-            pass
+            nowpass = request.form.get("nowpass")
+            newpass = request.form.get("newpass")
+            repass = request.form.get("repass")
+            res = g.api.userprofile.updateUserPassword(uid=g.uid, nowpass=nowpass, newpass=newpass, repass=repass)
     logger.info(res)
     return jsonify(dfr(res))
 

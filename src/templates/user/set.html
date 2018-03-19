@@ -74,28 +74,28 @@
                     </div>
                 </div>
                 <div class="layui-form layui-form-pane layui-tab-item">
-                    <form action="/user/repass" method="post">
+                    <form action="" method="">
                         <div class="layui-form-item">
-                            <label for="L_nowpass" class="layui-form-label">当前密码</label>
+                            <label for="nowpass" class="layui-form-label">当前密码</label>
                             <div class="layui-input-inline">
-                                <input type="password" id="L_nowpass" name="nowpass" required lay-verify="required" autocomplete="off" class="layui-input">
+                                <input type="password" id="nowpass" name="nowpass" required lay-verify="required" autocomplete="off" class="layui-input">
                             </div>
                         </div>
                         <div class="layui-form-item">
-                            <label for="L_pass" class="layui-form-label">新密码</label>
+                            <label for="newpass" class="layui-form-label">新密码</label>
                             <div class="layui-input-inline">
-                                <input type="password" id="L_pass" name="pass" required lay-verify="required" autocomplete="off" class="layui-input">
+                                <input type="password" id="newpass" name="newpass" required lay-verify="required" autocomplete="off" class="layui-input">
                             </div>
-                            <div class="layui-form-mid layui-word-aux">6到16个字符</div>
+                            <div class="layui-form-mid layui-word-aux">6到30个字符</div>
                         </div>
                         <div class="layui-form-item">
-                            <label for="L_repass" class="layui-form-label">确认密码</label>
+                            <label for="repass" class="layui-form-label">确认密码</label>
                             <div class="layui-input-inline">
-                                <input type="password" id="L_repass" name="repass" required lay-verify="required" autocomplete="off" class="layui-input">
+                                <input type="password" id="repass" name="repass" required lay-verify="required" autocomplete="off" class="layui-input">
                             </div>
                         </div>
                         <div class="layui-form-item">
-                            <button class="layui-btn layui-btn-disabled" lay-filter="passport" lay-submit disabled="disabled">确认修改</button>
+                            <button class="layui-btn" lay-filter="password" lay-submit id="passwordSubmit">确认修改</button>
                         </div>
                     </form>
                 </div>
@@ -276,6 +276,22 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
                     return '个性域名长度不能小于5或大于32';
                 }
             }
+        },
+        nowpass: function(value, item) {
+            if (!new RegExp("/^[\S]{6,30}$/").test(value)) {
+                return '密码必须6到30位，且不能出现空格';
+            }
+        },
+        newpass: function(value, item) {
+            if (!new RegExp("/^[\S]{6,30}$/").test(value)) {
+                return '密码必须6到30位，且不能出现空格';
+            }
+        },
+        repass: function(value, item) {
+            var newpass = $('#newpass').val();
+            if (newpass != value) {
+                return '两次新密码输入不一致';
+            }
         }
     });
     //监听修改资料提交
@@ -352,6 +368,36 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
         ,error: function(){
             layer.closeAll('loading');
         }
+    });
+    //监听修改密码提交
+    form.on('submit(password)', function(data){
+        var field = data.field; //当前容器的全部表单字段，键值对形式：{name: value}
+        $.ajax({
+            url: "{{ url_for('api.userprofile', Action='password') }}",
+            method: "PUT",
+            data: field,
+            beforeSend: function() {
+                //禁用按钮防止重复提交
+                $("#passwordSubmit").attr({ disabled: "disabled" });
+                $('#passwordSubmit').addClass("layui-disabled");
+            },
+            success: function(res) {
+                console.log(res);
+                if (res.code==0) {
+                    popup("已修改密码");
+                } else {
+                    popup("修改密码失败：" + res.msg);
+                }
+            },
+            error: function(error){
+                popup("服务器异常！");
+            },
+            complete: function() {
+                $('#passwordSubmit').removeAttr("disabled");
+                $('#passwordSubmit').removeClass("layui-disabled");
+            }
+        });
+        return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
     });
     //监听偏好设置提交
     form.on('submit(like)', function(data){
