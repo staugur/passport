@@ -291,6 +291,7 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
                 $('#profileSubmit').addClass("layui-disabled");
             },
             success: function(res) {
+                console.log(res);
                 if (res.code==0) {
                     popup("已修改基本资料");
                     //更新缓存
@@ -298,11 +299,11 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
                         layui.cache.user[key] = field[key];
                     }
                     //设置禁用
-                    if (field.nick_name) {
+                    if (res.lock.nick_name) {
                         $("#nick_name").attr({ disabled: "disabled" });
                         $('#nick_name').addClass("layui-disabled");
                     }
-                    if (field.domain_name) {
+                    if (res.lock.domain_name) {
                         $("#domain_name").attr({ disabled: "disabled" });
                         $('#domain_name').addClass("layui-disabled");
                     }

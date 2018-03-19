@@ -116,6 +116,8 @@ popup('{{ msg }}');
 {%- if g.signin %}
 layui.use(["jquery", "element"], function(){
     var $ = layui.jquery, element = layui.element;
+    console.log("The userinfo cache, before ajax pull:");
+    console.log(layui.cache.user);
     //获取用户信息
     $.ajax({
         url: "{{ url_for('api.userprofile', getBind=true) }}",
@@ -136,6 +138,8 @@ layui.use(["jquery", "element"], function(){
             popup("系统异常，请稍后再试");
         }
     });
+    console.log("The userinfo cache, after ajax pull:");
+    console.log(layui.cache.user);
 });
 {%- endif %}
 </script>

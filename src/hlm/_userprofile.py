@@ -38,57 +38,24 @@ class UserProfileManager(ServiceBase):
                 bind = [{"identity_type": oauth2_type2name(i["identity_type"]), "ctime": i["ctime"], "mtime": i["mtime"]} for i in data]
         return bind
 
-    def __getUserSetLock(self, uid):
-        """查询用户设置锁，比如个性域名、昵称"""
-        if uid:
-            return dict(
-                nick_name=self.__hasUserSetLock(uid, "nick_name"),
-                domain_name=self.__hasUserSetLock(uid, "domain_name"),
-            )
-        return dict()
-
-    def __setUserSetLock(self, uid, nick_name=False, domain_name=False):
-        """查询用户设置锁，比如个性域名、昵称
-        @param nick_name bool: 昵称是否设置锁过期，24h内只可以修改一次
-        @param domain_name bool: 个性域名是否设置锁过期，一旦设置不可修改
-        """
-        if uid:
-            key = "passport:user:lock:{}".format(uid)
-            pipe = self.redis.pipeline()
-            if nick_name is True:
-                # 设置昵称24小时后过期
-                pipe.hset(key, "nick_name", timestamp_after_timestamp(hours=24))
-            if domain_name is True:
-                # 设置个性域名永久有效
-                pipe.hset(key, "domain_name", 0)
-            try:
-                pipe.execute()
-            except:
-                return False
-            else:
-                return True
-
-    def __hasUserSetLock(self, uid, item):
+    def __checkUsersetLock(self, etime):
         """检查用户某项是否加锁
         参数：
-            @param item str: 有效项：`nick_name`, `domain_name`
+            @param etime str: 有效期，见"规则"
         规则：
             1. 10位UNIX时间戳，小于当前时间即锁失效，可以修改
-            2. 结果为0表示永不过期即锁有效。不可以修改
+            2. 结果为0表示加锁，不可以修改；结果为-1表示无锁
         返回：
-            True -> 加锁 -> 不可以修改
-            False -> 未加锁 -> 可修改
+            True -> 加锁 -> 不可以修改（默认）
+            False -> 无锁 -> 可修改
         """
-        if uid:
-            key = "passport:user:lock:{}".format(uid)
-            now = get_current_timestamp()
-            etime = self.redis.hget(key, item)
-            try:
-                etime = int(etime)
-            except:
+        if etime and isinstance(etime, int):
+            if etime == -1:
                 return False
+            elif etime == 0:
+                return True
             else:
-                if etime != 0 and etime < now:
+                if 0 < etime < get_current_timestamp():
                     return False
         return True
 
@@ -107,7 +74,7 @@ class UserProfileManager(ServiceBase):
             else:
                 raise
         except:
-            sql = "SELECT register_source,register_ip,nick_name,domain_name,gender,birthday,signature,avatar,location,ctime,mtime,is_realname,is_admin FROM user_profile WHERE uid=%s"
+            sql = "SELECT register_source,register_ip,nick_name,domain_name,gender,birthday,signature,avatar,location,ctime,mtime,is_realname,is_admin,lock_nick_name,lock_domain_name FROM user_profile WHERE uid=%s"
             if uid and isinstance(uid, (str, unicode)) and len(uid) == 22:
                 try:
                     data = self.mysql.get(sql, uid)
@@ -118,7 +85,7 @@ class UserProfileManager(ServiceBase):
                     res.update(data=data, code=0)
                     pipe = self.redis.pipeline()
                     pipe.set(key, json.dumps(data))
-                    pipe.expire(key, 300)
+                    pipe.expire(key, 3600)
                     pipe.execute()
             else:
                 res.update(msg="There are invalid parameters", code=2)
@@ -126,7 +93,10 @@ class UserProfileManager(ServiceBase):
             res.update(data=data, code=0)
         if res.get("data") and isinstance(res.get("data"), dict):
             # 更新设置锁数据
-            res['data']['lock'] = self.__getUserSetLock(uid)
+            res['data']['lock'] = dict(
+                nick_name = self.__checkUsersetLock(res["data"].get("lock_nick_name", -1)),
+                domain_name = self.__checkUsersetLock(res["data"].get("lock_domain_name", -1)),
+            )
             # 是否获取绑定账号数据
             if getBind is True:
                 res['data']['bind'] = self.listUserBind(uid)
@@ -155,83 +125,111 @@ class UserProfileManager(ServiceBase):
         invalid = []
         can_lock_nick_name = False
         can_lock_domain_name = False
-        # 检测并组建sql
-        sql = "UPDATE user_profile SET "
-        if nick_name and len(nick_name) <= 49:
-            if self.__hasUserSetLock(uid, "nick_name") is False:
-                sql += "nick_name='%s'," % nick_name
-                can_lock_nick_name = True
-        else:
-            checked = False
-            invalid.append("nick_name")
-        if domain_name:
-            if domain_name_pat.match(domain_name) and not domain_name.endswith('_') and not domain_name in ("admin", "system", "root", "administrator", "null", "none", "true", "false", "user"):
-                if self.__hasUserSetLock(uid, "domain_name") is False:
-                    sql += "domain_name='%s'," % domain_name
-                    can_lock_domain_name = True
-            else:
-                checked = False
-                invalid.append("domain_name")
-        if birthday:
-            try:
-                birthday = timestring_to_timestamp(birthday, format="%Y-%m-%d")
-            except:
-                checked = False
-                invalid.append("birthday")
-            else:
-                sql += "birthday=%d," % birthday
-        if location:
-            sql += "location='%s'," % location
-        if gender:
-            try:
-                gender = int(gender)
-            except:
-                checked = False
-                invalid.append("gender")
-            else:
-                if gender in (0, 1, 2):
-                    sql += "gender=%d," % gender
-                else:
-                    checked = False
-                    invalid.append("gender")
-        if signature:
-            sql += "signature='%s'," % signature
-        if not nick_name and \
+        # 防止sql注入的安全检测
+        for key, value in profiles.iteritems():
+            checked = sql_safestring_check(value)
+            logger.debug("check {}, value: {}, result: {}".format(key, value, checked))
+            if checked is False:
+                invalid.append(key)
+                break
+        # 至少有一项资料修改才通过检测
+        if checked:
+            if not nick_name and \
                 not domain_name and \
                 not birthday and \
                 not location and \
                 not gender and \
                 not signature:
-            checked = False
-            invalid.append("all")
-        if checked:
-            # 拼接sql的安全检测
-            for key, value in profiles.iteritems():
-                checked = sql_safestring_check(value)
-                logger.debug("check {}, value: {}, result: {}".format(key, value, checked))
-                if checked is False:
-                    invalid.append(key)
-                    break
-
-        if uid and checked:
-            sql += "mtime={}".format(get_current_timestamp())
-            sql += " WHERE uid='%s'" % uid
-            logger.debug("update profile for {}, sql is: {}".format(uid, sql))
-            try:
-                self.mysql.update(sql)
-            except IntegrityError, e:
-                logger.warn(e, exc_info=True)
-                res.update(msg="Personal domain has been occupied", code=2)
-            except Exception, e:
-                logger.error(e, exc_info=True)
-                res.update(msg="System is abnormal", code=3)
+                checked = False
+                invalid.append("all")
+        if checked and uid and isinstance(uid, basestring) and len(uid) == 22:
+            # 获取用户资料对比nick_name、domain_name是否修改过
+            user_old_data = self.getUserProfile(uid)
+            if user_old_data["code"] == 0:
+                # 开始检测并组建sql
+                sql = "UPDATE user_profile SET "
+                # 用户旧数据
+                user_old_data = user_old_data["data"]
+                # 昵称
+                if nick_name
+                    if len(nick_name) <= 49:
+                        # nick_name可修改时拼接上sql
+                        if user_old_data["lock"]["nick_name"] is False:
+                            sql += "nick_name='%s'," % nick_name
+                            if nick_name != user_old_data["nick_name"]:
+                                # 判断昵称更改，加锁，设置其24小时后过期
+                                can_lock_nick_name = True
+                                sql += "lock_nick_name={},".format(timestamp_after_timestamp(hours=24))
+                    else:
+                        checked = False
+                        invalid.append("nick_name")
+                # 个性域名
+                if domain_name:
+                    if domain_name_pat.match(domain_name) and not domain_name.endswith('_') and not domain_name in ("admin", "system", "root", "administrator", "null", "none", "true", "false", "user"):
+                        # domain_name可修改时拼接上sql
+                        if user_old_data["lock"]["domain_name"] is False:
+                            sql += "domain_name='%s'," % domain_name
+                            if domain_name != user_old_data["domain_name"]:
+                                # 判断域名更改，加锁，设置其永久有效
+                                can_lock_domain_name = True
+                                sql += "lock_domain_name=0,"
+                    else:
+                        checked = False
+                        invalid.append("domain_name")
+                # 生日
+                if birthday:
+                    try:
+                        birthday = timestring_to_timestamp(birthday, format="%Y-%m-%d")
+                    except:
+                        checked = False
+                        invalid.append("birthday")
+                    else:
+                        sql += "birthday=%d," % birthday
+                # 性别
+                if gender:
+                    try:
+                        gender = int(gender)
+                    except:
+                        checked = False
+                        invalid.append("gender")
+                    else:
+                        if gender in (0, 1, 2):
+                            sql += "gender=%d," % gender
+                        else:
+                            checked = False
+                            invalid.append("gender")
+                # 签名
+                if signature:
+                    sql += "signature='%s'," % signature
+                # 城市
+                if location:
+                    sql += "location='%s'," % location
+                # 更新sql
+                if checked:
+                    # 资料更新，设置mtime
+                    sql += "mtime={}".format(get_current_timestamp())
+                    sql += " WHERE uid='%s'" % uid
+                    logger.debug("update profile for {}, sql is: {}".format(uid, sql))
+                    try:
+                        self.mysql.update(sql)
+                    except IntegrityError, e:
+                        logger.warn(e, exc_info=True)
+                        res.update(msg="Personal domain has been occupied", code=2)
+                    except Exception, e:
+                        logger.error(e, exc_info=True)
+                        res.update(msg="System is abnormal", code=3)
+                    else:
+                        res.update(code=0, refreshCache=self.refreshUserProfile(uid))
+                        # 更新成功后设置锁
+                        res.update(lock=dict(nick_name=can_lock_nick_name, domain_name=can_lock_domain_name))
+                else:
+                    res.update(msg="There are invalid parameters", code=5)
             else:
-                res.update(code=0, refreshCache=self.refreshUserProfile(uid))
-                # 更新成功后设置锁
-                lock = self.__setUserSetLock(uid=uid, nick_name=can_lock_nick_name, domain_name=can_lock_domain_name)
-                res.update(locked=lock)
+                res.update(msg="System is abnormal", code=1)
         else:
-            res.update(msg="There are invalid parameters", code=4, invalid=invalid)
+            res.update(msg="There are invalid parameters", code=4)
+        if res["code"] != 0:
+            res.update(invalid=invalid)
         return res
 
     def updateUserAvatar(self, uid, avatarUrl):
