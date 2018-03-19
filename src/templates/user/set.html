@@ -324,6 +324,8 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
                         $("#domain_name").attr({ disabled: "disabled" });
                         $('#domain_name').addClass("layui-disabled");
                     }
+                    //更新导航中昵称
+                    $('#nav_nickname').text(field.nick_name || '');
                 } else {
                     var tip = res.msg;
                     var err = '';
