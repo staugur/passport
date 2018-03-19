@@ -79,20 +79,20 @@
                         <div class="layui-form-item">
                             <label for="nowpass" class="layui-form-label">当前密码</label>
                             <div class="layui-input-inline">
-                                <input type="password" id="nowpass" name="nowpass" required lay-verify="required" autocomplete="off" class="layui-input">
+                                <input type="password" id="nowpass" name="nowpass" required lay-verify="required|nowpass" lay-verType="tips" autocomplete="off" class="layui-input">
                             </div>
                         </div>
                         <div class="layui-form-item">
                             <label for="newpass" class="layui-form-label">新密码</label>
                             <div class="layui-input-inline">
-                                <input type="password" id="newpass" name="newpass" required lay-verify="required" autocomplete="off" class="layui-input">
+                                <input type="password" id="newpass" name="newpass" required lay-verify="required|newpass" lay-verType="tips" autocomplete="off" class="layui-input">
                             </div>
                             <div class="layui-form-mid layui-word-aux">6到30个字符</div>
                         </div>
                         <div class="layui-form-item">
                             <label for="repass" class="layui-form-label">确认密码</label>
                             <div class="layui-input-inline">
-                                <input type="password" id="repass" name="repass" required lay-verify="required" autocomplete="off" class="layui-input">
+                                <input type="password" id="repass" name="repass" required lay-verify="required|repass" lay-verType="tips" autocomplete="off" class="layui-input">
                             </div>
                         </div>
                         <div class="layui-form-item">
@@ -279,21 +279,17 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
             }
         },
         nowpass: function(value, item) {
-            console.log("nowpass "+ value);
-            if (!new RegExp("/^[\S]{6,30}$/").test(value)) {
+            if (value.length<6||value.length>30||value.indexOf(" ") != -1) {
                 return '密码必须6到30位，且不能出现空格';
             }
         },
         newpass: function(value, item) {
-            console.log("newpass "+ value);
-            if (!new RegExp("/^[\S]{6,30}$/").test(value)) {
-                return '密码必须6到30位，且不能出现空格';
+            if (value.length<6||value.length>30||value.indexOf(" ") != -1) {
+                return '新密码必须6到30位，且不能出现空格';
             }
         },
         repass: function(value, item) {
-            console.log("repass "+ value);
             var newpass = $('#newpass').val();
-            console.log("newpass "+ newpass);
             if (newpass != value) {
                 return '两次新密码输入不一致';
             }
