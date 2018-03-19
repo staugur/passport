@@ -279,17 +279,21 @@ layui.use(["element", "form", "layer", "laydate", "util", "upload"], function(){
             }
         },
         nowpass: function(value, item) {
+            console.log("nowpass "+ value);
             if (!new RegExp("/^[\S]{6,30}$/").test(value)) {
                 return '密码必须6到30位，且不能出现空格';
             }
         },
         newpass: function(value, item) {
+            console.log("newpass "+ value);
             if (!new RegExp("/^[\S]{6,30}$/").test(value)) {
                 return '密码必须6到30位，且不能出现空格';
             }
         },
         repass: function(value, item) {
+            console.log("repass "+ value);
             var newpass = $('#newpass').val();
+            console.log("newpass "+ newpass);
             if (newpass != value) {
                 return '两次新密码输入不一致';
             }
