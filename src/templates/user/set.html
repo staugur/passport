@@ -279,7 +279,9 @@
         }else{
             var cas = $('#tailoringImg').cropper('getCroppedCanvas');//获取被裁剪后的canvas
             var base64url = cas.toDataURL('image/png'); //转换为base64地址形式
-            if (showSize(base64url)>3) {
+            var base64size = showSize(base64url);
+            console.debug("裁剪后图片大小："+base64size+"MB");
+            if (base64size > 3) {
                 popup("图片超出限定大小，请重新裁剪！");
                 return false;
             }
@@ -295,6 +297,8 @@
                         layui.cache.user.avatar = res.imgUrl;
                         $("#avatar").prop("src",base64url);
                         $('#nav_avatar').prop('src', base64url);
+                        //关闭裁剪框
+                        closeTailor();
                     } else {
                         popup(res.msg);
                     }
@@ -303,8 +307,6 @@
                     popup("系统异常，请稍后重试");
                 }
             });
-            //关闭裁剪框
-            closeTailor();
         }
     });
     //关闭裁剪框
