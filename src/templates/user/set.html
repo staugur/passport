@@ -281,7 +281,7 @@
             var base64url = cas.toDataURL('image/png'); //转换为base64地址形式
             var img = new Image();
             img.src = base64url;
-            console.info("分析图片"+img.src+",宽为"+img.width+",高为"+img.height);
+            console.info("分析图片,大小为"+img.fileSize+",宽为"+img.width+",高为"+img.height);
             //执行上传
             $.ajax({
                 url: "{{ url_for('api.userupload', callableAction='UpdateAvatar') }}",
