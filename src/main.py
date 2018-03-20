@@ -40,7 +40,7 @@ __date__ = '2018-01-09'
 app = Flask(__name__)
 app.config.update(
     SECRET_KEY=os.urandom(24),
-    MAX_CONTENT_LENGTH=2 * 1024 * 1024
+    MAX_CONTENT_LENGTH=3 * 1024 * 1024
 )
 
 # 初始化接口管理器
