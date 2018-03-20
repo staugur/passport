@@ -9,6 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 import json
+import base64
 import os.path
 from config import VAPTCHA, UPYUN as Upyun
 from utils.send_email_msg import SendMail
@@ -163,9 +164,11 @@ def userprofile():
     return jsonify(dfr(res))
 
 
+'''
 @ApiBlueprint.route('/user/upload/', methods=['POST', 'OPTIONS'])
 @apilogin_required
 def userupload():
+    # 通过表单形式上传图片
     res = dict(code=1, msg=None)
     logger.debug(request.files)
     f = request.files.get('file')
@@ -176,6 +179,36 @@ def userupload():
         imgUrl = os.path.join(basedir, filename)
         try:
             upyunapi.put(imgUrl, f.stream.read())
+        except Exception, e:
+            logger.error(e, exc_info=True)
+            res.update(code=2, msg="System is abnormal")
+        else:
+            imgUrl = Upyun['dn'].strip("/") + imgUrl
+            res.update(imgUrl=imgUrl, code=0)
+            if callableAction == "UpdateAvatar":
+                resp = g.api.userprofile.updateUserAvatar(uid=g.uid, avatarUrl=imgUrl)
+                res.update(resp)
+                if resp["code"] == 0:
+                    # 同步头像
+                    g.api.usersso.clientsConSync(g.api.userapp.getUserApp, g.uid, dict(CallbackType="user_avatar", CallbackData=imgUrl))
+    else:
+        res.update(code=3, msg="Unsuccessfully obtained file or format is not allowed")
+    logger.info(res)
+    return jsonify(dfr(res))
+'''
+
+@ApiBlueprint.route('/user/upload/', methods=['POST', 'OPTIONS'])
+@apilogin_required
+def userupload():
+    # 通过base64形式上传图片
+    res = dict(code=1, msg=None)
+    picStr = request.form.get('picStr')
+    callableAction = request.args.get("callableAction")
+    if picStr:
+        basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
+        imgUrl = os.path.join(basedir, gen_rnd_filename() + ".png")
+        try:
+            upyunapi.put(imgUrl, base64.b64decode(picStr))
         except Exception, e:
             logger.error(e, exc_info=True)
             res.update(code=2, msg="System is abnormal")
