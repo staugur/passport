@@ -280,7 +280,7 @@
             var cas = $('#tailoringImg').cropper('getCroppedCanvas');//获取被裁剪后的canvas
             var base64url = cas.toDataURL('image/png'); //转换为base64地址形式
             var base64size = showSize(base64url);
-            console.debug("裁剪后图片大小："+base64size+"MB");
+            console.log("裁剪后图片大小："+base64size+"MB");
             if (base64size > 3) {
                 popup("图片超出限定大小，请重新裁剪！");
                 return false;
