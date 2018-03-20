@@ -130,12 +130,19 @@ class JWTUtil(object):
     def analysisJWT(self, token):
         """ 解析token, 返回解码后的header、payload、signature等 """
         _header, _payload, _signature = token.split(".")
-        data = {
-            "header": json.loads(base64.urlsafe_b64decode(str(_header))),
-            "payload": json.loads(base64.urlsafe_b64decode(str(_payload))),
-            "signature": base64.urlsafe_b64decode(str(_signature))
-        }
-        return data
+        try:
+            base64.urlsafe_b64decode(str(_header))
+            base64.urlsafe_b64decode(str(_payload))
+            base64.urlsafe_b64decode(str(_signature))
+        except Exception,e:
+            logger.warning(e, exc_info=True)
+        else:
+            data = {
+                "header": json.loads(base64.urlsafe_b64decode(str(_header))),
+                "payload": json.loads(base64.urlsafe_b64decode(str(_payload))),
+                "signature": base64.urlsafe_b64decode(str(_signature))
+            }
+            return data
 
     def verifyJWT(self, token):
         """ 验证token
@@ -149,6 +156,8 @@ class JWTUtil(object):
         if isinstance(token, (str, unicode)):
             if token.count(".") == 2:
                 token = self.analysisJWT(token)
+                if not token:
+                    raise InvalidTokenError("invalid token")
             else:
                 raise InvalidTokenError("invalid token")
         else:
