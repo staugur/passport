@@ -41,6 +41,9 @@ REDIS = getenv("passport_redis_url")
 # 手势验证码配置段
 VAPTCHA = {
 
+    "enable": getenv("passport_vaptcha_enable", True),
+    # 是否启用手势验证码
+
     "vid": getenv("passport_vaptcha_vid"),
     # 验证单元id
 

@@ -19,7 +19,9 @@ from urllib import urlencode
 from functools import wraps
 from flask import g, request, redirect, url_for, make_response, abort, jsonify, flash
 from werkzeug import url_decode
-from config import SYSTEM
+from config import SYSTEM, VAPTCHA
+from vaptchasdk import vaptcha as pyvaptcha
+
 
 jwt = JWTUtil()
 cbc = CBC()
@@ -521,3 +523,40 @@ def dfr(res, default='en-US'):
             else:
                 res["msg"] = new
     return res
+
+
+class VaptchaApi(object):
+    """手势验证码封装接口"""
+
+    def __init__(self):
+        self.__enable = True if VAPTCHA["enable"] in ("true", "True", True) else False
+        self.__vaptcha = pyvaptcha(VAPTCHA["vid"], VAPTCHA["key"])
+
+    @property
+    def getChallenge(self):
+        """Vaptcha获取流水
+        @param sceneid str: 场景id，如01-登录、02-注册、03-OAuth登录
+        """
+        sceneid = request.args.get("sceneid") or ""
+        return json.loads(self.__vaptcha.get_challenge(sceneid))
+
+    @property
+    def getDownTime(self):
+        """Vaptcha宕机模式
+        like: ?data=request&_t=1516092685906
+        """
+        data = request.args.get("data")
+        logger.info("vaptcha into downtime, get data: {}, query string: {}".format(data, request.args.to_dict()))
+        return json.loads(self.__vaptcha.downtime(data))
+
+    @property
+    def validate(self):
+        """验证流水号
+        @param token str: 服务方返回的每次流水验证token
+        @param challenge str: 流水号
+        @param sceneid str: 场景id
+        """
+        sceneid = request.args.get("sceneid") or ""
+        token = request.form.get("token")
+        challenge = request.form.get("challenge")
+        return token and challenge and self.__vaptcha.validate(challenge, token, sceneid)

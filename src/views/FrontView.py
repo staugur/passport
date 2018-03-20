@@ -8,20 +8,16 @@
     :copyright: (c) 2017 by staugur.
     :license: MIT, see LICENSE for more details.
 """
-
-from config import VAPTCHA, SYSTEM
-from utils.web import login_required, anonymous_required, adminlogin_required, dfr, oauth2_name2type, get_redirect_url, checkGet_ssoRequest, checkSet_ssoTicketSid, set_loginstate
+from config import SYSTEM
+from utils.web import login_required, anonymous_required, adminlogin_required, dfr, oauth2_name2type, get_redirect_url, checkGet_ssoRequest, checkSet_ssoTicketSid, set_loginstate, VaptchaApi
 from utils.tool import logger, email_check, phone_check, md5
 from libs.auth import Authentication
-from vaptchasdk import vaptcha as VaptchaApi
-from urllib import urlencode
 from flask import Blueprint, request, render_template, g, redirect, url_for, flash, make_response
 
 #初始化前台蓝图
 FrontBlueprint = Blueprint("front", __name__)
-
 #初始化手势验证码服务
-vaptcha = VaptchaApi(VAPTCHA["vid"], VAPTCHA["key"])
+vaptcha = VaptchaApi()
 
 @FrontBlueprint.route('/')
 @login_required
@@ -55,10 +51,7 @@ def sysmanager():
 @anonymous_required
 def signUp():
     if request.method == 'POST':
-        sceneid = request.args.get("sceneid") or "02"
-        token = request.form.get("token")
-        challenge = request.form.get("challenge")
-        if token and challenge and vaptcha.validate(challenge, token, sceneid):
+        if vaptcha.validate:
             account = request.form.get("account")
             vcode = request.form.get("vcode")
             password = request.form.get("password")
@@ -79,7 +72,7 @@ def signUp():
         else:
             flash(u"人机验证失败")
         return redirect(url_for('.signUp'))
-    return render_template("auth/signUp.html")
+    return render_template("auth/signUp.html", vaptcha=vaptcha.getChallenge)
 
 @FrontBlueprint.route('/signIn', methods=['GET', 'POST'])
 def signIn():
@@ -122,10 +115,7 @@ def signIn():
         # 未登录时流程
         if request.method == 'POST':
             # POST请求不仅要设置登录态、还要设置全局会话
-            sceneid = request.args.get("sceneid") or "01"
-            token = request.form.get("token")
-            challenge = request.form.get("challenge")
-            if token and challenge and vaptcha.validate(challenge, token, sceneid):
+            if vaptcha.validate:
                 account = request.form.get("account")
                 password = request.form.get("password")
                 auth = Authentication(g.mysql, g.redis)
@@ -144,7 +134,7 @@ def signIn():
             return redirect(url_for('.signIn', sso=sso)) if sso_isOk else redirect(url_for('.signIn'))
         else:
             # GET请求仅用于渲染
-            return render_template("auth/signIn.html")
+            return render_template("auth/signIn.html", vaptcha=vaptcha.getChallenge)
 
 @FrontBlueprint.route("/OAuthGuide")
 @anonymous_required
@@ -189,10 +179,7 @@ def OAuthBindAccount():
         sso = request.args.get("sso") or None
         logger.debug("OAuthBindAccount, sso type: {}, content: {}".format(type(sso), sso))
         openid = request.form.get("openid")
-        sceneid = request.args.get("sceneid") or "03"
-        token = request.form.get("token")
-        challenge = request.form.get("challenge")
-        if token and challenge and vaptcha.validate(challenge, token, sceneid):
+        if vaptcha.validate:
             account = request.form.get("account")
             password = request.form.get("password")
             auth = Authentication(g.mysql, g.redis)
@@ -213,7 +200,7 @@ def OAuthBindAccount():
     else:
         openid = request.args.get("openid")
         if openid:
-            return render_template("auth/OAuthBindAccount.html")
+            return render_template("auth/OAuthBindAccount.html", vaptcha=vaptcha.getChallenge)
         else:
             return redirect(g.redirect_uri)
 

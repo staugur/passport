@@ -11,22 +11,18 @@
 import json
 import base64
 import os.path
-from config import VAPTCHA, UPYUN as Upyun
+from config import UPYUN as Upyun
 from utils.send_email_msg import SendMail
 from utils.upyunstorage import CloudStorage
-from utils.web import email_tpl, dfr, apilogin_required, apiadminlogin_required
+from utils.web import email_tpl, dfr, apilogin_required, apiadminlogin_required, VaptchaApi
 from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file
-from vaptchasdk import vaptcha as VaptchaApi
 from flask import Blueprint, request, jsonify, g
 from werkzeug import secure_filename
-
 
 # 初始化前台蓝图
 ApiBlueprint = Blueprint("api", __name__)
 # 初始化邮箱发送服务
 sendmail = SendMail()
-# 初始化手势验证码服务
-vaptcha = VaptchaApi(VAPTCHA["vid"], VAPTCHA["key"])
 # 又拍云存储封装接口
 upyunapi = CloudStorage()
 
@@ -69,23 +65,12 @@ def misc_sendVcode():
     return jsonify(dfr(res))
 
 
-@ApiBlueprint.route("/miscellaneous/_getChallenge")
-def misc_getChallenge():
-    """Vaptcha获取流水
-    @param sceneid str: 场景id，如01登录、02注册
-    """
-    sceneid = request.args.get("sceneid") or ""
-    return jsonify(json.loads(vaptcha.get_challenge(sceneid)))
-
-
 @ApiBlueprint.route("/miscellaneous/_getDownTime")
 def misc_getDownTime():
-    """Vaptcha宕机模式
-    like: ?data=request&_t=1516092685906
-    """
-    data = request.args.get("data")
-    logger.info("vaptcha into downtime, get data: {}, query string: {}".format(data, request.args.to_dict()))
-    return jsonify(json.loads(vaptcha.downtime(data)))
+    """Vaptcha宕机模式接口"""
+    # 初始化手势验证码服务
+    vaptcha = VaptchaApi()
+    return jsonify(vaptcha.getDownTime)
 
 
 @ApiBlueprint.route("/user/app/", methods=["GET", "POST", "PUT", "DELETE"])

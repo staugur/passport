@@ -28,8 +28,8 @@
 			<div class="ui-input">
 				<input type="password" placeholder="登录密码" name="password" id="password">
 			</div>
-            {%- include "auth/vaptcha_form.html" %}
-            <input type="submit" class="ui-button ui-button--primary" disabled="disabled" id="signInButton" value="登录">
+            {% include "auth/vaptcha_form.html" %}
+            <input type="submit" class="ui-button ui-button--primary" disabled="disabled" id="submitbutton" value="登录">
 			<hr>
 			<p class="forget-password">
 				<!--<a href="#">忘记密码？</a>-->
@@ -55,34 +55,7 @@
 <script src="{{ url_for('static', filename='js/script.js') }}"></script>
 <script src="https://cdn.vaptcha.com/v.js"></script>
 <script type="text/javascript">
-    //这里使用到验证场景，传过去的参数即为对应的编号，比如之前登录的对应的编号即为01
-    $.get("{{ url_for('api.misc_getChallenge', sceneid='01') }}", function(res){
-        var options={
-            vid: res.vid, //验证单元id, string, 必填
-            challenge: res.challenge, //验证流水号, string, 必填
-            container:"#vaptcha_container",//验证码容器, HTMLElement或者selector, 必填
-            type:"click", //必填，表示点击式验证模式,
-            effect:'popup', //验证图显示方式, string, 可选择float, popup, 默认float
-            color:"#57ABFF", //按钮颜色, string
-            outage:"{{ url_for('api.misc_getDownTime') }}", //服务器端配置的宕机模式接口地址
-            success:function(token,challenge){//验证成功回调函数, 参数token, challenge 为string, 必填
-                //todo:执行人机验证成功后的操作
-                $('#token').val(token);
-                $('#challenge').val(challenge);
-                $('#signInButton').removeAttr("disabled");
-                $('#signInButton').removeClass("ui-button--primary");
-                $('#signInButton').addClass("ui-button--success");
-            },
-            fail:function(){//验证失败回调函数  
-                //todo:执行人机验证失败后的操作
-            }
-        }
-        var obj;
-        window.vaptcha(options,function(vaptcha_obj){
-            obj = vaptcha_obj;
-            obj.init();
-        });
-    });
+    {% include "auth/vaptcha_js.html" %}
     function checkSubmit() {
         var password = $('#password').val();
         if(password.length<6||password.length>30){
