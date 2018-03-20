@@ -36,16 +36,16 @@
 			</p>
             <p class="socialLogin">
             	<sup>第三方社会化账号登录：</sup>
-                {% if auth_signIn_socialLogin_include %}
+                {%- if auth_signIn_socialLogin_include %}
                     {% for ai in auth_signIn_socialLogin_include() %}
                         {% include ai %}
                     {% endfor %}
-                {% endif %}
-                {% if auth_signIn_socialLogin_string %}
+                {%- endif %}
+                {%- if auth_signIn_socialLogin_string %}
                     {% for as in auth_signIn_socialLogin_string() %}
                         {{ as|safe }}
                     {% endfor %}
-                {% endif %}
+                {%- endif %}
             </p>
 		</div>
 	</form>
