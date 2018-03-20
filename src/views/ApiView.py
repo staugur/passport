@@ -21,10 +21,6 @@ from werkzeug import secure_filename
 
 # 初始化前台蓝图
 ApiBlueprint = Blueprint("api", __name__)
-# 初始化邮箱发送服务
-sendmail = SendMail()
-# 又拍云存储封装接口
-upyunapi = CloudStorage()
 
 
 @ApiBlueprint.route('/miscellaneous/_sendVcode', methods=['POST'])
@@ -44,6 +40,8 @@ def misc_sendVcode():
             if hasKey:
                 res.update(msg="Have sent the verification code, please check the mailbox")
             else:
+                # 初始化邮箱发送服务
+                sendmail = SendMail()
                 vcode = generate_verification_code()
                 result = sendmail.SendMessage(to_addr=email, subject=u"Passport邮箱注册验证码", formatType="html", message=email_tpl % (email, u"注册", vcode))
                 if result["success"]:
@@ -193,6 +191,8 @@ def userupload():
         basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
         imgUrl = os.path.join(basedir, gen_rnd_filename() + ".png")
         try:
+            # 又拍云存储封装接口
+            upyunapi = CloudStorage(timeout=15)
             upyunapi.put(imgUrl, base64.b64decode(picStr))
         except Exception, e:
             logger.error(e, exc_info=True)
