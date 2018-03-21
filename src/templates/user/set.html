@@ -277,11 +277,14 @@
         if ($("#tailoringImg").attr("src") == null ){
             return false;
         }else{
-            var cas = $('#tailoringImg').cropper('getCroppedCanvas');//获取被裁剪后的canvas
+            var cas = $('#tailoringImg').cropper('getCroppedCanvas', {
+                width: 500,
+                imageSmoothingQuality: "high"
+            }); //获取被裁剪后的canvas
             var base64url = cas.toDataURL('image/png'); //转换为base64地址形式
             var base64size = showSize(base64url);
-            console.log("裁剪后图片大小："+base64size+"MB");
-            if (base64size > 3) {
+            console.log("裁剪后图片大小："+base64size+"KB");
+            if (base64size > 2*1024) {
                 popup("图片超出限定大小，请重新裁剪！");
                 return false;
             }
@@ -290,6 +293,11 @@
                 url: "{{ url_for('api.userupload', callableAction='UpdateAvatar') }}",
                 type: 'post',
                 data: {picStr: base64url.replace('data:image/png;base64,', '')},
+                beforeSend: function() {
+                    //禁用按钮防止重复提交
+                    $("#sureCut").attr({ disabled: "disabled" });
+                    $('#sureCut').addClass("l-btn-disable");
+                },
                 success: function (res) {
                     console.log(res);
                     if (res.code == 0) {
@@ -305,6 +313,10 @@
                 },
                 error: function (XMLHttpRequest, textStatus, errorThrown) {
                     popup("系统异常，请稍后重试");
+                },
+                complete: function() {
+                    $('#sureCut').removeAttr("disabled");
+                    $('#sureCut').removeClass("l-btn-disable");
                 }
             });
         }
@@ -314,7 +326,7 @@
         $(".tailoring-container").toggle();
     }
     function showSize(base64url) {
-        //获取base64图片大小，返回MB数字
+        //获取base64图片大小，返回KB数字
         var str = base64url.replace('data:image/png;base64,', '');
         var equalIndex = str.indexOf('=');
         if(str.indexOf('=')>0) {
@@ -322,9 +334,9 @@
         }
         var strLength=str.length;
         var fileLength=parseInt(strLength-(strLength/8)*2);
-        // 由字节转换为MB
+        // 由字节转换为KB
         var size = "";
-        size = (fileLength/(1024 * 1024)).toFixed(2);
+        size = (fileLength/1024).toFixed(2);
         var sizeStr = size + "";                        //转成字符串
         var index = sizeStr.indexOf(".");                    //获取小数点处的索引
         var dou = sizeStr.substr(index + 1 ,2)            //获取小数点后两位的值

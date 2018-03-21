@@ -17,6 +17,13 @@
 .l-btn:active{
     box-shadow: 0 2px 3px rgba(0,0,0,.2) inset;
 }
+.l-btn-disable,
+.l-btn-disable:hover,
+.l-btn-disable:focus,
+.l-btn-disable.active {
+  cursor:not-allowed;
+  color: #fff; background-color: #a6aaad;
+}
 .hidden{
     display: none;
 }
