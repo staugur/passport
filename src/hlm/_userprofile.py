@@ -255,6 +255,19 @@ class UserProfileManager(ServiceBase):
             res.update(msg="There are invalid parameters", code=4)
         return res
 
+    def __check_modifyPass(self, uid):
+        """检查是否可以修改密码，即是否存在邮箱或手机号"""
+        if uid:
+            sql = "SELECT count(uid) FROM user_auth WHERE identity_type IN (1,2) AND uid=%s"
+            try:
+                data = self.db.get(sql, uid)
+            except Exception, e:
+                logger.warn(e, exc_info=True)
+            else:
+                if data and isinstance(data, dict):
+                    return int(data.get("count(uid)") or 0) > 0
+        return False
+
     def __checkUserPassword(self, uid, password):
         """校验用户密码
         @param password str: 要校验的密码
@@ -283,17 +296,20 @@ class UserProfileManager(ServiceBase):
             if nowpass == newpass:
                 res.update(msg="The new password request is inconsistent with the current password", code=5)
             else:
-                if self.__checkUserPassword(uid, nowpass):
-                    sql = "UPDATE user_auth SET certificate=%s WHERE identity_type IN (1,2) AND uid = %s"
-                    try:
-                        self.mysql.update(sql, generate_password_hash(newpass), uid)
-                    except Exception, e:
-                        logger.error(e, exc_info=True)
-                        res.update(msg="System is abnormal", code=2)
+                if self.__check_modifyPass(uid):
+                    if self.__checkUserPassword(uid, nowpass):
+                        try:
+                            sql = "UPDATE user_auth SET certificate=%s WHERE identity_type IN (1,2) AND uid = %s"
+                            self.mysql.update(sql, generate_password_hash(newpass), uid)
+                        except Exception, e:
+                            logger.error(e, exc_info=True)
+                            res.update(msg="System is abnormal", code=2)
+                        else:
+                            res.update(code=0)
                     else:
-                        res.update(code=0)
+                        res.update(msg="The current password is wrong", code=3)
                 else:
-                    res.update(msg="The current password is wrong", code=3)
+                    res.update(msg="Please bind the email or phone first", code=6)
         else:
             res.update(msg="There are invalid parameters", code=4)
         return res
