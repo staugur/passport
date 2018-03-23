@@ -147,6 +147,30 @@ def userprofile():
     return jsonify(dfr(res))
 
 
+@ApiBlueprint.route("/user/message/", methods=["GET", "POST", "DELETE"])
+@apilogin_required
+def usermsg():
+    res = dict(msg=None, code=1)
+    Action = request.args.get("Action")
+    if request.method == "POST":
+        if Action == "addMessage":
+            res = g.api.usermsg.push_message(g.uid, request.form.get("msgContent"), request.form.get("msgType", "system"))
+        elif Action == "markMessage":
+            res = g.api.usermsg.markstatus_message(g.uid, request.form.get("msgId"))
+    elif request.method == "GET":
+        if Action == "getCount":
+            res = g.api.usermsg.count_message(g.uid, request.args.get("msgStatus") or 1)
+        elif Action == "getList":
+            res = g.api.usermsg.pull_message(g.uid, request.args.get("msgStatus") or 1, request.args.get("msgType"), True if request.args.get("desc", True) in (True, "True", "true") else False)
+    elif request.method == "DELETE":
+        if Action == "delMessage":
+            res = g.api.usermsg.delete_message(g.uid, request.form.get("msgId"))
+        elif Action == "clearMessage":
+            res = g.api.usermsg.clear_message(g.uid)
+    logger.info(res)
+    return jsonify(dfr(res))
+
+
 '''
 @ApiBlueprint.route('/user/upload/', methods=['POST', 'OPTIONS'])
 @apilogin_required

@@ -19,17 +19,15 @@
         <ul class="layui-nav fly-nav-user">
             <li class="layui-nav-item">
                 <a class="fly-nav-avatar" href="javascript:;">
-                    <cite class="layui-hide-xs" id="nav_nickname"></cite>
-                    <!--
-                    <i class="iconfont icon-renzheng layui-hide-xs" title="认证信息：layui 作者"></i>
-                    <i class="layui-badge fly-badge-vip layui-hide-xs">VIP3</i>
-                    -->
+                    &nbsp;&nbsp;&nbsp;<cite class="layui-hide-xs" id="nav_nickname"></cite>
+                    <!--<i class="iconfont icon-renzheng layui-hide-xs" title="已实名、未实名"></i>
+                    <i class="layui-badge fly-badge-vip layui-hide-xs">VIP3</i>-->
                     <img id="nav_avatar">
                 </a>
                 <dl class="layui-nav-child">
                     <dd><a href="{{ url_for('front.userset') }}"><i class="layui-icon">&#xe620;</i>基本设置</a></dd>
+                    <dd><a href="{{ url_for('front.usermsg') }}"><i class="iconfont icon-tongzhi" style="top: 4px;"></i>我的消息</a></dd>
                     <!--
-                    <dd><a href="user/message.html"><i class="iconfont icon-tongzhi" style="top: 4px;"></i>我的消息</a></dd>
                     <dd><a href="user/home.html"><i class="layui-icon" style="margin-left: 2px; font-size: 22px;">&#xe68e;</i>我的主页</a></dd>
                     -->
                     <hr style="margin: 5px 0;">
@@ -53,19 +51,19 @@
         <li class="layui-nav-item {% if request.endpoint == 'front.userset' %}layui-this{% endif %}">
             <a href="{{ url_for('front.userset') }}"><i class="layui-icon">&#xe620;</i>基本设置</a>
         </li>
+        <li class="layui-nav-item {% if request.endpoint == 'front.usermsg' %}layui-this{% endif %}">
+            <a href="{{ url_for('front.usermsg') }}"><i class="layui-icon">&#xe611;</i>我的消息</a>
+        </li>
         {% if tpl_adminlogin_required() %}
+        <!--
         <li class="layui-nav-item {% if request.endpoint == 'front.sysmanager' %}layui-this{% endif %}">
             <a href="{{ url_for('front.sysmanager') }}"><i class="layui-icon">&#xe631;</i>系统设置</a>
         </li>
+        -->
         <li class="layui-nav-item {% if request.endpoint == 'front.userapp' %}layui-this{% endif %}">
             <a href="{{ url_for('front.userapp') }}"><i class="layui-icon">&#xe857;</i>应用管理</a>
         </li>
         {% endif %}
-        <!--
-        <li class="layui-nav-item {% if request.endpoint == 'front.userset' %}layui-this{% endif %}">
-            <a href="message.html"><i class="layui-icon">&#xe611;</i>我的消息</a>
-        </li>
-        -->
     </ul>
     <div class="site-tree-mobile layui-hide">
         <i class="layui-icon">&#xe602;</i>
@@ -117,8 +115,8 @@ popup('{{ msg }}');
 {%- endwith %}
 
 {%- if g.signin %}
-layui.use(["jquery", "element"], function(){
-    var $ = layui.jquery, element = layui.element;
+layui.use(["jquery", "element", "util", "layer"], function(){
+    var $ = layui.jquery, element = layui.element, util = layui.util, layer = layui.layer;
     //手机设备的简单适配
     var treeMobile = $('.site-tree-mobile'), shadeMobile = $('.site-mobile-shade');
     treeMobile.on('click', function(){
@@ -126,6 +124,10 @@ layui.use(["jquery", "element"], function(){
     });
     shadeMobile.on('click', function(){
         $('body').removeClass('site-mobile');
+    });
+    //右下角工具
+    util.fixbar({
+        bgcolor: '#009688'
     });
     //获取用户信息
     $.ajax({
@@ -139,6 +141,7 @@ layui.use(["jquery", "element"], function(){
                 $('#nav_avatar').attr('src', res.data.avatar || '/static/images/avatar/default.png');
                 //缓存
                 layui.cache.user = res.data;
+                //更新消息
             } else {
                 popup("拉取用户信息失败：" + res.msg);
             }
@@ -147,6 +150,35 @@ layui.use(["jquery", "element"], function(){
             popup("系统异常，请稍后再试");
         }
     });
+    {%- if request.endpoint != "front.usermsg" %}
+    //获取用户消息统计
+    $.ajax({
+        url: "{{ url_for('api.usermsg', Action='getCount', msgStatus=1)|safe }}",
+        async: true,
+        success: function(res) {
+            console.log(res);
+            if (res.code==0) {
+                if (res.count==0) {
+                    return;
+                }
+                //更新消息
+                var elemUser = $('.fly-nav-user');
+                var msg = $('<a class="fly-nav-msg" href="javascript:;" title="你有 '+ res.count +' 条未读消息">'+ res.count +'</a>');
+                elemUser.append(msg);
+                msg.on('click', function(){
+                    location.href = "{{ url_for('front.usermsg') }}";
+                });
+                layer.tips('你有 '+ res.count +' 条未读消息', msg, {
+                    tips: 3
+                    ,tipsMore: true
+                    ,fixed: true
+                });
+            } else {
+                popup("拉取用户消息失败：" + res.msg);
+            }
+        }
+    });
+    {%- endif %}
 });
 {%- endif %}
 </script>

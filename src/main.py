@@ -24,7 +24,7 @@ from version import __version__
 from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO
 from utils.web import verify_sessionId, analysis_sessionId, tpl_adminlogin_required, get_redirect_url
 from libs.plugins import PluginManager
-from hlm import UserAppManager, UserSSOManager, UserProfileManager
+from hlm import UserAppManager, UserSSOManager, UserMsgManager, UserProfileManager
 from views import FrontBlueprint, ApiBlueprint
 from flask import Flask, request, g, jsonify
 reload(sys)
@@ -47,6 +47,7 @@ app.config.update(
 api = DO({
     "userapp": UserAppManager(),
     "usersso": UserSSOManager(),
+    "usermsg": UserMsgManager(),
     "userprofile": UserProfileManager(),
 })
 

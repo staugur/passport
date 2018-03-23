@@ -29,7 +29,7 @@ def index():
 @login_required
 def userset():
     """用户基本设置"""
-    return render_template("user/set.html")
+    return render_template("user/setting.html")
 
 @FrontBlueprint.route('/user/app/')
 @adminlogin_required
@@ -44,8 +44,14 @@ def userapp():
 @FrontBlueprint.route('/sys/manager/')
 @adminlogin_required
 def sysmanager():
-    # 默认返回应用选项卡
-    return render_template("user/apps.html")
+    # 系统管理
+    return render_template("user/sysmanager.html")
+
+@FrontBlueprint.route('/user/message/')
+@login_required
+def usermsg():
+    """用户消息"""
+    return render_template("user/message.html")
 
 @FrontBlueprint.route('/signUp', methods=['GET', 'POST'])
 @anonymous_required

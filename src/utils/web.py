@@ -199,9 +199,7 @@ def apiadminlogin_required(f):
 
 def tpl_adminlogin_required():
     """模板中判断是否为管理员用户"""
-    if g.signin and g.uid and sbs.isAdmin(g.uid):
-        return True
-    return False
+    return True if g.signin and g.uid and sbs.isAdmin(g.uid) else False
 
 
 def oauth2_name2type(name):
@@ -475,6 +473,7 @@ def dfr(res, default='en-US'):
             "Failed to create authorization ticket": u"创建授权令牌失败",
             "The current password is wrong": u"当前密码错误",
             "The new password request is inconsistent with the current password": u"新密码要求与当前密码不一致",
+            "No such message": u"没有这条消息",
         },
         # 繁体中文-香港
         "zh-HK": {
@@ -511,6 +510,7 @@ def dfr(res, default='en-US'):
             "Failed to create authorization ticket": u"創建授權令牌失敗",
             "The current password is wrong": u"當前密碼錯誤",
             "The new password request is inconsistent with the current password": u"新密碼要求與當前密碼不一致",
+            "No such message": u"沒有這條消息",
         }
     }
     if isinstance(res, dict) and not "en" in language:
