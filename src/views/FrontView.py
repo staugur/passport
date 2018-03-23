@@ -12,6 +12,7 @@ from config import SYSTEM
 from utils.web import login_required, anonymous_required, adminlogin_required, dfr, oauth2_name2type, get_redirect_url, checkGet_ssoRequest, checkSet_ssoTicketSid, set_loginstate, VaptchaApi
 from utils.tool import logger, email_check, phone_check, md5
 from libs.auth import Authentication
+from urllib import urlencode
 from flask import Blueprint, request, render_template, g, redirect, url_for, flash, make_response
 
 #初始化前台蓝图
