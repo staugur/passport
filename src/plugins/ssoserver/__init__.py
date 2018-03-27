@@ -96,7 +96,7 @@ def validate():
             if uid and token and len(uid) == 22 and len(token) == 32:
                 syncToken = g.api.usersso.ssoGetUidCronSyncToken(uid)
                 if syncToken and syncToken == token:
-                    res.update(success=g.api.usersso.ssoSetUidConSyncTimes(uid))
+                    res.update(success=True)
                 else:
                     res.update(msg="Invaild token")
             else:
