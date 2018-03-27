@@ -93,31 +93,14 @@ class UserSSOManager(ServiceBase):
             return data
         return False
 
-    def ssoSetUidConSyncTimes(self, uid):
-        """设置uid同步到客户端的次数"""
-        if uid and isinstance(uid, basestring):
-            tkey = "passport:user:syncToken:{}".format(uid)
-            try:
-            	pipe = self.redis.pipeline()
-                pipe.delete(tkey)
-                for sid in self.ssoGetRegisteredUserSid(uid):
-                    skey = "passport:sso:sid:{}".format(sid)
-                    pipe.hincrby(skey, "syncTimes", 1)
-                pipe.execute()
-            except Exception,e:
-                logger.error(e)
-            else:
-                return True
-        return False
-
-    def ssoSetUidConSyncToken(self, uid, token):
+    def ssoSetUidConSyncToken(self, uid, token, expire):
         """设置uid同步到客户端的token标识，用以验证此次同步是否passport发起"""
-        if uid and isinstance(uid, basestring):
+        if uid and isinstance(uid, basestring) and isinstance(expire, int):
             tkey = "passport:user:syncToken:{}".format(uid)
             try:
                 pipe = self.redis.pipeline()
                 pipe.set(tkey, token)
-                pipe.expire(tkey, 30)
+                pipe.expire(tkey, expire)
                 pipe.execute()
             except Exception,e:
                 logger.error(e)
@@ -221,7 +204,7 @@ class UserSSOManager(ServiceBase):
                 # 生成验证token
                 token = gen_token()
                 # 向uid写入本次验证token
-                self.ssoSetUidConSyncToken(uid, token)
+                self.ssoSetUidConSyncToken(uid, token, len(clients) * 10)
                 # 更新传递给客户端的data参数
                 data.update(uid=uid, token=token)
                 kwargs = []
