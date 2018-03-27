@@ -31,13 +31,13 @@ class UserSSOManager(ServiceBase):
         sid = sid or md5(ticket)
         tkey = "passport:sso:ticket:{}".format(ticket)
         skey = "passport:sso:sid:{}".format(sid)
-        pipe = self.redis.pipeline()
-        pipe.set(tkey, sid)
-        #tkey过期，ticket授权令牌过期，应当给个尽可能小的时间，并且ticket使用过后要删除(一次性有效)
-        pipe.expire(tkey, 180)
-        #skey过期，即cookie过期，设置为jwt过期秒数，以后看情况设置为7d；每次创建ticket都要更新过期时间
-        pipe.expire(skey, SYSTEM["SESSION_EXPIRE"])
         try:
+            pipe = self.redis.pipeline()
+            pipe.set(tkey, sid)
+            #tkey过期，ticket授权令牌过期，应当给个尽可能小的时间，并且ticket使用过后要删除(一次性有效)
+            pipe.expire(tkey, 180)
+            #skey过期，即cookie过期，设置为jwt过期秒数，每次创建ticket都要更新过期时间
+            pipe.expire(skey, SYSTEM["SESSION_EXPIRE"])
             pipe.execute()
         except Exception,e:
             logger.error(e, exc_info=True)
@@ -59,7 +59,10 @@ class UserSSOManager(ServiceBase):
             if sid:
                 skey = "passport:sso:sid:{}".format(sid)
                 try:
-                    self.redis.hmset(skey, dict(uid=uid, sid=sid, source=source_app_name))
+                    pipe = self.redis.pipeline()
+                    pipe.hmset(skey, dict(uid=uid, sid=sid, source=source_app_name))
+                    pipe.expire(skey, SYSTEM["SESSION_EXPIRE"])
+                    pipe.execute()
                 except Exception,e:
                     logger.error(e, exc_info=True)
                 else:
