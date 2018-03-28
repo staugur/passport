@@ -123,7 +123,7 @@ class UserSSOManager(ServiceBase):
                 return token
 
     def ssoRegisterClient(self, sid, app_name):
-        """ticket验证通过，向相应sid中注册app_name系统地址"""
+        """ticket验证通过，向相应sid中注册app_name"""
         logger.debug("ssoRegisterClient for {}, with {}".format(sid, app_name))
         if sid and app_name:
             try:

@@ -14,7 +14,7 @@
 <!--顶部导航-->
 <div class="fly-header layui-bg-black">
     <div class="layui-container">
-        <a class="fly-logo" href="/"><img src="/static/images/logo.png" alt="layui"></a>
+        <a class="fly-logo" href="/"><img src="/static/images/logo.png" alt="Passport"></a>
         {% if g.signin %}
         <ul class="layui-nav fly-nav-user">
             <li class="layui-nav-item">
@@ -26,6 +26,7 @@
                 </a>
                 <dl class="layui-nav-child">
                     <dd><a href="{{ url_for('front.userset') }}"><i class="layui-icon">&#xe620;</i>基本设置</a></dd>
+                    <!--<dd><a href="{{ url_for('front.usersecurity') }}"><i class="layui-icon">&#xe631;</i>安全设置</a></dd>-->
                     <dd><a href="{{ url_for('front.usermsg') }}"><i class="iconfont icon-tongzhi" style="top: 4px;"></i>我的消息</a></dd>
                     <!--
                     <dd><a href="user/home.html"><i class="layui-icon" style="margin-left: 2px; font-size: 22px;">&#xe68e;</i>我的主页</a></dd>
@@ -51,6 +52,11 @@
         <li class="layui-nav-item {% if request.endpoint == 'front.userset' %}layui-this{% endif %}">
             <a href="{{ url_for('front.userset') }}"><i class="layui-icon">&#xe620;</i>基本设置</a>
         </li>
+        <!--
+        <li class="layui-nav-item {% if request.endpoint == 'front.usersecurity' %}layui-this{% endif %}">
+            <a href="{{ url_for('front.usersecurity') }}"><i class="layui-icon">&#xe631;</i>安全设置</a>
+        </li>
+        -->
         <li class="layui-nav-item {% if request.endpoint == 'front.usermsg' %}layui-this{% endif %}">
             <a href="{{ url_for('front.usermsg') }}"><i class="layui-icon">&#xe611;</i>我的消息</a>
         </li>

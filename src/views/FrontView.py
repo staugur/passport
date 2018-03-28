@@ -54,6 +54,12 @@ def usermsg():
     """用户消息"""
     return render_template("user/message.html")
 
+@FrontBlueprint.route('/user/security/')
+@login_required
+def usersecurity():
+    """用户安全"""
+    return render_template("user/security.html")
+
 @FrontBlueprint.route('/signUp', methods=['GET', 'POST'])
 @anonymous_required
 def signUp():

@@ -87,6 +87,7 @@ def before_request():
     g.mysql = create_mysql_engine()
     g.signin = verify_sessionId(request.cookies.get("sessionId"))
     g.sid, g.uid = analysis_sessionId(request.cookies.get("sessionId"), "tuple") if g.signin else (None, None)
+    access_logger.debug("uid: {}, sid: {}".format(g.uid, g.sid))
     g.api = api
     g.ip = request.headers.get('X-Real-Ip', request.remote_addr)
     # 仅是重定向页面快捷定义

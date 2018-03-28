@@ -26,7 +26,7 @@ class ServiceBase(object):
 
     @property
     def listAdminUsers(self):
-        """ 用户列表缓存 """
+        """ 管理员用户列表缓存 """
         key = "passport:user:admins"
         try:
             if self.cache_admin is False:
