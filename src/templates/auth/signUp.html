@@ -42,7 +42,7 @@
             <div class="ui-input">
                 <input type="password" placeholder="确认密码" name="repassword" id="repassword" required="required">
             </div>
-            <br><label><input type="checkbox" checked id="terms"><i>✓</i><a href="{{ url_for('front.terms') }}" target="_blank" style="color: #999" title="阅读服务条款">同意服务条款</a></label><br>
+            <br><label><input type="checkbox" id="terms"><i>✓</i><a href="{{ url_for('front.terms') }}" target="_blank" style="color: #999" title="阅读服务条款">同意服务条款</a></label><br>
             {% include "auth/vaptcha_form.html" %}
 			<input type="submit" class="ui-button ui-button--primary" disabled="disabled" id="submitbutton" value="注册">
 		</div>

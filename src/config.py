@@ -16,7 +16,7 @@ GLOBAL = {
     "ProcessName": "passport",
     # Custom process, you can see it with "ps aux|grep ProcessName".
 
-    "Host": getenv("passport_host", "0.0.0.0"),
+    "Host": getenv("passport_host", "127.0.0.1"),
     # Application run network address, you can set it `0.0.0.0`, `127.0.0.1`, ``.
 
     "Port": getenv("passport_port", 10030),

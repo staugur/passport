@@ -260,7 +260,7 @@ class UserProfileManager(ServiceBase):
         if uid:
             sql = "SELECT count(uid) FROM user_auth WHERE identity_type IN (1,2) AND uid=%s"
             try:
-                data = self.db.get(sql, uid)
+                data = self.mysql.get(sql, uid)
             except Exception, e:
                 logger.warn(e, exc_info=True)
             else:

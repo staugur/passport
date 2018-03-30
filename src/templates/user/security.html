@@ -1,0 +1,12 @@
+{% extends "user/base.html" %}
+
+{% block title %}安全设置{% endblock %}
+
+{% block script %}
+<script type="text/javascript">
+    layui.use("mymod", function() {
+        var passport = layui.passport;
+        console.log(passport);
+    });
+</script>
+{% endblock %}

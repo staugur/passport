@@ -22,7 +22,7 @@
                     &nbsp;&nbsp;&nbsp;<cite class="layui-hide-xs" id="nav_nickname"></cite>
                     <!--<i class="iconfont icon-renzheng layui-hide-xs" title="已实名、未实名"></i>
                     <i class="layui-badge fly-badge-vip layui-hide-xs">VIP3</i>-->
-                    <img id="nav_avatar">
+                    <img id="nav_avatar" src="/static/images/avatar/default.png">
                 </a>
                 <dl class="layui-nav-child">
                     <dd><a href="{{ url_for('front.userset') }}"><i class="layui-icon">&#xe620;</i>基本设置</a></dd>
@@ -113,80 +113,23 @@ function safeCheck(s) {
 }
 
 {%- with messages = get_flashed_messages() %}
-{%- if messages %}
-{%- for msg in messages %}
-popup('{{ msg }}');
-{%- endfor %}
-{%- endif %}
+    {%- if messages %}
+        {%- for msg in messages %}
+            popup('{{ msg }}');
+        {%- endfor %}
+    {%- endif %}
 {%- endwith %}
 
-{%- if g.signin %}
-layui.use(["jquery", "element", "util", "layer"], function(){
-    var $ = layui.jquery, element = layui.element, util = layui.util, layer = layui.layer;
-    //手机设备的简单适配
-    var treeMobile = $('.site-tree-mobile'), shadeMobile = $('.site-mobile-shade');
-    treeMobile.on('click', function(){
-        $('body').addClass('site-mobile');
-    });
-    shadeMobile.on('click', function(){
-        $('body').removeClass('site-mobile');
-    });
-    //右下角工具
-    util.fixbar({
-        bgcolor: '#009688'
-    });
-    //获取用户信息
-    $.ajax({
-        url: "{{ url_for('api.userprofile', getBind=true) }}",
-        async: false,
-        success: function(res) {
-            if (res.code==0) {
-                //更新昵称
-                $('#nav_nickname').text(res.data.nick_name || '');
-                //更新头像
-                $('#nav_avatar').attr('src', res.data.avatar || '/static/images/avatar/default.png');
-                //缓存
-                layui.cache.user = res.data;
-                //更新消息
-            } else {
-                popup("拉取用户信息失败：" + res.msg);
-            }
-        },
-        error: function() {
-            popup("系统异常，请稍后再试");
-        }
-    });
-    {%- if request.endpoint != "front.usermsg" %}
-    //获取用户消息统计
-    $.ajax({
-        url: "{{ url_for('api.usermsg', Action='getCount', msgStatus=1)|safe }}",
-        async: true,
-        success: function(res) {
-            console.log(res);
-            if (res.code==0) {
-                if (res.count==0) {
-                    return;
-                }
-                //更新消息
-                var elemUser = $('.fly-nav-user');
-                var msg = $('<a class="fly-nav-msg" href="javascript:;" title="你有 '+ res.count +' 条未读消息">'+ res.count +'</a>');
-                elemUser.append(msg);
-                msg.on('click', function(){
-                    location.href = "{{ url_for('front.usermsg') }}";
-                });
-                layer.tips('你有 '+ res.count +' 条未读消息', msg, {
-                    tips: 3
-                    ,tipsMore: true
-                    ,fixed: true
-                });
-            } else {
-                popup("拉取用户消息失败：" + res.msg);
-            }
-        }
-    });
-    {%- endif %}
+//加载模块扩展脚本
+layui.config({
+    version: "{{ __version__ }}",
+    base: "/static/mymod/"
+}).extend({
+    passport: "index",
+    setting: "setting",
+    message: "message",
+    app: "app"
 });
-{%- endif %}
 </script>
 {% block script %}{% endblock %}
 </body>

@@ -1,12 +1,24 @@
-{% extends "user/base.html" %}
+{% extends "user/micro.html" %}
 
 {% block title %}服务条款{% endblock %}
 
 {% block head %}
+    <link rel="stylesheet" href="/static/css/global.css">
     <link rel="stylesheet" href="/static/css/docs.css" charset="utf-8"></head>
 {% endblock %}
 
-{% block userpanel %}
+{% block resethtmlbody %}{% endblock %}
+
+{% block topNav %}
+    <!--顶部导航-->
+    <div class="fly-header layui-bg-black">
+        <div class="layui-container">
+            <a class="fly-logo" href="/"><img src="/static/images/logo.png" alt="Passport"></a>
+        </div>
+    </div>
+{% endblock %}
+
+{% block container %}
         <h1 class="fly-docs-title">用户服务条款</h1>
         <div class="layui-text fly-md-text" id="FLY-docs-preview">
           <p>欢迎您来到SaintIC站点（包括但不限于Passport、EauDouce等以"saintic.com"为主域名的网站，以下简称「本站」）。</p>
@@ -62,7 +74,4 @@
           <p>1、根据互联网的发展和有关法律、法规及规范性文件的变化，或者因业务发展需要，本站有权对本协议的条款作出修改或变更，一旦本协议的内容发生变动，本站将公布修改之后的协议内容，该公布行为视为本站已经通知用户修改内容。本站也可采用电子邮件或私信的传送方式，提示用户协议条款的修改、服务变更、或其它重要事项。</p>
           <p>2、如果不同意本站对本协议相关条款所做的修改，用户有权并应当停止使用本站。如果用户继续使用本站，则视为用户接受本站对本协议相关条款所做的修改。</p>
         </div>
-      
 {% endblock %}
-
-{% block leftNav %}{% endblock %}

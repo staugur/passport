@@ -125,7 +125,7 @@ def userapp():
 @ApiBlueprint.route("/user/profile/", methods=["GET", "POST", "PUT"])
 @apilogin_required
 def userprofile():
-    res = dict()
+    res = dict(msg=None, code=1)
     if request.method == "GET":
         getBind = True if request.args.get("getBind") in ("true", "True", True) else False
         res = g.api.userprofile.getUserProfile(g.uid, getBind)
