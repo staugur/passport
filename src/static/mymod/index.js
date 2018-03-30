@@ -1,6 +1,7 @@
 /*
     Passport主入口
 */
+
 layui.define(["element", "util", "layer"], function(exports){
     var $ = layui.jquery, element = layui.element, util = layui.util, layer = layui.layer, device = layui.device();
     //阻止IE7以下访问
