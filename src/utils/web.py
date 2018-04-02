@@ -187,6 +187,15 @@ def apilogin_required(f):
     return decorated_function
 
 
+def apianonymous_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if g.signin:
+            return jsonify(dfr(dict(msg="You are logged in, please log out", code=1)))
+        return f(*args, **kwargs)
+    return decorated_function
+
+
 def apiadminlogin_required(f):
     @wraps(f)
     def decorated_function(*args, **kwargs):
@@ -449,12 +458,11 @@ def dfr(res, default='en-US'):
             "Email already exists": u"邮箱已存在",
             "Invalid verification code": u"无效的验证码",
             "Invalid password: Inconsistent password or length failed twice": u"无效的密码：两次密码不一致或长度不合格",
-            "Not support phone number registration": u"暂不支持手机号注册",
+            "Not support phone number": u"暂不支持手机号",
             "Invalid account": u"无效的账号",
             "Wrong password": u"密码错误",
             "Invalid account: does not exist or has been disabled": u"无效的账号：不存在或已禁用",
             "Invalid password: length unqualified": u"无效的密码：长度不合格",
-            "Not support phone number login": u"暂不支持手机号登录",
             "Have sent the verification code, please check the mailbox": u"已发送过验证码，请查收邮箱",
             "Sent verification code, valid for 300 seconds": u"已发送验证码，有效期300秒",
             "Mail delivery failed, please try again later": u"邮件发送失败，请稍后重试",
@@ -474,6 +482,8 @@ def dfr(res, default='en-US'):
             "The current password is wrong": u"当前密码错误",
             "The new password request is inconsistent with the current password": u"新密码要求与当前密码不一致",
             "No such message": u"没有这条消息",
+            "You are logged in, please log out": u"您已登录，请先注销",
+            "Man-machine verification failed": u"人机验证失败",
         },
         # 繁体中文-香港
         "zh-HK": {
@@ -486,12 +496,11 @@ def dfr(res, default='en-US'):
             "Email already exists": u"郵箱已存在",
             "Invalid verification code": u"無效的驗證碼",
             "Invalid password: Inconsistent password or length failed twice": u"無效的密碼：兩次密碼不一致或長度不合格",
-            "Not support phone number registration": u"暫不支持手機號注册",
+            "Not support phone number": u"暫不支持手機號",
             "Invalid account": u"無效的帳號",
             "Wrong password": u"密碼錯誤",
             "Invalid account: does not exist or has been disabled": u"無效的帳號：不存在或已禁用",
             "Invalid password: length unqualified": u"無效的密碼：長度不合格",
-            "Not support phone number login": u"暫不支持手機號登入",
             "Have sent the verification code, please check the mailbox": u"已發送過驗證碼，請查收郵箱",
             "Sent verification code, valid for 300 seconds": u"已發送驗證碼，有效期300秒",
             "Mail delivery failed, please try again later": u"郵件發送失敗，請稍後重試",
@@ -511,6 +520,8 @@ def dfr(res, default='en-US'):
             "The current password is wrong": u"當前密碼錯誤",
             "The new password request is inconsistent with the current password": u"新密碼要求與當前密碼不一致",
             "No such message": u"沒有這條消息",
+            "You are logged in, please log out": u"您已登錄，請先註銷",
+            "Man-machine verification failed": u"人機驗證失敗",
         }
     }
     if isinstance(res, dict) and not "en" in language:
@@ -559,4 +570,5 @@ class VaptchaApi(object):
         sceneid = request.args.get("sceneid") or ""
         token = request.form.get("token")
         challenge = request.form.get("challenge")
+        print token,challenge
         return token and challenge and self.__vaptcha.validate(challenge, token, sceneid)

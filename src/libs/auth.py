@@ -37,7 +37,7 @@ class Authentication(object):
                     return True if data.get('count(uid)', 0) > 0 else False
         return False
 
-    def __check_hasEmail(self, email):
+    def __check_hasEmail(self, email, getUid=False):
         """检查是否存在邮箱账号，不检测账号状态"""
         if email_check(email):
             sql = "SELECT uid FROM user_auth WHERE identity_type=2 AND identifier=%s"
@@ -48,7 +48,8 @@ class Authentication(object):
             else:
                 logger.debug(data)
                 if data and isinstance(data, dict):
-                    return "uid" in data
+                    success = "uid" in data
+                    return data["uid"] if success and getUid else success
         return False
 
     def __check_sendEmailVcode(self, email, vcode, scene="signUp"):
@@ -59,8 +60,7 @@ class Authentication(object):
         """
         if email_check(email) and vcode and scene in ("signUp", "signIn", "forgot"):
             key = "passport:{}:vcode:{}".format(scene, email)
-            if self.rc.exists(key):
-                return self.rc.get(key) == vcode
+            return self.rc.get(key) == vcode
         return False
 
     def __list_identity_type(self, uid):
@@ -217,7 +217,7 @@ class Authentication(object):
                 res.update(msg="Invalid password: Inconsistent password or length failed twice")
         elif phone_check(account):
             # 账号类型：手机
-            res.update(msg="Not support phone number registration")
+            res.update(msg="Not support phone number")
         else:
             # 账号类型：非法，拒绝
             res.update(msg="Invalid account")
@@ -261,7 +261,7 @@ class Authentication(object):
                 res.update(msg="Invalid password: length unqualified")
         elif phone_check(account):
             # 账号类型：手机
-            res.update(msg="Not support phone number login")
+            res.update(msg="Not support phone number")
         else:
             # 账号类型：非法，拒绝
             res.update(msg="Invalid account")
@@ -507,5 +507,51 @@ class Authentication(object):
                 res.update(msg="System is abnormal")
         else:
             res.update(msg="Check failed")
+        logger.info(res)
+        return res
+
+    def forgot(self, account, vcode, password):
+        """忘记密码接口
+        参数：
+            @param account str: 注册时的账号，邮箱/手机号
+            @param vcode str: 验证码
+            @param password str: 新设置的密码
+        流程：
+            1. 判断账号类型，仅支持邮箱、手机号两种本地账号。
+            2. 校验账号是否存在。
+            3. 校验验证码。
+            4. 以上3步验证通过重置uid所有类型密码
+        """
+        res = dict(msg=None, success=False)
+        # NO.1 检查账号类型
+        if email_check(account):
+            # NO.2 检查账号
+            uid = self.__check_hasEmail(account, getUid=True)
+            if uid:
+                # NO.3 检查验证码
+                if vcode and len(vcode) == 6 and self.__check_sendEmailVcode(email=account, vcode=vcode, scene="forgot"):
+                    # NO.4 重置密码
+                    if password and 6 <= len(password) <= 30:
+                        certificate = generate_password_hash(password)
+                        try:
+                            sql = "UPDATE user_auth SET certificate=%s WHERE identity_type in (1,2) AND uid=%s"
+                            data = self.db.update(sql, certificate, uid)
+                        except Exception, e:
+                            logger.error(e, exc_info=True)
+                            res.update(msg="System is abnormal")
+                        else:
+                            res.update(success=True)
+                    else:
+                        res.update(msg="Invalid password: length unqualified")
+                else:
+                    res.update(msg="Invalid verification code")
+            else:
+                res.update(msg="Invalid account")
+        elif phone_check(account):
+            # 账号类型：手机
+            res.update(msg="Not support phone number")
+        else:
+            # 账号类型：非法，拒绝
+            res.update(msg="Invalid account")
         logger.info(res)
         return res

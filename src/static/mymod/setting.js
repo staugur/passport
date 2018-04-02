@@ -52,10 +52,11 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
             $('#domain_name').removeClass("layui-disabled");
         }
         if (userdata.birthday) {
-            userdata.birthday = util.toDateString(userdata.birthday*1000, "yyyy-MM-dd");
-            $('#birthday').val(userdata.birthday);
+            $('#birthday').val(util.toDateString(userdata.birthday*1000, "yyyy-MM-dd"));
         }
-        $('#location').val(userdata.location);
+        if (userdata.location) {
+            $('#location').val(userdata.location);
+        }
         if (userdata.gender===1) {
             $("#gender1").attr("checked","checked");
         } else if (userdata.gender===0) {
@@ -64,15 +65,15 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
             $("#gender2").attr("checked","checked");
         }
         $('#signature').val(userdata.signature);
+        //重新渲染表单
         form.render();
         //更新头像
         $('#avatar').attr('src', userdata.avatar);
         //社交账号绑定
-        var unbindUrl = "/unbind?identity_name=";
         for (var index = 0; index < userdata.bind.length ; index++) {
             var identity_type = userdata.bind[index].identity_type;
             $("#oauth-"+identity_type).addClass("app-havebind");
-            $("#oauth-"+identity_type+"-tip").html('已成功绑定，您可以使用'+namemap[identity_type]+'帐号直接登录，当然，您也可以<a href="'+unbindUrl+identity_type+'" class="acc-unbind" type="'+identity_type+'">解除绑定</a>');
+            $("#oauth-"+identity_type+"-tip").html('已成功绑定，您可以使用'+namemap[identity_type]+'帐号直接登录，当然，您也可以<a href="/unbind?identity_name='+identity_type+'" class="acc-unbind" type="'+identity_type+'">解除绑定</a>');
         }
     }
     //初始化生日输入框时间选择器

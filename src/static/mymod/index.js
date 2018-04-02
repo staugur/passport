@@ -107,9 +107,9 @@ layui.define(["element", "util", "layer"], function(exports){
     //获取用户信息
     passport.ajax("/api/user/profile/?getBind=true", function(res) {
         if (res.code==0) {
-            //更新昵称
+            //更新顶部导航昵称
             $('#nav_nickname').text(res.data.nick_name || '');
-            //更新头像
+            //更新顶部导航头像
             $('#nav_avatar').attr('src', res.data.avatar || '/static/images/avatar/default.png');
             //前端缓存
             layui.cache.user = res.data;

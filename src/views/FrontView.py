@@ -267,3 +267,9 @@ def unbind():
 def terms():
     # 服务条款
     return render_template("public/terms.html")
+
+@FrontBlueprint.route("/forgotpass/")
+@anonymous_required
+def fgp():
+    # 忘记密码重置页
+    return render_template("auth/forgot.html", vaptcha=vaptcha.getChallenge)

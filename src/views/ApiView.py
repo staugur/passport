@@ -14,23 +14,28 @@ import os.path
 from config import UPYUN as Upyun
 from utils.send_email_msg import SendMail
 from utils.upyunstorage import CloudStorage
-from utils.web import email_tpl, dfr, apilogin_required, apiadminlogin_required, VaptchaApi
+from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi
 from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file
+from libs.auth import Authentication
 from flask import Blueprint, request, jsonify, g
 from werkzeug import secure_filename
 
 # 初始化前台蓝图
 ApiBlueprint = Blueprint("api", __name__)
-
+#初始化手势验证码服务
+vaptcha = VaptchaApi()
 
 @ApiBlueprint.route('/miscellaneous/_sendVcode', methods=['POST'])
 def misc_sendVcode():
     """发送验证码：邮箱、手机"""
     res = dict(msg=None, success=False)
     account = request.form.get("account")
+    scene = request.form.get("scene") or request.args.get("scene") or "signUp"
+    scenemap = dict(signUp=u"注册", signIn=u"登录", forgot=u"忘记密码")
     if email_check(account):
+        # 生成验证码，校验的话，libs.auth.Authentication类中`__check_sendEmailVcode`方法
         email = account
-        key = "passport:signUp:vcode:{}".format(email)
+        key = "passport:{}:vcode:{}".format(scene, email)
         try:
             hasKey = g.redis.exists(key)
         except Exception, e:
@@ -43,7 +48,7 @@ def misc_sendVcode():
                 # 初始化邮箱发送服务
                 sendmail = SendMail()
                 vcode = generate_verification_code()
-                result = sendmail.SendMessage(to_addr=email, subject=u"Passport邮箱注册验证码", formatType="html", message=email_tpl % (email, u"注册", vcode))
+                result = sendmail.SendMessage(to_addr=email, subject=u"SaintIC Passport %s 验证码" %scenemap[scene], formatType="html", message=email_tpl % (email, scenemap[scene], vcode))
                 if result["success"]:
                     try:
                         g.redis.set(key, vcode)
@@ -56,7 +61,7 @@ def misc_sendVcode():
                 else:
                     res.update(msg="Mail delivery failed, please try again later")
     elif phone_check(account):
-        res.update(msg="Not support phone number registration")
+        res.update(msg="Not support phone number")
     else:
         res.update(msg="Invalid account")
     logger.debug(res)
@@ -66,8 +71,6 @@ def misc_sendVcode():
 @ApiBlueprint.route("/miscellaneous/_getDownTime")
 def misc_getDownTime():
     """Vaptcha宕机模式接口"""
-    # 初始化手势验证码服务
-    vaptcha = VaptchaApi()
     return jsonify(vaptcha.getDownTime)
 
 
@@ -233,4 +236,20 @@ def userupload():
     else:
         res.update(code=3, msg="Unsuccessfully obtained file or format is not allowed")
     logger.info(res)
+    return jsonify(dfr(res))
+
+@ApiBlueprint.route("/forgotpass/", methods=['POST'])
+@apianonymous_required
+def fgp():
+    # 忘记密码页-重置密码
+    res = dict(msg=None, success=False)
+    if request.method == "POST":
+        vcode = request.form.get("vcode")
+        account = request.form.get("account")
+        password = request.form.get("password")
+        if vaptcha.validate:
+            auth = Authentication()
+            res = auth.forgot(account=account, vcode=vcode, password=password)
+        else:
+            res.update(msg="Man-machine verification failed")
     return jsonify(dfr(res))

@@ -1,0 +1,122 @@
+{% extends "auth/base.html" %}
+
+{% block title %}忘记密码{% endblock %}
+
+{% block container %}
+	<form action="" class="form">
+		<div class="form-head">
+			<h2>{{ self.title() }}</h2>
+			<p>记起密码？<a href="{{ url_for('front.signIn') }}">立即登录</a></p>
+		</div>
+		<div class="form-body">
+			<!--<p class="err-msg"></p>-->
+			<div class="ui-input">
+				<input type="text" placeholder="注册的邮箱地址" name="account" id="account" required="required" maxlength="50" autofocus="autofocus">
+			</div>
+			<div class="ui-input narrow-input">
+				<input type="text" placeholder="验证码" name="vcode" id="vcode" required="required" maxlength="6">
+				<a class="sms-button" href="javascript:sendCode(this)" id="sms-tip-msg">获取验证码</a>
+			</div>
+			<div class="ui-input">
+				<input type="password" placeholder="重置的密码" name="password" id="password" required="required" maxlength="30">
+			</div>
+			{% include "auth/vaptcha_form.html" %}
+            <input type="button" class="ui-button ui-button--primary" disabled="disabled" id="submitbutton" value="提交">
+		</div>
+	</form>
+{% endblock %}
+
+{% block script %}
+<script src="{{ url_for('static', filename='js/script.js') }}"></script>
+<script src="https://cdn.vaptcha.com/v.js"></script>
+<script type="text/javascript">
+    {% include "auth/vaptcha_js.html" %}
+    function sendCode(that) {
+        disable_sendCode();
+        var wait = 300;
+        var account = $('#account').val();
+        if (account) {
+            $.ajax({
+                type: 'post',
+                url: '{{ url_for("api.misc_sendVcode") }}',
+                data: {"account": account, "scene": "forgot"},
+                success: function (res) {
+                    console.log(res);
+                    if (res.success==true) {
+                        check();
+                    } else {
+                        popup(res.msg);
+                        enable_sendCode();
+                    }
+                }
+            });
+        } else {
+            popup("请填写邮箱地址");
+        }
+        function disable_sendCode() {
+            $('#sms-tip-msg').attr("disabled", true);
+            $('#sms-tip-msg').removeAttr('href');
+        }
+        function enable_sendCode() {
+            $('#sms-tip-msg').removeAttr("disabled");
+            $('#sms-tip-msg').attr('href','javascript:sendCode(this)');
+        }
+        function check() {
+            if (wait == 0) {
+                enable_sendCode();
+                $('#sms-tip-msg').text("重发验证码");
+                wait = 300;
+            } else {
+                $('#sms-tip-msg').text(wait+"秒后重发");
+                wait--;
+                setTimeout(function() {
+                    check();
+                }, 1000)
+            }
+        }
+    }
+    $(document).ready(function(){
+        $('#submitbutton').on('click', function() {
+            var vcode = $('#vcode').val();
+            var account = $('#account').val();
+            var password = $('#password').val();
+            var token = $('#token').val();
+            var challenge = $('#challenge').val();
+            if (!token) {
+            	popup("请先进行人机验证");
+            	return false;
+            }
+            if(!vcode||vcode.length!=6) {
+            	popup("请输入6位验证码");
+            	return false;
+            }
+            if (!account) {
+            	popup("请输入注册的账号");
+            	return false;
+            }
+            if(password.length<6||password.length>30){
+                popup("密码长度应在6到30个字符之间！");
+                return false;
+            }
+
+            $.ajax({
+                url: "{{ url_for('api.fgp') }}",
+                method: 'post',
+                data: {account: account, vcode: vcode, password: password, token: token, challenge: challenge},
+                success: function(res) {
+                    console.log(res);
+                    if (res.success==true) {
+                    	popup("密码重置成功！");
+                        window.location.href='{{ url_for("front.signIn") }}';
+                    } else {
+                        popup(res.msg);
+                    }
+                },
+                error:function(e){
+                    popup("系统异常，请稍后重试！");
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}
