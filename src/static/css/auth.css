@@ -1,7 +1,7 @@
 /* reset */
 body, h1, h2, h3, h4, h5, h6, p, ul, ol, li, form, input { margin: 0; padding: 0; }
 body { font-size: 14px; -webkit-font-smoothing: antialiased; }
-a{text-decoration: none} 
+a{text-decoration: none;} 
 hr {
     display: block;
     unicode-bidi: isolate;

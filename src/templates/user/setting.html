@@ -5,6 +5,7 @@
 {% block head %}
     <link rel="stylesheet" href="/static/css/cropper.min.css">
     <link rel="stylesheet" href="/static/css/ImgCropping.css">
+    <link rel="stylesheet" href="//at.alicdn.com/t/font_614850_ladv2e0fixw7y14i.css" media="all">
 {% endblock %}
 
 {% block userpanel %}
@@ -74,7 +75,7 @@
                         <div class="avatar-add">
                             <p>建议尺寸168*168，支持jpg、jpeg、png，最大不能超过2MB</p>
                             <button type="button" class="layui-btn upload-img" id="uploadAvatar"><i class="layui-icon">&#xe67c;</i>更换头像</button>
-                            <img id="avatar" src="/static/images/avatar/default.png">
+                            <img id="avatar">
                         </div>
                         <!--图片裁剪框 start-->
                         <div style="display: none" class="tailoring-container">
@@ -139,25 +140,25 @@
                     <ul class="app-bind">
                         {% if CONFIG.PLUGINS.qq.ENABLE in ("true", "True", True) %}
                         <li class="fly-msg" id="oauth-qq">
-                            <i class="layui-icon layui-icon-zzqq"></i>
+                            <i class="saintic-icon saintic-icon-qq"></i>
                             <span id="oauth-qq-tip">尚未绑定，绑定后可以使用QQ帐号登录，您可以<a href="{{ url_for('oauth2_qq.login') }}" type="qq">立即绑定</a></span>
                         </li>
                         {% endif %}
                         {% if CONFIG.PLUGINS.weibo.ENABLE in ("true", "True", True) %}
                         <li class="fly-msg" id="oauth-weibo">
-                            <i class="layui-icon layui-icon-zzweibo"></i>
+                            <i class="saintic-icon saintic-icon-weibo"></i>
                             <span id="oauth-weibo-tip">尚未绑定，绑定后可以使用微博帐号登录，您可以<a href="{{ url_for('oauth2_weibo.login') }}" type="weibo">立即绑定</a></span>
                         </li>
                         {% endif %}
                         {% if CONFIG.PLUGINS.github.ENABLE in ("true", "True", True) %}
                         <li class="fly-msg" id="oauth-github">
-                            <i class="layui-icon layui-icon-zzgithub"></i>
+                            <i class="saintic-icon saintic-icon-github"></i>
                             <span id="oauth-github-tip">尚未绑定，绑定后可以使用GitHub帐号登录，您可以<a href="{{ url_for('oauth2_github.login') }}" type="github">立即绑定</a></span>
                         </li>
                         {% endif %}
                         {% if CONFIG.PLUGINS.coding.ENABLE in ("true", "True", True) %}
                         <li class="fly-msg" id="oauth-coding">
-                            <i class="layui-icon layui-icon-codingnet" style="font-size: 22px;"></i>
+                            <i class="saintic-icon saintic-icon-coding"></i>
                             <span id="oauth-coding-tip">尚未绑定，绑定后可以使用Coding帐号登录，您可以<a href="{{ url_for('oauth2_coding.login') }}" type="coding">立即绑定</a></span>
                         </li>
                         {% endif %}

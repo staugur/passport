@@ -1,1 +1,6 @@
-<a href="{{ url_for('oauth2_weibo.login', sso=request.args.sso) }}" title="使用微博账号登录"><img src="/static/images/weibo.png" class="socialImg" /></a>&nbsp;
+{%- if request.args.sso %}
+    {% set url = url_for('oauth2_weibo.login', sso=request.args.sso) %}
+{%- else %}
+    {% set url = url_for('oauth2_weibo.login') %}
+{%- endif -%}
+<a href="{{ url }}" title="使用微博账号登录"><img src="/static/images/weibo.png" class="socialImg" /></a>&nbsp;
