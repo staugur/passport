@@ -14,8 +14,8 @@ import os.path
 from config import UPYUN as Upyun
 from utils.send_email_msg import SendMail
 from utils.upyunstorage import CloudStorage
-from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi
-from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file
+from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi, FastPushMessage
+from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp
 from libs.auth import Authentication
 from flask import Blueprint, request, jsonify, g
 from werkzeug import secure_filename
@@ -124,6 +124,7 @@ def userapp():
     elif request.method == "DELETE":
         name = request.form.get("name")
         res.update(g.api.userapp.deleteUserApp(name=name))
+        FastPushMessage(res, "您于<i>{}</i>删除了一个SSO客户端应用：<strong>{}</strong>".format(timestamp_to_timestring(get_current_timestamp()), name))
     logger.info(res)
     return jsonify(dfr(res))
 

@@ -572,3 +572,13 @@ class VaptchaApi(object):
         challenge = request.form.get("challenge")
         print token,challenge
         return token and challenge and self.__vaptcha.validate(challenge, token, sceneid)
+
+
+def FastPushMessage(res, msg):
+    """ 快捷发送消息函数
+    @param res dict: 根据res中code或success字段值判断是否发送消息，code=0、success=True时发送
+    @param msg str: 消息内容，支持有限的html标签
+    """
+    if res.get("code") == 0 or res.get("success") == True:
+        if g.uid and msg:
+            return g.api.usermsg.push_message(g.uid, msg)
