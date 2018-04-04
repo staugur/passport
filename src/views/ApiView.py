@@ -84,6 +84,9 @@ def userapp():
         sort = request.args.get("sort") or "desc"
         page = request.args.get("page") or 1
         limit = request.args.get("limit") or 10
+        # mysql处分页
+        # select * from xxx where xxx order by xx sort limit offset(page),rows(limit);
+        # 以下方法为读mysql后缓存再分页
         # 参数检查
         try:
             page = int(page)
