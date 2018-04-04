@@ -2,8 +2,8 @@
     基本设置页面
 */
 
-layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload"], function(exports){
-    var passport = layui.passport, element = layui.element, form = layui.form, layer = layui.layer, $ = layui.jquery, laydate = layui.laydate, util = layui.util, upload = layui.upload;
+layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload", "flow"], function(exports){
+    var passport = layui.passport, element = layui.element, form = layui.form, layer = layui.layer, $ = layui.jquery, laydate = layui.laydate, util = layui.util, upload = layui.upload, flow = layui.flow;
     var profile = {
         nick_name: "个性昵称",
         domain_name: "个性域名",
@@ -68,7 +68,9 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
         //重新渲染表单
         form.render();
         //更新头像
-        $('#avatar').attr('src', userdata.avatar);
+        $('#avatar').attr('lay-src', userdata.avatar);
+        //图片懒加载
+        flow.lazyimg({elem: "#avatar"});
         //社交账号绑定
         for (var index = 0; index < userdata.bind.length ; index++) {
             var identity_type = userdata.bind[index].identity_type;
