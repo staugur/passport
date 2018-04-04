@@ -71,6 +71,9 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
         $('#avatar').attr('lay-src', userdata.avatar);
         //图片懒加载
         flow.lazyimg({elem: "#avatar"});
+        if (!$('#avatar').attr("src")) {
+            $('#avatar').attr("src", userdata.avatar);
+        }
         //社交账号绑定
         for (var index = 0; index < userdata.bind.length ; index++) {
             var identity_type = userdata.bind[index].identity_type;
