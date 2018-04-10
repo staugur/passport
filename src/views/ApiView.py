@@ -262,7 +262,7 @@ def usersecurity():
                 # 获取当前会话
                 if request.args.get("getCurrentSession", True) in (True, "True", "true"):
                     browserType, browserDevice, browserOs, browserFamily = parse_userAgent(request.headers.get("User-Agent"))
-                    area = getIpArea("192.168.1.1")
+                    area = getIpArea(g.ip)
                     if len(area.split()) >= 3:
                         area = area.split()[2]
                     CurrentSession = dict(iat=sd['iat'], exp=sd['exp'], browser=dict(family=" ".join(browserFamily.split()[:-1]), os=browserOs), ip=g.ip, area=area)
