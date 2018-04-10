@@ -138,6 +138,10 @@ layui.define(["element", "util", "layer", "form"], function(exports) {
                 9: "gitee"
             };
             return mapping[type];
+        },
+        isContains: function(str, substr) {
+            /* 判断str中是否包含substr */
+            return str.indexOf(substr) >= 0;
         }
     };
     //获取用户信息

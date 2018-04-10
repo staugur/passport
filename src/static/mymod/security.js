@@ -39,8 +39,41 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
                     共登录{{ item.clients.length }}个客户端\
                 </blockquote>\
             {{#  }); }}\
-        {{# } }}\
-    ';
+        {{# } }}',
+        ITChangeMapping = function(item, type) {
+            //将操作系统、浏览器、设备转换为字体图标
+            var im, browserMap = {
+                    edge: '<i class="saintic-icon saintic-icon-edge-browser"></i>',
+                    safari: '<i class="saintic-icon saintic-icon-safari-browser"></i>',
+                    chrome: '<i class="saintic-icon saintic-icon-chrome-browser"></i>',
+                    firefox: '<i class="saintic-icon saintic-icon-firefox"></i>',
+                    ie: '<i class="saintic-icon saintic-icon-ie-browser"></i>',
+                    opera: '<i class="saintic-icon saintic-icon-opera-browser"></i>',
+                    qq: '<i class="saintic-icon saintic-icon-qq-browser"></i>',
+                    sogou: '<i class="saintic-icon saintic-icon-sogou-browser"></i>',
+                    uc: '<i class="saintic-icon saintic-icon-uc-browser"></i>',
+                    baidu: '<i class="saintic-icon saintic-icon-baidu-browser"></i>'
+                },
+                systemMap = {
+                    windows: '<i class="saintic-icon saintic-icon-windows"></i>',
+                    linux: '<i class="saintic-icon saintic-icon-linux"></i>',
+                    apple: '<i class="saintic-icon saintic-icon-ios"></i>',
+                    android: '<i class="saintic-icon saintic-icon-andriod"></i>'
+                },
+                deviceMap = {
+                    pc: '<i class="saintic-icon saintic-icon-pc"></i>',
+                    mobile: '<i class="saintic-icon saintic-icon-mobilephone"></i>',
+                    tablet: '<i class="saintic-icon saintic-icon-tablet"></i>'
+                };
+            if (type == "browser") {
+                im = browserMap[item];
+            } else if (type == "system") {
+                im = systemMap[item];
+            } else if (type == "device") {
+                im = deviceMap[item]
+            }
+            return im || '<i class="saintic-icon saintic-icon-unknown"></i>'
+        };
     passport.ajax("/api/user/security/?Action=getSessions&getCurrentSession=true&getOtherSession=true", function(res) {
         if (res.code === 0) {
             var remote_ip_info = {
@@ -97,22 +130,59 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
                 }, {
                     field: 'browser_device',
                     title: '设备',
-                    width: 80
+                    width: 60,
+                    templet: function(d) {
+                        var icon = ITChangeMapping(d.browser_type.toLowerCase(), "device")
+                        return "<center title='" + d.browser_device + "'>" + icon + "</center>";
+                    }
                 }, {
                     field: 'browser_family',
                     title: '浏览器',
-                    width: 90,
+                    width: 75,
                     templet: function(d) {
-                        var str = d.browser_family;
-                        str = str.split(' '); //先按照空格分割成数组
-                        str.pop(); //删除数组最后一个元素
-                        str = str.join(' '); //在拼接成字符串
-                        return str;
+                        var item, browser = d.browser_family.toLowerCase();
+                        if (passport.isContains(browser, "chrome") === true) {
+                            item = "chrome";
+                        } else if (passport.isContains(browser, "firefox") === true) {
+                            item = "firefox";
+                        } else if (passport.isContains(browser, "safari") === true) {
+                            item = "safari";
+                        } else if (passport.isContains(browser, "edge") === true) {
+                            item = "edge";
+                        } else if (passport.isContains(browser, "ie") === true) {
+                            item = "ie";
+                        } else if (passport.isContains(browser, "opera") === true) {
+                            item = "opera";
+                        } else if (passport.isContains(browser, "qq") === true) {
+                            item = "qq"
+                        } else if (passport.isContains(browser, "sogou") === true) {
+                            item = "sogou"
+                        } else if (passport.isContains(browser, "uc") === true) {
+                            item = "uc"
+                        } else if (passport.isContains(browser, "bidu") === true) {
+                            item = "baidu"
+                        }
+                        var icon = ITChangeMapping(item, "browser")
+                        return "<center title='" + d.user_agent + "'>" + icon + "</center>";
                     }
                 }, {
                     field: 'browser_os',
-                    title: '操作系统',
-                    width: 120
+                    title: '系统',
+                    width: 60,
+                    templet: function(d) {
+                        var item, system = d.browser_os.toLowerCase();
+                        if (passport.isContains(system, "windows") === true) {
+                            item = "windows";
+                        } else if (passport.isContains(system, "linux") === true || passport.isContains(system, "centos") === true || passport.isContains(system, "ubuntu") === true || passport.isContains(system, "unix") === true) {
+                            item = "linux";
+                        } else if (passport.isContains(system, "ios") === true || passport.isContains(system, "mac") === true) {
+                            item = "linux";
+                        } else if (passport.isContains(system, "android") === true) {
+                            item = "android";
+                        }
+                        var icon = ITChangeMapping(item, "system")
+                        return "<center title='" + d.browser_os + "'>" + icon + "</center>";
+                    }
                 }
             ]
         ]
