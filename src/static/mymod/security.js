@@ -79,7 +79,7 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
                     width: 100
                 }, {
                     field: 'login_area',
-                    title: '地区'
+                    title: '地区与ISP'
                 }, {
                     field: 'login_time',
                     title: '时间',
