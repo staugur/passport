@@ -14,8 +14,8 @@ import os.path
 from config import UPYUN as Upyun
 from utils.send_email_msg import SendMail
 from utils.upyunstorage import CloudStorage
-from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi, FastPushMessage
-from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp
+from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi, FastPushMessage, analysis_sessionId
+from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent
 from libs.auth import Authentication
 from flask import Blueprint, request, jsonify, g
 from werkzeug import secure_filename
@@ -67,12 +67,10 @@ def misc_sendVcode():
     logger.debug(res)
     return jsonify(dfr(res))
 
-
 @ApiBlueprint.route("/miscellaneous/_getDownTime")
 def misc_getDownTime():
     """Vaptcha宕机模式接口"""
     return jsonify(vaptcha.getDownTime)
-
 
 @ApiBlueprint.route("/user/app/", methods=["GET", "POST", "PUT", "DELETE"])
 @apiadminlogin_required
@@ -84,9 +82,6 @@ def userapp():
         sort = request.args.get("sort") or "desc"
         page = request.args.get("page") or 1
         limit = request.args.get("limit") or 10
-        # mysql处分页
-        # select * from xxx where xxx order by xx sort limit offset(page),rows(limit);
-        # 以下方法为读mysql后缓存再分页
         # 参数检查
         try:
             page = int(page)
@@ -128,7 +123,6 @@ def userapp():
     logger.info(res)
     return jsonify(dfr(res))
 
-
 @ApiBlueprint.route("/user/profile/", methods=["GET", "POST", "PUT"])
 @apilogin_required
 def userprofile():
@@ -153,7 +147,6 @@ def userprofile():
     logger.info(res)
     return jsonify(dfr(res))
 
-
 @ApiBlueprint.route("/user/message/", methods=["GET", "POST", "DELETE"])
 @apilogin_required
 def usermsg():
@@ -177,11 +170,9 @@ def usermsg():
     logger.info(res)
     return jsonify(dfr(res))
 
-
-'''
-@ApiBlueprint.route('/user/upload/', methods=['POST', 'OPTIONS'])
+@ApiBlueprint.route('/user/upload2/', methods=['POST', 'OPTIONS'])
 @apilogin_required
-def userupload():
+def userupload2():
     # 通过表单形式上传图片
     res = dict(code=1, msg=None)
     logger.debug(request.files)
@@ -209,7 +200,6 @@ def userupload():
         res.update(code=3, msg="Unsuccessfully obtained file or format is not allowed")
     logger.info(res)
     return jsonify(dfr(res))
-'''
 
 @ApiBlueprint.route('/user/upload/', methods=['POST', 'OPTIONS'])
 @apilogin_required
@@ -257,3 +247,36 @@ def fgp():
         else:
             res.update(msg="Man-machine verification failed")
     return jsonify(dfr(res))
+
+@ApiBlueprint.route("/user/security/", methods=["GET", "POST", "DELETE"])
+@apilogin_required
+def usersecurity():
+    res = dict(msg=None, code=1)
+    Action = request.args.get("Action")
+    if request.method == "GET":
+        if Action == "getSessions":
+            sd = analysis_sessionId(request.cookies.get("sessionId"))
+            if sd:
+                res.update(code=0)
+                data = dict()
+                # 获取当前会话
+                if request.args.get("getCurrentSession", True) in (True, "True", "true"):
+                    browserType, browserDevice, browserOs, browserFamily = parse_userAgent(request.headers.get("User-Agent"))
+                    CurrentSession = dict(iat=sd['iat'], exp=sd['exp'], browser=dict(family=" ".join(browserFamily.split()[:-1]), os=browserOs), ip=g.ip)
+                    if g.sid:
+                        CurrentSession["session"] = g.api.usersso.ssoGetWithSid(g.sid, True)
+                    data["CurrentSession"]=CurrentSession
+                # 获取其他会话
+                if request.args.get("getOtherSession") in (True, "True", "true"):
+                    OtherSession = [ g.api.usersso.ssoGetWithSid(sid, True) for sid in g.api.usersso.ssoGetRegisteredUserSid(g.uid) if g.sid and g.sid != sid ]
+                    data["OtherSession"] = OtherSession
+                res["data"] = data
+        elif Action == "getLoginHistory":
+            # 获取登录历史
+            sort = request.args.get("sort") or "desc"
+            page = request.args.get("page") or 1
+            limit = request.args.get("limit") or 10
+            res = g.api.userprofile.listUserLoginHistory(uid=g.uid, page=page, limit=limit, sort=sort)
+    logger.info(res)
+    return jsonify(dfr(res))
+

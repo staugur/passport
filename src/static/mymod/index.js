@@ -108,6 +108,36 @@ layui.define(["element", "util", "layer", "form"], function(exports) {
                 obj[decodeURIComponent(tmp_arr[0])] = decodeURIComponent(tmp_arr[1]);
             }
             return key ? obj[key] || acq : obj;
+        },
+        socialAccountVisiblenameMapping: function(account) {
+            /* 社会化账号可见名映射 */
+            var mapping = {
+                mobile: "手机",
+                email: "邮箱",
+                github: "GitHub",
+                qq: "QQ",
+                wechat: "微信",
+                baidu: "百度",
+                weibo: "微博",
+                coding: "Coding",
+                gitee: "码云"
+            };
+            return mapping[account];
+        },
+        loginTypeNameMapping: function(type) {
+            /* 登录账号数字类型到标识名称映射 */
+            var mapping = {
+                1: "mobile",
+                2: "email",
+                3: "github",
+                4: "qq",
+                5: "wechat",
+                6: "baidu",
+                7: "weibo",
+                8: "coding",
+                9: "gitee"
+            };
+            return mapping[type];
         }
     };
     //获取用户信息
@@ -153,20 +183,10 @@ layui.define(["element", "util", "layer", "form"], function(exports) {
                 $('#avatar').attr('src', userdata.avatar);
                 //重新渲染表单
                 form.render();
-                //社交账号绑定
-                var namemap = {
-                    github: "GitHub",
-                    qq: "QQ",
-                    wechat: "微信",
-                    baidu: "百度",
-                    weibo: "微博",
-                    coding: "Coding",
-                    gitee: "码云"
-                };
                 for (var index = 0; index < userdata.bind.length; index++) {
                     var identity_type = userdata.bind[index].identity_type;
                     $("#oauth-" + identity_type).addClass("app-havebind");
-                    $("#oauth-" + identity_type + "-tip").html('已成功绑定，您可以使用' + namemap[identity_type] + '帐号直接登录，当然，您也可以<a href="/unbind?identity_name=' + identity_type + '" class="acc-unbind" type="' + identity_type + '">解除绑定</a>');
+                    $("#oauth-" + identity_type + "-tip").html('已成功绑定，您可以使用' + passport.socialAccountVisiblenameMapping(identity_type) + '帐号直接登录，当然，您也可以<a href="/unbind?identity_name=' + identity_type + '" class="acc-unbind" type="' + identity_type + '">解除绑定</a>');
                 }
             }
         }

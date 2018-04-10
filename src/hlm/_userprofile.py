@@ -313,3 +313,36 @@ class UserProfileManager(ServiceBase):
         else:
             res.update(msg="There are invalid parameters", code=4)
         return res
+
+    def listUserLoginHistory(self, uid, page=1, limit=5, sort="desc"):
+        """ 查询用户登录历史 
+        @param uid str: 用户唯一id
+        分页参数：
+        @param page int: 请求页数，从1开始
+        @param limit int: 每页数据量
+        @param sort str: 排序，可选值asc正序、desc倒序
+        """
+        res = dict(code=1, msg=None)
+        # 检查参数
+        try:
+            page = int(page)
+            limit = int(limit)
+            sort = sort.upper()
+            if not uid or page < 1 or limit < 1 or not sort in ("ASC", "DESC"):
+                raise
+        except:
+            res.update(code=2, msg="There are invalid parameters")
+        else:
+            # mysql处分页
+            # select * from xxx where xxx order by xx sort limit offset(page不为0时=(page-1)*limit),rows(limit);
+            sql1 = "SELECT id,uid,login_type,login_ip,login_area,login_time,user_agent,browser_type,browser_device,browser_os,browser_family FROM user_loginlog WHERE uid=%s ORDER BY id {} LIMIT {},{}".format(sort, (page-1)*limit, limit)
+            sql2 = "SELECT count(id) FROM user_loginlog WHERE uid=%s"
+            try:
+                data1 = self.mysql.query(sql1, uid)
+                data2 = self.mysql.get(sql2, uid)
+            except Exception, e:
+                logger.error(e, exc_info=True)
+                res.update(msg="System is abnormal", code=3)
+            else:
+                res.update(data=data1, code=0, count=data2.get("count(id)"))
+        return res

@@ -96,32 +96,6 @@ class UserSSOManager(ServiceBase):
             return data
         return False
 
-    def ssoSetUidConSyncToken(self, uid, token, expire):
-        """设置uid同步到客户端的token标识，用以验证此次同步是否passport发起"""
-        if uid and isinstance(uid, basestring) and isinstance(expire, int):
-            tkey = "passport:user:syncToken:{}".format(uid)
-            try:
-                pipe = self.redis.pipeline()
-                pipe.set(tkey, token)
-                pipe.expire(tkey, expire)
-                pipe.execute()
-            except Exception,e:
-                logger.error(e)
-            else:
-                return True
-        return False
-
-    def ssoGetUidCronSyncToken(self, uid):
-        """查询uid同步到客户端的token"""
-        if uid and isinstance(uid, basestring):
-            tkey = "passport:user:syncToken:{}".format(uid)
-            try:
-                token = self.redis.get(tkey)
-            except Exception,e:
-                logger.error(e)
-            else:
-                return token
-
     def ssoRegisterClient(self, sid, app_name):
         """ticket验证通过，向相应sid中注册app_name"""
         logger.debug("ssoRegisterClient for {}, with {}".format(sid, app_name))
@@ -183,6 +157,32 @@ class UserSSOManager(ServiceBase):
             pipe.delete(skey)
             pipe.delete(ckey)
             pipe.execute()
+
+    def ssoSetUidConSyncToken(self, uid, token, expire):
+        """设置uid同步到客户端的token标识，用以验证此次同步是否passport发起"""
+        if uid and isinstance(uid, basestring) and isinstance(expire, int):
+            tkey = "passport:user:syncToken:{}".format(uid)
+            try:
+                pipe = self.redis.pipeline()
+                pipe.set(tkey, token)
+                pipe.expire(tkey, expire)
+                pipe.execute()
+            except Exception,e:
+                logger.error(e)
+            else:
+                return True
+        return False
+
+    def ssoGetUidCronSyncToken(self, uid):
+        """查询uid同步到客户端的token"""
+        if uid and isinstance(uid, basestring):
+            tkey = "passport:user:syncToken:{}".format(uid)
+            try:
+                token = self.redis.get(tkey)
+            except Exception,e:
+                logger.error(e)
+            else:
+                return token
 
     def clientsConSync(self, getUserApp, uid, data):
         """ 向uid注册的各sid并发同步数据
