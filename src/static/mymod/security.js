@@ -123,7 +123,7 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
                 }, {
                     field: 'login_type',
                     title: '方式',
-                    width: 70,
+                    width: 80,
                     templet: function(d) {
                         return passport.socialAccountVisiblenameMapping(passport.loginTypeNameMapping(d.login_type));
                     }
