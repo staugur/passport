@@ -76,7 +76,7 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
                 }, {
                     field: 'login_ip',
                     title: 'IP',
-                    width: 100
+                    width: 110
                 }, {
                     field: 'login_area',
                     title: '地区与ISP'
@@ -101,7 +101,7 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
                 }, {
                     field: 'browser_family',
                     title: '浏览器',
-                    width: 125,
+                    width: 90,
                     templet: function(d) {
                         var str = d.browser_family;
                         str = str.split(' '); //先按照空格分割成数组
