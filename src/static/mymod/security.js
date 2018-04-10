@@ -109,7 +109,7 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
                 }, {
                     field: 'login_ip',
                     title: 'IP',
-                    width: 110
+                    width: 128
                 }, {
                     field: 'login_area',
                     title: '地区与ISP'
