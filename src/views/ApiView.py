@@ -15,7 +15,7 @@ from config import UPYUN as Upyun
 from utils.send_email_msg import SendMail
 from utils.upyunstorage import CloudStorage
 from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi, FastPushMessage, analysis_sessionId
-from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent
+from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent, getIpArea
 from libs.auth import Authentication
 from flask import Blueprint, request, jsonify, g
 from werkzeug import secure_filename
@@ -262,7 +262,10 @@ def usersecurity():
                 # 获取当前会话
                 if request.args.get("getCurrentSession", True) in (True, "True", "true"):
                     browserType, browserDevice, browserOs, browserFamily = parse_userAgent(request.headers.get("User-Agent"))
-                    CurrentSession = dict(iat=sd['iat'], exp=sd['exp'], browser=dict(family=" ".join(browserFamily.split()[:-1]), os=browserOs), ip=g.ip)
+                    area = getIpArea("192.168.1.1")
+                    if len(area.split()) >= 3:
+                        area = area.split()[2]
+                    CurrentSession = dict(iat=sd['iat'], exp=sd['exp'], browser=dict(family=" ".join(browserFamily.split()[:-1]), os=browserOs), ip=g.ip, area=area)
                     if g.sid:
                         CurrentSession["session"] = g.api.usersso.ssoGetWithSid(g.sid, True)
                     data["CurrentSession"]=CurrentSession

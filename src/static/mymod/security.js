@@ -76,12 +76,6 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
         };
     passport.ajax("/api/user/security/?Action=getSessions&getCurrentSession=true&getOtherSession=true", function(res) {
         if (res.code === 0) {
-            var remote_ip_info = {
-                area: ""
-            }
-            $.getScript(window.location.protocol + '//int.dpool.sina.com.cn/iplookup/iplookup.php?format=js&ip=' + res.data.CurrentSession.ip, function() {
-                res.data.CurrentSession.area = remote_ip_info.area || '';
-            });
             var html = laytpl(Sessiontpl).render(res);
             $('#SessionShow').html(html);
         }
@@ -116,7 +110,7 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
                 }, {
                     field: 'login_time',
                     title: '时间',
-                    width: 160,
+                    width: 170,
                     templet: function(d) {
                         return util.toDateString(d.login_time * 1000);
                     }
