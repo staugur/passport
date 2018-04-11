@@ -163,7 +163,7 @@
                         {% endif %}
                         {% if CONFIG.PLUGINS.gitee.ENABLE in ("true", "True", True) %}
                         <li class="fly-msg" id="oauth-gitee">
-                            <img src="/static/images/gitee.png">
+                            <i class="saintic-icon saintic-icon-gitee"></i>
                             <span id="oauth-gitee-tip">尚未绑定，绑定后可以使用码云帐号登录，您可以<a href="{{ url_for('oauth2_gitee.login') }}" type="gitee">立即绑定</a></span>
                         </li>
                         {% endif %}
