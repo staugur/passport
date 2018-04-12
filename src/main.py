@@ -90,6 +90,7 @@ def before_request():
     app.logger.debug("uid: {}, sid: {}".format(g.uid, g.sid))
     g.api = api
     g.ip = request.headers.get('X-Real-Ip', request.remote_addr)
+    g.agent = request.headers.get("User-Agent")
     # 仅是重定向页面快捷定义
     g.redirect_uri = get_redirect_url()
     # 上下文扩展点之请求后(返回前)

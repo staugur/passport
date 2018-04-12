@@ -136,7 +136,7 @@ def checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, uid, defaultRetu
     returnUrl = defaultReturnUrl or url_for("front.userset")
     if sso_isOk:
         # 创建ticket，返回为真即是ticket
-        tickets = g.api.usersso.ssoCreateTicket()
+        tickets = g.api.usersso.ssoCreateTicket(sid=None, agent=g.agent, ip=g.ip)
         if tickets and isinstance(tickets, (list, tuple)) and len(tickets) == 2:
             ticket, sid = tickets
             logger.debug("checkSet_ssoTicketSid set sessionId for sid: {}, uid: {}".format(sid, uid))

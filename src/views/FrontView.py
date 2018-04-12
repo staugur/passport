@@ -113,7 +113,7 @@ def signIn():
         if sso_isOk:
             if g.sid:
                 # 创建ticket，返回为真即是ticket
-                tickets = g.api.usersso.ssoCreateTicket(sid=g.sid)
+                tickets = g.api.usersso.ssoCreateTicket(sid=g.sid, agent=g.agent, ip=g.ip)
                 if tickets:
                     ticket, sid = tickets
                     returnUrl = "{}&ticket={}".format(sso_returnUrl, ticket)
