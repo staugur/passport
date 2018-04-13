@@ -263,13 +263,18 @@ def unbind():
         flash(u"无效参数")
     return redirect(url_for("front.userset", _anchor="bind"))
 
-@FrontBlueprint.route("/terms.html")
-def terms():
-    # 服务条款
-    return render_template("public/terms.html")
-
 @FrontBlueprint.route("/forgotpass/")
 @anonymous_required
 def fgp():
     # 忘记密码重置页
     return render_template("auth/forgot.html", vaptcha=vaptcha.getChallenge)
+
+@FrontBlueprint.route("/terms.html")
+def terms():
+    # 服务条款
+    return render_template("public/terms.html")
+
+@FrontBlueprint.route("/feedback.html")
+def feedback():
+    # 意见反馈
+    return render_template("public/feedback.html")

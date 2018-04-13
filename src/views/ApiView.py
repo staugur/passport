@@ -183,19 +183,15 @@ def userupload2():
         basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
         imgUrl = os.path.join(basedir, filename)
         try:
+            # 又拍云存储封装接口
+            upyunapi = CloudStorage(timeout=15)
             upyunapi.put(imgUrl, f.stream.read())
         except Exception, e:
             logger.error(e, exc_info=True)
             res.update(code=2, msg="System is abnormal")
         else:
             imgUrl = Upyun['dn'].strip("/") + imgUrl
-            res.update(imgUrl=imgUrl, code=0)
-            if callableAction == "UpdateAvatar":
-                resp = g.api.userprofile.updateUserAvatar(uid=g.uid, avatarUrl=imgUrl)
-                res.update(resp)
-                if resp["code"] == 0:
-                    # 同步头像
-                    g.api.usersso.clientsConSync(g.api.userapp.getUserApp, g.uid, dict(CallbackType="user_avatar", CallbackData=imgUrl))
+            res.update(data=dict(src=imgUrl), code=0)
     else:
         res.update(code=3, msg="Unsuccessfully obtained file or format is not allowed")
     logger.info(res)

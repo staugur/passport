@@ -3,6 +3,7 @@
 */
 
 layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload"], function(exports) {
+    'use strict';
     var passport = layui.passport,
         element = layui.element,
         form = layui.form,

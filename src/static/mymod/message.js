@@ -3,6 +3,7 @@
 */
 
 layui.define(["passport", "util", "layer", "laytpl"], function(exports) {
+    'use strict';
     var passport = layui.passport,
         util = layui.util,
         layer = layui.layer,

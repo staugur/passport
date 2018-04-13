@@ -3,6 +3,7 @@
 */
 
 layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"], function(exports) {
+    'use strict';
     var passport = layui.passport,
         table = layui.table,
         element = layui.element,
@@ -166,13 +167,13 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
                     width: 60,
                     templet: function(d) {
                         var item, system = d.browser_os.toLowerCase();
-                        if (passport.isContains(system, "windows") === true) {
+                        if (passport.isContains(system, "windows")) {
                             item = "windows";
-                        } else if (passport.isContains(system, "linux") === true || passport.isContains(system, "centos") === true || passport.isContains(system, "ubuntu") === true || passport.isContains(system, "unix") === true) {
+                        } else if (passport.isContains(system, "linux") || passport.isContains(system, "centos") || passport.isContains(system, "ubuntu") || passport.isContains(system, "unix")) {
                             item = "linux";
-                        } else if (passport.isContains(system, "ios") === true || passport.isContains(system, "mac") === true) {
+                        } else if (passport.isContains(system, "ios") || passport.isContains(system, "mac")) {
                             item = "linux";
-                        } else if (passport.isContains(system, "android") === true) {
+                        } else if (passport.isContains(system, "android")) {
                             item = "android";
                         }
                         var icon = ITChangeMapping(item, "system")

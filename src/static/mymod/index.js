@@ -3,6 +3,7 @@
 */
 
 layui.define(["element", "util", "layer", "form"], function(exports) {
+    'use strict';
     var $ = layui.jquery,
         element = layui.element,
         util = layui.util,
