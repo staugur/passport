@@ -71,10 +71,10 @@ class SendMail(object):
                 server.quit()
             except smtplib.SMTPException, e:
                 logger.error(e, exc_info=True)
-                res.update(msg="Unable to send mail")
+                res.update(msg="Mail delivery failed, please try again later")
             else:
                 res.update(success=True)
         else:
-            res.update(msg="email format error")
+            res.update(msg="Bad mailbox format")
         logger.debug(res)
         return res

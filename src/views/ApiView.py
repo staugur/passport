@@ -11,7 +11,7 @@
 import json
 import base64
 import os.path
-from config import UPYUN as Upyun
+from config import SYSTEM, UPYUN as Upyun
 from utils.send_email_msg import SendMail
 from utils.upyunstorage import CloudStorage
 from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi, FastPushMessage, analysis_sessionId
@@ -71,6 +71,29 @@ def misc_sendVcode():
 def misc_getDownTime():
     """Vaptcha宕机模式接口"""
     return jsonify(vaptcha.getDownTime)
+
+@ApiBlueprint.route("/miscellaneous/feedback/", methods=["POST"])
+def misc_feedback():
+    res = dict(msg=None, success=False)
+    if request.method == "POST":
+        point = request.form.get("point")
+        content = request.form.get("content")
+        email = request.form.get("email")
+        check = True
+        if point and content:
+            if email:
+                if not email_check(email):
+                    check = False
+                    res.update(msg="Bad mailbox format")
+        else:
+            check = False
+            res.update(msg="There are invalid parameters")
+        if check:
+            # 初始化邮箱发送服务
+            sendmail = SendMail()
+            result = sendmail.SendMessage(to_addr=SYSTEM["EMAIL"], subject=u"SaintIC Passport 用户反馈: %s" %point, formatType="html", message=u"用户预留邮箱：%s<br/>用户反馈内容：<br/>%s" %(email, content))
+            res.update(result)
+    return jsonify(dfr(res))
 
 @ApiBlueprint.route("/user/app/", methods=["GET", "POST", "PUT", "DELETE"])
 @apiadminlogin_required
@@ -170,9 +193,8 @@ def usermsg():
     logger.info(res)
     return jsonify(dfr(res))
 
-@ApiBlueprint.route('/user/upload2/', methods=['POST', 'OPTIONS'])
-@apilogin_required
-def userupload2():
+@ApiBlueprint.route('/user/uploadpub/', methods=['POST', 'OPTIONS'])
+def useruploadpub():
     # 通过表单形式上传图片
     res = dict(code=1, msg=None)
     logger.debug(request.files)
@@ -278,4 +300,5 @@ def usersecurity():
             res = g.api.userprofile.listUserLoginHistory(uid=g.uid, page=page, limit=limit, sort=sort)
     logger.info(res)
     return jsonify(dfr(res))
+
 

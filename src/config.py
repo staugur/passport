@@ -119,6 +119,9 @@ SYSTEM = {
 
     "SESSION_EXPIRE": int(getenv("passport_session_expire", 604800)),
     # session过期时间，单位秒，默认7d
+
+    "EMAIL": getenv("passport_system_email", "staugur@saintic.com"),
+    # 系统反馈收件人
 }
 
 

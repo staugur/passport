@@ -90,7 +90,7 @@
 <script type="text/javascript" src="/static/spop-0.1.3/spop.min.js"></script>
 <script type="text/javascript" src="/static/layui/layui.js"></script>
 <script type="text/javascript">
-//消息弹窗提示
+//消息弹窗提示函数
 function popup(msg) {
     spop({
         template: msg,
@@ -128,7 +128,29 @@ layui.config({
 }).extend({
     passport: "index",
 });
+layui.use('layer', function() {
+    var layer = layui.layer, $ = layui.jquery;
+    //用户反馈
+    $('#feedback').on('click', function() {
+        var width = $(window).width(), height = 460;
+        if (width>400) {
+            width = 400;
+        } else {
+            width = width/4*3;
+            height = 480;
+        }
+        layer.open({
+            type: 2,
+            title: '意见反馈',
+            shadeClose: false,
+            shade: 0.3,
+            area: [width+'px', height+'px'],
+            content: '{{ url_for("front.feedback") }}'
+        });
+    });
+});
 </script>
 {% block script %}{% endblock %}
+
 </body>
 </html>

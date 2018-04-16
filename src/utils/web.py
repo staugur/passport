@@ -484,6 +484,7 @@ def dfr(res, default='en-US'):
             "No such message": u"没有这条消息",
             "You are logged in, please log out": u"您已登录，请先注销",
             "Man-machine verification failed": u"人机验证失败",
+            "Bad mailbox format": u"邮箱格式错误",
         },
         # 繁体中文-香港
         "zh-HK": {
@@ -522,6 +523,7 @@ def dfr(res, default='en-US'):
             "No such message": u"沒有這條消息",
             "You are logged in, please log out": u"您已登錄，請先註銷",
             "Man-machine verification failed": u"人機驗證失敗",
+            "Bad mailbox format": u"郵箱格式錯誤",
         }
     }
     if isinstance(res, dict) and not "en" in language:
