@@ -146,7 +146,8 @@ layui.define(["element", "util", "layer", "form"], function(exports) {
         }
     };
     //获取用户信息
-    passport.ajax("/api/user/profile/?getBind=true", function(res) {
+    var getBind = passport.getUrlPath() === "/user/setting/" ? true : false;
+    passport.ajax("/api/user/profile/?getBind=" + getBind, function(res) {
         if (res.code == 0) {
             var userdata = res.data;
             //更新顶部导航昵称
@@ -156,7 +157,7 @@ layui.define(["element", "util", "layer", "form"], function(exports) {
             //前端缓存
             layui.cache.user = userdata;
             //设置页填充资料
-            if (passport.getUrlPath() == "/user/setting/") {
+            if (passport.getUrlPath() === "/user/setting/") {
                 $('#nick_name').val(userdata.nick_name);
                 $('#domain_name').val(userdata.domain_name);
                 if (userdata.domain_name) {
