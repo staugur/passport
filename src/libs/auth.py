@@ -20,8 +20,8 @@ class Authentication(object):
     """ 登陆注册类 """
 
     def __init__(self, mysql=None, redis=None):
-        self.db = mysql if mysql else create_mysql_engine()
-        self.rc = redis if redis else create_redis_engine()
+        self.db = mysql or create_mysql_engine()
+        self.rc = redis or create_redis_engine()
 
     def __check_hasUser(self, uid):
         """检查是否存在账号"""

@@ -53,12 +53,17 @@ def get_redirect_url(endpoint="front.signIn"):
     return url
 
 
-def set_loginstate(sessionId, returnUrl):
+def set_redirectLoginstate(sessionId, returnUrl):
     """设置登录态"""
     response = make_response(redirect(returnUrl))
     response.set_cookie(key="sessionId", value=sessionId, max_age=SYSTEM["SESSION_EXPIRE"], httponly=True, secure=False if request.url_root.split("://")[0] == "http" else True)
     return response
 
+def set_jsonifyLoginstate(sessionId, res):
+    """设置登录态"""
+    response = make_response(jsonify(res))
+    response.set_cookie(key="sessionId", value=sessionId, max_age=SYSTEM["SESSION_EXPIRE"], httponly=True, secure=False if request.url_root.split("://")[0] == "http" else True)
+    return response
 
 def set_sessionId(uid, seconds=SYSTEM["SESSION_EXPIRE"], sid=None):
     """设置cookie"""
@@ -412,7 +417,7 @@ class OAuth2(object):
         else:
             sessionId, returnUrl = set_sessionId(uid=uid), url_for("front.userset")
         # sso正确时sessionId含有sid，且returnUrl是appName的回调地址；当不正确时，仅为uid，returnUrl为上一页地址
-        return set_loginstate(sessionId, returnUrl)
+        return set_redirectLoginstate(sessionId, returnUrl)
 
     def goto_signUp(self, openid, sso=None):
         """OAuth转入注册绑定流程"""
@@ -572,7 +577,6 @@ class VaptchaApi(object):
         sceneid = request.args.get("sceneid") or ""
         token = request.form.get("token")
         challenge = request.form.get("challenge")
-        print token,challenge
         return token and challenge and self.__vaptcha.validate(challenge, token, sceneid)
 
 

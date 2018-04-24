@@ -3,66 +3,45 @@
 {% block title %}登录{% endblock %}
 
 {% block container %}
-    {%- if request.args.sso %}
-        {% set url = url_for('front.signIn', sso=request.args.sso) %}
-    {%- else %}
-        {% set url = url_for('front.signIn') %}
-    {%- endif -%}
-    <form action="{{ url }}" method="post" class="form" onsubmit="return checkSubmit();">
-		<div class="form-head">
-			<h2>{{ self.title() }}</h2>
-            <!--<p class="form-notice"></p>-->
-			<p>还没有账号？<a href="{{ url_for('front.signUp') }}">立即注册</a></p>
-		</div>
-		<div class="form-body">
-            <p class="err-msg" id="err-msg">
-            {%- with messages = get_flashed_messages() %}
-            {%- if messages %}
-            {{ " ".join(messages) }}
-            {%- endif %}
-            {%- endwith %}
-            </p>
-			<div class="ui-input">
-				<input type="text" placeholder="邮箱地址" name="account" id="account" autofocus="autofocus">
-			</div>
-			<div class="ui-input">
-				<input type="password" placeholder="登录密码" name="password" id="password">
-			</div>
+<div class="login">
+    <h1>{{ self.title() }}</h1>
+    <form class="layui-form">
+        <div class="layui-form-item">
+            <input class="layui-input" name="account" placeholder="邮箱" value="" lay-verify="required|email" lay-verType="tips" type="text" autofocus="autofocus">
+        </div>
+        <div class="layui-form-item">
+            <input class="layui-input" name="password" placeholder="登录密码" value=""  lay-verify="required|passwd" lay-verType="tips" type="password">
+        </div>
+        <div class="layui-form-item">
             {% include "auth/vaptcha_form.html" %}
-            <input type="submit" class="ui-button ui-button--primary" disabled="disabled" id="submitbutton" value="登录">
-			<hr>
-			<p class="forget-password">
-				<a href="{{ url_for('front.fgp') }}">忘记密码？</a>
-			</p>
-            <p class="socialLogin">
-            	<sup>第三方社会化账号登录：</sup>
-                {%- if auth_signIn_socialLogin_include %}
-                    {% for ai in auth_signIn_socialLogin_include() %}
-                        {% include ai %}
-                    {% endfor %}
-                {%- endif %}
-                {%- if auth_signIn_socialLogin_string %}
-                    {% for as in auth_signIn_socialLogin_string() %}
-                        {{ as|safe }}
-                    {% endfor %}
-                {%- endif %}
-            </p>
-		</div>
-	</form>
+        </div>
+        <button class="layui-btn layui-btn-fluid layui-disabled" lay-submit="" lay-filter="signIn" disabled="disabled" id="submitbutton">登录</button>
+    </form>
+    <div class="fetures">
+        <a href="{{ url_for('front.signUp') }}" class="signup">免费注册！</a>
+        <a href="{{ url_for('front.fgp') }}" class="forgot">忘记密码？</a>
+    </div>
+    <div class="thirds">
+        第三方账号登录：
+        {%- if auth_signIn_socialLogin_include %}
+            {% for ai in auth_signIn_socialLogin_include() %}
+                {% include ai %}
+            {% endfor %}
+        {%- endif %}
+        {%- if auth_signIn_socialLogin_string %}
+            {% for as in auth_signIn_socialLogin_string() %}
+                {{ as|safe }}
+            {% endfor %}
+        {%- endif %}
+    </div>
+    {% include "public/footer.html" %}
+</div>
 {% endblock %}
 
 {% block script %}
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 <script src="https://cdn.vaptcha.com/v.js"></script>
 <script type="text/javascript">
     {% include "auth/vaptcha_js.html" %}
-    function checkSubmit() {
-        var password = $('#password').val();
-        if(password.length<6||password.length>30){
-            popup("密码长度应在6到30个字符之间！");
-            return false;
-        }
-        return true;
-    }
+    layui.use("signin");
 </script>
 {% endblock %}

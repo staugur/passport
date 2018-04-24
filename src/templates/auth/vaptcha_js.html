@@ -1,4 +1,4 @@
-var obj;
+    var vaptchaObj;
     window.vaptcha({
         vid: "{{ vaptcha.vid }}", //验证单元id, string, 必填
         challenge: "{{ vaptcha.challenge }}", //验证流水号, string, 必填
@@ -12,13 +12,12 @@ var obj;
             $('#token').val(token);
             $('#challenge').val(challenge);
             $('#submitbutton').removeAttr("disabled");
-            $('#submitbutton').removeClass("ui-button--primary");
-            $('#submitbutton').addClass("ui-button--success");
+            $('#submitbutton').removeClass("layui-disabled");
         },
         fail:function(){//验证失败回调函数  
             //todo:执行人机验证失败后的操作
         }
     }, function(vaptcha_obj){
-        obj = vaptcha_obj;
-        obj.init();
+        vaptchaObj = vaptcha_obj;
+        vaptchaObj.init();
     });

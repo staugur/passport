@@ -9,11 +9,11 @@
     :license: MIT, see LICENSE for more details.
 """
 from config import SYSTEM
-from utils.web import login_required, anonymous_required, adminlogin_required, dfr, oauth2_name2type, get_redirect_url, checkGet_ssoRequest, checkSet_ssoTicketSid, set_loginstate, VaptchaApi
+from utils.web import login_required, anonymous_required, adminlogin_required, dfr, oauth2_name2type, get_redirect_url, checkGet_ssoRequest, checkSet_ssoTicketSid, set_redirectLoginstate, set_jsonifyLoginstate, VaptchaApi
 from utils.tool import logger, email_check, phone_check, md5
 from libs.auth import Authentication
 from urllib import urlencode
-from flask import Blueprint, request, render_template, g, redirect, url_for, flash, make_response
+from flask import Blueprint, request, render_template, g, redirect, url_for, flash, make_response, jsonify
 
 #初始化前台蓝图
 FrontBlueprint = Blueprint("front", __name__)
@@ -64,27 +64,22 @@ def usersecurity():
 @anonymous_required
 def signUp():
     if request.method == 'POST':
+        res = dict(msg=None, code=1, nextUrl=url_for('.signUp'))
         if vaptcha.validate:
             account = request.form.get("account")
             vcode = request.form.get("vcode")
             password = request.form.get("password")
             repassword = request.form.get("repassword")
             auth = Authentication(g.mysql, g.redis)
-            try:
-                res = auth.signUp(account=account, vcode=vcode, password=password, repassword=repassword, register_ip=g.ip)
-            except Exception,e:
-                logger.error(e, exc_info=True)
-                flash(u"系统异常，请稍后再试")
+            result = auth.signUp(account=account, vcode=vcode, password=password, repassword=repassword, register_ip=g.ip)
+            if result["success"]:
+                res.update(code=0, nextUrl=url_for('.signIn'))
             else:
-                res = dfr(res)
-                if res["success"]:
-                    # 写登陆日志
-                    return redirect(url_for('.signIn'))
-                else:
-                    flash(res["msg"])
+                res.update(msg=result["msg"])
         else:
-            flash(u"人机验证失败")
-        return redirect(url_for('.signUp'))
+            res.update(msg="Man-machine verification failed")
+        print res
+        return jsonify(dfr(res))
     return render_template("auth/signUp.html", vaptcha=vaptcha.getChallenge)
 
 @FrontBlueprint.route('/signIn', methods=['GET', 'POST'])
@@ -122,98 +117,82 @@ def signIn():
                     flash(dfr(dict(msg="Failed to create authorization ticket")))
             else:
                 sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, g.uid, get_redirect_url("front.userset"))
-                return set_loginstate(sessionId, returnUrl)
+                return set_redirectLoginstate(sessionId, returnUrl)
         return redirect(url_for("front.userset"))
     else:
         # 未登录时流程
         if request.method == 'POST':
             # POST请求不仅要设置登录态、还要设置全局会话
+            res = dict(msg=None, code=1, nextUrl=url_for('.signIn', sso=sso) if sso_isOk else url_for('.signIn'))
             if vaptcha.validate:
-                account = request.form.get("account")
-                password = request.form.get("password")
                 auth = Authentication(g.mysql, g.redis)
-                res = auth.signIn(account=account, password=password)
-                res = dfr(res)
-                if res["success"]:
+                result = auth.signIn(account=request.form.get("account"), password=request.form.get("password"))
+                if result["success"]:
                     # 记录登录日志
-                    auth.brush_loginlog(res, login_ip=g.ip, user_agent=request.headers.get("User-Agent"))
-                    sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, res["uid"], get_redirect_url("front.userset"))
+                    auth.brush_loginlog(result, login_ip=g.ip, user_agent=g.agent)
+                    sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, result["uid"], get_redirect_url("front.userset"))
                     logger.debug("signIn post returnUrl: {}".format(returnUrl))
-                    return set_loginstate(sessionId, returnUrl)
+                    res.update(nextUrl=returnUrl, code=0)
+                    return set_jsonifyLoginstate(sessionId, dfr(res))
+                    #return set_redirectLoginstate(sessionId, returnUrl)
                 else:
-                    flash(res["msg"])
+                    res.update(msg=result["msg"])
             else:
-                flash(u"人机验证失败")
-            return redirect(url_for('.signIn', sso=sso)) if sso_isOk else redirect(url_for('.signIn'))
+                res.update(msg="Man-machine verification failed")
+            return jsonify(dfr(res))
+            #return redirect(url_for('.signIn', sso=sso)) if sso_isOk else redirect(url_for('.signIn'))
         else:
             # GET请求仅用于渲染
             return render_template("auth/signIn.html", vaptcha=vaptcha.getChallenge)
 
-@FrontBlueprint.route("/OAuthGuide")
+@FrontBlueprint.route("/OAuthGuide", methods=["GET", "POST"])
 @anonymous_required
 def OAuthGuide():
     """OAuth2登录未注册时引导路由(来源于OAuth goto_signUp)，选择绑定已有账号或直接登录(首选)"""
-    if request.args.get("openid"):
-        return render_template("auth/OAuthGuide.html")
-    else:
-        return redirect(g.redirect_uri)
-
-@FrontBlueprint.route("/OAuthGuide/DirectLogin", methods=["POST"])
-@anonymous_required
-def OAuthDirectLogin():
-    """OAuth2直接登录(首选)"""
     if request.method == 'POST':
+        Action = request.args.get("Action")
         sso = request.args.get("sso") or None
-        logger.debug("OAuthDirectLogin, sso type: {}, content: {}".format(type(sso), sso))
-        openid = request.form.get("openid")
-        if openid:
-            auth = Authentication(g.mysql, g.redis)
+        logger.debug("OAuthGuide, sso type: {}, content: {}".format(type(sso), sso))
+        res = dict(msg=None, code=1)
+        if Action == "bindLogin":
+            if vaptcha.validate:
+                auth = Authentication()
+                result = auth.oauth2_bindLogin(openid=request.form.get("openid"), account=request.form.get("account"), password=request.form.get("password"))
+                if result["success"]:
+                    # 记录登录日志
+                    auth.brush_loginlog(result, login_ip=g.ip, user_agent=g.agent)
+                    sso_isOk, sso_returnUrl, sso_appName = checkGet_ssoRequest(sso)
+                    sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, result["uid"], url_for("front.userset", _anchor="bind"))
+                    logger.debug("OAuthGuide bindLogin post returnUrl: {}".format(returnUrl))
+                    res.update(nextUrl=returnUrl, code=0)
+                    return set_jsonifyLoginstate(sessionId, dfr(res))
+                    #return set_redirectLoginstate(sessionId, returnUrl)
+                else:
+                    res.update(msg=result["msg"])
+            else:
+                res.update(msg="Man-machine verification failed")
+            return jsonify(dfr(res))
+            #return redirect(url_for('.OAuthBindAccount', openid=openid, sso=sso))
+        elif Action == "directLogin":
+            auth = Authentication()
             # 直接注册新账号并设置登录态
-            res = auth.oauth2_signUp(openid, g.ip)
-            res = dfr(res)
-            if res["success"]:
+            result = auth.oauth2_signUp(request.form.get("openid"), g.ip)
+            if result["success"]:
                 # 记录登录日志
-                auth.brush_loginlog(res, login_ip=g.ip, user_agent=request.headers.get("User-Agent"))
+                auth.brush_loginlog(result, login_ip=g.ip, user_agent=request.headers.get("User-Agent"))
                 sso_isOk, sso_returnUrl, sso_appName = checkGet_ssoRequest(sso)
-                sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, res["uid"], url_for("front.userset", _anchor="bind"))
-                logger.debug("OAuthDirectLogin post returnUrl: {}".format(returnUrl))
-                return set_loginstate(sessionId, returnUrl)
+                sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, result["uid"], url_for("front.userset", _anchor="bind"))
+                logger.debug("OAuthGuide directLogin post returnUrl: {}".format(returnUrl))
+                res.update(nextUrl=returnUrl, code=0)
+                return set_jsonifyLoginstate(sessionId, dfr(res))
+                #return set_redirectLoginstate(sessionId, returnUrl)
             else:
-                flash(res["msg"])
-                return redirect(url_for("front.OAuthGuide", openid=openid, sso=sso))
-        else:
-            return redirect(g.redirect_uri)
-
-@FrontBlueprint.route("/OAuthGuide/BindAccount", methods=["GET", "POST"])
-@anonymous_required
-def OAuthBindAccount():
-    """OAuth2绑定已有账号登录"""
-    if request.method == 'POST':
-        sso = request.args.get("sso") or None
-        logger.debug("OAuthBindAccount, sso type: {}, content: {}".format(type(sso), sso))
-        openid = request.form.get("openid")
-        if vaptcha.validate:
-            account = request.form.get("account")
-            password = request.form.get("password")
-            auth = Authentication(g.mysql, g.redis)
-            res = auth.oauth2_bindLogin(openid=openid, account=account, password=password)
-            res = dfr(res)
-            if res["success"]:
-                # 记录登录日志
-                auth.brush_loginlog(res, login_ip=g.ip, user_agent=request.headers.get("User-Agent"))
-                sso_isOk, sso_returnUrl, sso_appName = checkGet_ssoRequest(sso)
-                sessionId, returnUrl = checkSet_ssoTicketSid(sso_isOk, sso_returnUrl, sso_appName, res["uid"], url_for("front.userset", _anchor="bind"))
-                logger.debug("OAuthBindAccount post returnUrl: {}".format(returnUrl))
-                return set_loginstate(sessionId, returnUrl)
-            else:
-                flash(res["msg"])
-        else:
-            flash(u"人机验证失败")
-        return redirect(url_for('.OAuthBindAccount', openid=openid, sso=sso))
+                res.update(msg=result["msg"])
+            return jsonify(dfr(res))
+            #return redirect(url_for("front.OAuthGuide", openid=openid, sso=sso))
     else:
-        openid = request.args.get("openid")
-        if openid:
-            return render_template("auth/OAuthBindAccount.html", vaptcha=vaptcha.getChallenge)
+        if request.args.get("openid"):
+            return render_template("auth/OAuthGuide.html", vaptcha=vaptcha.getChallenge)
         else:
             return redirect(g.redirect_uri)
 

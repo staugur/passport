@@ -2,118 +2,46 @@
 
 {% block title %}注册{% endblock %}
 
-{% block head %}
-<style>
-    label {font-size:12px;cursor:pointer;}
-    label i {font-size:12px;font-style:normal;display:inline-block;width:12px;height:12px;text-align:center;line-height:12px;color:#fff;vertical-align:middle;margin:-2px 2px 1px 0px;border:#2489c5 1px solid;}
-    input[type="checkbox"],input[type="radio"] {display:none;}
-    input[type="radio"] + i {border-radius:7px;}
-    input[type="checkbox"]:checked + i,input[type="radio"]:checked + i {background:#2489c5;}
-    input[type="checkbox"]:disabled + i,input[type="radio"]:disabled + i {border-color:#ccc;}
-    input[type="checkbox"]:checked:disabled + i,input[type="radio"]:checked:disabled + i {background:#ccc;}
-</style>
-{% endblock %}
-
 {% block container %}
-    <form action="{{ url_for('front.signUp', NextUrl=url_for('front.signIn')) }}" method="post" class="form" onsubmit="return checkSubmit();">
-		<div class="form-head">
-			<h2>{{ self.title() }}</h2>
-			<!--<p class="form-notice"></p>-->
-			<p>已有账号？<a href="{{ url_for('front.signIn') }}">立即登录</a></p>
-		</div>
-		<div class="form-body">
-            <p class="err-msg" id="err-msg">
-            {%- with messages = get_flashed_messages() %}
-            {%- if messages %}
-            {{ " ".join(messages) }}
-            {%- endif %}
-            {%- endwith %}
-            </p>
-			<div class="ui-input">
-				<input type="text" placeholder="邮箱" name="account" id="account" required="required" maxlength="50" autofocus="autofocus">
-			</div>
-			<div class="ui-input narrow-input">
-				<input type="text" placeholder="验证码" name="vcode" id="vcode" required="required" maxlength="6">
-				<a class="sms-button" href="javascript:sendCode(this)" id="sms-tip-msg">获取验证码</a>
-			</div>
-			<div class="ui-input">
-				<input type="password" placeholder="设置密码，6-30位" name="password" id="password" required="required" maxlength="30">
-			</div>
-            <div class="ui-input">
-                <input type="password" placeholder="确认密码" name="repassword" id="repassword" required="required">
+<div class="login">
+    <h1>{{ self.title() }}</h1>
+    <div class="layui-form">
+        <div class="layui-form-item">
+            <input class="layui-input" name="account" id="account" placeholder="邮箱" lay-verify="required|email" lay-verType="tips" type="text" autofocus="autofocus" maxlength="50">
+        </div>
+        <div class="layui-form-item">
+            <div class="layui-input-inline">
+                <input class="layui-input" name="vcode" placeholder="验证码" id="vcode"  lay-verify="required" lay-verType="tips" type="text" maxlength="6">
             </div>
-            <br><label><input type="checkbox" id="terms"><i>✓</i><a href="{{ url_for('front.terms') }}" target="_blank" style="color: #999" title="阅读服务条款">同意服务条款</a></label><br>
+            <div class="layui-form-mid">
+                <button class="layui-btn layui-btn layui-btn-xs" id="sms-tip-msg">获取验证码</button>
+            </div>
+        </div>
+        <div class="layui-form-item">
+            <input class="layui-input" name="password" placeholder="设置密码，6-30位" lay-verify="required|passwd" lay-verType="tips" type="password">
+        </div>
+        <div class="layui-form-item">
+            <input class="layui-input" name="repassword" placeholder="确认密码" lay-verify="required|repasswd" lay-verType="tips" type="password">
+        </div>
+        <div class="layui-form-item">
+            <input type="checkbox" name="terms" lay-skin="primary" lay-verify="terms" title="同意服务条款" lay-verType="tips" id="terms">
+        </div>
+        <div class="layui-form-item">
             {% include "auth/vaptcha_form.html" %}
-			<input type="submit" class="ui-button ui-button--primary" disabled="disabled" id="submitbutton" value="注册">
-		</div>
-	</form>
+        </div>
+        <button class="layui-btn layui-btn-fluid layui-disabled" lay-submit="" lay-filter="signUp" disabled="disabled" id="submitbutton">注册</button>
+    </div>
+    <div class="fetures">
+        <a href="{{ url_for('front.signIn') }}">返回登录！</a>
+    </div>
+    {% include "public/footer.html" %}
+</div>
 {% endblock %}
 
 {% block script %}
-<script src="{{ url_for('static', filename='js/script.js') }}"></script>
 <script src="https://cdn.vaptcha.com/v.js"></script>
 <script type="text/javascript">
     {% include "auth/vaptcha_js.html" %}
-    function checkSubmit() {
-        var password = $('#password').val();
-        var repassword = $('#repassword').val();
-        if (!document.getElementById("terms").checked) {
-            popup("请阅读并同意服务条款后继续！");
-            return false;
-        }
-        if(password!=repassword){
-            popup("密码和重复密码不同，请重新输入！");
-            return false;
-        }
-        if(password.length<6||password.length>30||repassword.length<6||repassword.length>30){
-            popup("密码长度应在6到30个字符之间！");
-            return false;
-        }
-        return true;
-    }
-    function sendCode(that) {
-        disable_sendCode();
-        var wait = 300;
-        var account = $('#account').val();
-        if (account) {
-            $.ajax({
-                type: 'post',
-                url: '{{ url_for("api.misc_sendVcode") }}',
-                data: {"account": account},
-                success: function (res) {
-                    console.log(res);
-                    if (res.success==true) {
-                        check();
-                    } else {
-                        popup(res.msg);
-                        enable_sendCode();
-                    }
-                }
-            });
-        } else {
-            popup("请填写邮箱地址");
-        }
-        function disable_sendCode() {
-            $('#sms-tip-msg').attr("disabled", true);
-            $('#sms-tip-msg').removeAttr('href');
-        }
-        function enable_sendCode() {
-            $('#sms-tip-msg').removeAttr("disabled");
-            $('#sms-tip-msg').attr('href','javascript:sendCode(this)');
-        }
-        function check() {
-            if (wait == 0) {
-                enable_sendCode();
-                $('#sms-tip-msg').text("重发验证码");
-                wait = 300;
-            } else {
-                $('#sms-tip-msg').text(wait+"秒后重发");
-                wait--;
-                setTimeout(function() {
-                    check();
-                }, 1000)
-            }
-        }
-    }
+    layui.use("signup");
 </script>
 {% endblock %}

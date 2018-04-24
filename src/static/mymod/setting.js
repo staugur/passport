@@ -41,7 +41,7 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
     form.verify({
         nick_name: function(value, item) { //value：表单的值、item：表单的DOM对象
             if (value) {
-                if (safeCheck(value) === false) {
+                if (passport.safeCheck(value) === false) {
                     return '昵称存在违规特殊字符';
                 }
                 if (value.length < 2 || value.length > 49) {

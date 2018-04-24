@@ -1,17 +1,15 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <meta charset="utf-8"/>
-    <title>{% block title %}{% endblock %} - SaintIC Passport</title>
-    {% include "public/header.html" %}
-    <link rel="stylesheet" href="/static/layui/css/layui.css">
-    <link rel="stylesheet" href="/static/css/global.css">
-    <link rel="stylesheet" href="/static/spop-0.1.3/spop.min.css">
-    <link rel="stylesheet" href="/static/css/iconfont.css" media="all">
-    {% block head %}{% endblock %}
-</head>
-<body>
+{% extends "public/base.html" %}
 
+{% block baseTitle %}
+    {% block title %}{% endblock %} - SaintIC Passport
+{% endblock %}
+
+{% block baseHead %}
+    <link rel="stylesheet" href="/static/css/global.css">
+    {% block head %}{% endblock %}
+{% endblock %}
+
+{% block baseHtml %}
 <!--顶部导航-->
 <div class="fly-header layui-bg-black">
     <div class="layui-container">
@@ -20,7 +18,7 @@
         <ul class="layui-nav fly-nav-user">
             <li class="layui-nav-item">
                 <a class="fly-nav-avatar" href="javascript:;">
-                    &nbsp;&nbsp;&nbsp;<cite class="layui-hide-xs" id="nav_nickname"></cite>
+                    <cite class="layui-hide-xs" id="nav_nickname"></cite>
                     <!--
                     <i class="iconfont icon-renzheng layui-hide-xs" title="已实名、未实名"></i>
                     <i class="layui-badge fly-badge-vip layui-hide-xs">VIP3</i>
@@ -29,13 +27,10 @@
                 </a>
                 <dl class="layui-nav-child">
                     <dd><a href="{{ url_for('front.userset') }}"><i class="saintic-icon saintic-icon-setting"></i>基本设置</a></dd>
-                    <!--<dd><a href="{{ url_for('front.usersecurity') }}"><i class="layui-icon">&#xe631;</i>安全设置</a></dd>-->
+                    <dd><a href="{{ url_for('front.usersecurity') }}"><i class="saintic-icon saintic-icon-security"></i>账号安全</a></dd>
                     <dd><a href="{{ url_for('front.usermsg') }}"><i class="saintic-icon saintic-icon-message"></i>我的消息</a></dd>
-                    <!--
-                    <dd><a href="user/home.html"><i class="layui-icon" style="margin-left: 2px; font-size: 22px;">&#xe68e;</i>我的主页</a></dd>
-                    -->
                     <hr style="margin: 5px 0;">
-                    <dd><a href="{{ url_for('front.signOut') }}" style="text-align: center;"><i class="saintic-icon saintic-icon-logout"></i>注销登录</a></dd>
+                    <dd><a href="{{ url_for('front.signOut') }}"><i class="saintic-icon saintic-icon-logout"></i>注销登录</a></dd>
                 </dl>
             </li>
         </ul>
@@ -47,11 +42,6 @@
     {% block leftNav %}
     <!--左侧垂直导航-->
     <ul class="layui-nav layui-nav-tree layui-inline" lay-filter="user">
-        <!--
-        <li class="layui-nav-item {% if request.endpoint == 'front.userset' %}layui-this{% endif %}">
-            <a href="home.html"><i class="layui-icon">&#xe609;</i>我的主页</a>
-        </li>
-        -->
         <li class="layui-nav-item {% if request.endpoint == 'front.userset' %}layui-this{% endif %}">
             <a href="{{ url_for('front.userset') }}"><i class="saintic-icon saintic-icon-setting"></i>&nbsp;&nbsp;基本设置</a>
         </li>
@@ -72,6 +62,7 @@
         </li>
         {% endif %}
     </ul>
+    <!--移动端适应按钮-->
     <div class="site-tree-mobile layui-hide">
         <i class="layui-icon">&#xe602;</i>
     </div>
@@ -86,71 +77,8 @@
 </div>
 
 {% include "public/footer.html" %}
-<script type="text/javascript" src="/static/js/jquery.min.js"></script>
-<script type="text/javascript" src="/static/spop-0.1.3/spop.min.js"></script>
-<script type="text/javascript" src="/static/layui/layui.js"></script>
-<script type="text/javascript">
-//消息弹窗提示函数
-function popup(msg) {
-    spop({
-        template: msg,
-        position: 'top-center',
-        autoclose: 5000
-    });
-}
+{% endblock baseHtml %}
 
-//字符串安全检查
-function safeCheck(s) {
-    try {
-        if (s.indexOf("'")!=-1||s.indexOf('"')!=-1||s.indexOf("?")!=-1||s.indexOf("%")!=-1||s.indexOf(";")!=-1||s.indexOf("*")!=-1||s.indexOf("=")!=-1||s.indexOf("\\")!=-1) {
-            return false
-        } else {
-            return true;
-        }
-    }
-    catch(e) {
-        return false;
-    }
-}
-
-{%- with messages = get_flashed_messages() %}
-    {%- if messages %}
-        {%- for msg in messages %}
-            popup('{{ msg }}');
-        {%- endfor %}
-    {%- endif %}
-{%- endwith %}
-
-//加载模块扩展脚本
-layui.config({
-    version: "{{ __version__ }}",
-    base: "/static/mymod/"
-}).extend({
-    passport: "index",
-});
-layui.use('layer', function() {
-    var layer = layui.layer, $ = layui.jquery;
-    //用户反馈
-    $('#feedback').on('click', function() {
-        var width = $(window).width(), height = 460;
-        if (width>400) {
-            width = 400;
-        } else {
-            width = width/4*3;
-            height = 480;
-        }
-        layer.open({
-            type: 2,
-            title: '意见反馈',
-            shadeClose: false,
-            shade: 0.3,
-            area: [width+'px', height+'px'],
-            content: '{{ url_for("front.feedback") }}'
-        });
-    });
-});
-</script>
-{% block script %}{% endblock %}
-
-</body>
-</html>
+{% block baseScript %}
+    {% block script %}{% endblock %}
+{% endblock baseScript %}
