@@ -159,7 +159,7 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
                             item = "baidu"
                         }
                         var icon = ITChangeMapping(item, "browser")
-                        return "<center title='" + d.user_agent + "'>" + icon + "</center>";
+                        return "<center title='" + d.browser_family + '&#10;' + d.user_agent + "'>" + icon + "</center>";
                     }
                 }, {
                     field: 'browser_os',
