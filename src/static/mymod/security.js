@@ -172,7 +172,7 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
                         } else if (passport.isContains(system, "linux") || passport.isContains(system, "centos") || passport.isContains(system, "ubuntu") || passport.isContains(system, "unix")) {
                             item = "linux";
                         } else if (passport.isContains(system, "ios") || passport.isContains(system, "mac")) {
-                            item = "linux";
+                            item = "apple";
                         } else if (passport.isContains(system, "android")) {
                             item = "android";
                         }
