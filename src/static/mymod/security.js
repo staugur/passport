@@ -58,7 +58,7 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
                 systemMap = {
                     windows: '<i class="saintic-icon saintic-icon-windows"></i>',
                     linux: '<i class="saintic-icon saintic-icon-linux"></i>',
-                    apple: '<i class="saintic-icon saintic-icon-ios"></i>',
+                    apple: '<i class="saintic-icon saintic-icon-apple"></i>',
                     android: '<i class="saintic-icon saintic-icon-andriod"></i>'
                 },
                 deviceMap = {
