@@ -45,18 +45,20 @@ class UserProfileManager(ServiceBase):
             @param etime str: 有效期，见"规则"
         规则：
             1. 10位UNIX时间戳，小于当前时间即锁失效，可以修改
-            2. 结果为0表示加锁，不可以修改；结果为-1表示无锁
+            2. 结果为0表示加锁，不可以修改；结果为1表示无锁
         返回：
             True -> 加锁 -> 不可以修改（默认）
             False -> 无锁 -> 可修改
         """
+        logger.debug(etime)
+        logger.debug(type(etime))
         if etime and isinstance(etime, int):
-            if etime == -1:
+            if etime in (-1, 1):
                 return False
             elif etime == 0:
                 return True
             else:
-                if 0 < etime < get_current_timestamp():
+                if 1 < etime < get_current_timestamp():
                     return False
         return True
 
