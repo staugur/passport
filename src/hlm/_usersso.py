@@ -28,7 +28,7 @@ class UserSSOManager(ServiceBase):
             sid str: 当None时表明未登录，此时ticket是首次产生；当真时，说明已登录，此时ticket非首次产生，其值需要设置为有效的sid
         """
         ticket = gen_requestId()
-        init = dict() if sid else dict(ctime=get_current_timestamp(), agent=agent, ip=ip)
+        init = dict(last=get_current_timestamp()) if sid else dict(ctime=get_current_timestamp(), agent=agent, ip=ip)
         sid = sid or md5(ticket)
         tkey = "passport:sso:ticket:{}".format(ticket)
         skey = "passport:sso:sid:{}".format(sid)
