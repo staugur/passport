@@ -53,7 +53,7 @@ class UserProfileManager(ServiceBase):
         logger.debug(etime)
         logger.debug(type(etime))
         if etime and isinstance(etime, int):
-            if etime in (-1, 1):
+            if abs(etime) == 1:
                 return False
             elif etime == 0:
                 return True
