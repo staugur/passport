@@ -42,10 +42,10 @@ class AccessCount(PluginBase):
     def Record_ip_pv(self, **kwargs):
         """ 记录ip、ip、uv """
         data = kwargs.get("data")
-        pvKey = "Passport:AccessCount:pv"
-        ipKey = "Passport:AccessCount:ip:{}".format(self.get_today)
-        uvKey = "Passport:AccessCount:uv"
-        clickKey = "Passport:AccessCount:clicklog"
+        pvKey = "passport:AccessCount:pv"
+        ipKey = "passport:AccessCount:ip:{}".format(self.get_today)
+        uvKey = "passport:AccessCount:uv"
+        clickKey = "passport:AccessCount:clicklog"
         pipe = self.redis.pipeline()
         pipe.hincrby(pvKey, self.get_today, 1)
         pipe.sadd(ipKey, data.get("ip"))

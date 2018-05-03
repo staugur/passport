@@ -549,7 +549,7 @@ class VaptchaApi(object):
     def __init__(self):
         self.__enable = True if VAPTCHA["enable"] in ("true", "True", True) else False
         self.__vaptcha = pyvaptcha(VAPTCHA["vid"], VAPTCHA["key"])
-        self.__checkkey = "Passport:vaptcha"
+        self.__checkkey = "passport:vaptcha"
 
     @property
     def getChallenge(self):
