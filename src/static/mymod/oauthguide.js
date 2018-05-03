@@ -56,8 +56,6 @@ layui.define(['base', 'form', 'layer', 'element'], function(exports) {
                 layer.msg(res.msg, {
                     icon: 7,
                     time: 3000
-                }, function() {
-                    location.reload();
                 });
             }
         });
@@ -91,8 +89,6 @@ layui.define(['base', 'form', 'layer', 'element'], function(exports) {
                 layer.msg(res.msg, {
                     icon: 7,
                     time: 3000
-                }, function() {
-                    location.reload();
                 });
             }
         });

@@ -549,6 +549,7 @@ class VaptchaApi(object):
     def __init__(self):
         self.__enable = True if VAPTCHA["enable"] in ("true", "True", True) else False
         self.__vaptcha = pyvaptcha(VAPTCHA["vid"], VAPTCHA["key"])
+        self.__checkkey = "Passport:vaptcha"
 
     @property
     def getChallenge(self):
@@ -556,7 +557,9 @@ class VaptchaApi(object):
         @param sceneid str: 场景id，如01-登录、02-注册、03-OAuth登录
         """
         sceneid = request.args.get("sceneid") or ""
-        return json.loads(self.__vaptcha.get_challenge(sceneid))
+        data = json.loads(self.__vaptcha.get_challenge(sceneid))
+        g.redis.hset(self.__checkkey, data["challenge"], 0)
+        return data
 
     @property
     def getDownTime(self):
@@ -577,7 +580,14 @@ class VaptchaApi(object):
         sceneid = request.args.get("sceneid") or ""
         token = request.form.get("token")
         challenge = request.form.get("challenge")
-        return token and challenge and self.__vaptcha.validate(challenge, token, sceneid)
+        if token and challenge:
+            if int(g.redis.hget(self.__checkkey, challenge) or 0) == 1:
+                return True
+            else:
+                if self.__vaptcha.validate(challenge, token, sceneid):
+                    g.redis.hset(self.__checkkey, challenge, 1)
+                    return True
+        return False
 
 
 def FastPushMessage(res, msg):

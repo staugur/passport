@@ -37,8 +37,6 @@ layui.define(['base', 'form', 'layer'], function(exports) {
                 layer.msg(res.msg, {
                     icon: 7,
                     time: 3000
-                }, function() {
-                    location.reload();
                 });
             }
         });
