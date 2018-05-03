@@ -13,7 +13,7 @@ from os import getenv
 
 GLOBAL = {
 
-    "ProcessName": "passport",
+    "ProcessName": "Passport",
     # Custom process, you can see it with "ps aux|grep ProcessName".
 
     "Host": getenv("passport_host", "127.0.0.1"),
