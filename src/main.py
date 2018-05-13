@@ -21,7 +21,7 @@ import sys
 import config
 import time
 from version import __version__
-from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO
+from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO, get_current_timestamp
 from utils.web import verify_sessionId, analysis_sessionId, tpl_adminlogin_required, get_redirect_url
 from libs.plugins import PluginManager
 from hlm import UserAppManager, UserSSOManager, UserMsgManager, UserProfileManager
@@ -117,7 +117,8 @@ def after_request(response):
         "url": request.url,
         "referer": request.headers.get('Referer'),
         "agent": request.headers.get("User-Agent"),
-        "TimeInterval": "%0.2fs" %float(time.time() - g.startTime)
+        "TimeInterval": "%0.2fs" %float(time.time() - g.startTime),
+        "clickTime": get_current_timestamp()
     }
     access_logger.info(data)
     # 上下文扩展点之请求后(返回前)

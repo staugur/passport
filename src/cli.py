@@ -46,13 +46,39 @@ def execute_refresh_loginlog(times=30):
         times -= 1
 
 
+def execute_refresh_clicklog(times=30):
+    """从redis读取访问记录刷入mysql"""
+    key = "passport:AccessCount:clicklog"
+    while times > 0:
+        data = redis.lpop(key)
+        try:
+            data = json.loads(data)
+        except:
+            cli_logger.info("no clicklog")
+            break
+        else:
+            browserType, browserDevice, browserOs, browserFamily = parse_userAgent(data["agent"])
+            sql = "INSERT INTO sys_clicklog set url=%s, ip=%s, agent=%s, method=%s, status_code=%s, referer=%s, isp=%s, browserType=%s, browserDevice=%s, browserOs=%s, browserFamily=%s, clickTime=%s, TimeInterval=%s"
+            try:
+                mysql.insert(sql, data.get("url"), data.get("ip"), data.get("agent"), data.get("method"), data.get("status_code"), data.get("referer"), getIpArea(data.get("ip")), browserType, browserDevice, browserOs, browserFamily, int(data.get("clickTime") or 0), data.get("TimeInterval"))
+            except Exception, e:
+                cli_logger.warn(e, exc_info=True)
+            else:
+                cli_logger.info("refresh_clicklog is ok")
+        times -= 1
+
+
 if __name__ == "__main__":
     import argparse
     parser = argparse.ArgumentParser()
     parser.add_argument("--refresh_loginlog", help=u"刷入登录日志", default=False, action='store_true')
+    parser.add_argument("--refresh_clicklog", help=u"刷入访问日志", default=False, action='store_true')
     args = parser.parse_args()
     refresh_loginlog = args.refresh_loginlog
+    refresh_clicklog = args.refresh_clicklog
     if refresh_loginlog:
         execute_refresh_loginlog()
+    elif refresh_clicklog:
+        execute_refresh_clicklog()
     else:
         parser.print_help()
