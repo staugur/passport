@@ -55,7 +55,7 @@ layui.use(['form', 'layedit', 'layer'], function() {
     });
     //表单自定义校验
     form.verify({
-        newemail: function(value, item) { //value：表单的值、item：表单的DOM对象
+        newemail: function(value, item) {
             if (value) {
                 if (!new RegExp("^([a-zA-Z0-9_\.\-])+\@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$").test(value)) {
                     return '邮箱格式不正确';
