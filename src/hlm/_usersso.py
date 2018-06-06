@@ -89,6 +89,13 @@ class UserSSOManager(ServiceBase):
                         return data
         return False
 
+    def ssoExistWithSid(self, sid):
+        """查看sid的数据是否存在"""
+        if sid and isinstance(sid, basestring):
+            skey = "passport:sso:sid:{}".format(sid)
+            return self.redis.exists(skey)
+        return False
+
     def ssoGetWithSid(self, sid, getClients=False):
         """根据sid查询数据"""
         if sid and isinstance(sid, basestring):

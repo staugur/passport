@@ -293,7 +293,7 @@ def usersecurity():
                     data["CurrentSession"]=CurrentSession
                 # 获取其他会话
                 if request.args.get("getOtherSession") in (True, "True", "true"):
-                    OtherSession = [ g.api.usersso.ssoGetWithSid(sid, True) for sid in g.api.usersso.ssoGetRegisteredUserSid(g.uid) if g.sid != sid ]
+                    OtherSession = [ g.api.usersso.ssoGetWithSid(sid, True) for sid in g.api.usersso.ssoGetRegisteredUserSid(g.uid) if g.sid != sid and g.api.usersso.ssoExistWithSid(sid) ]
                     data["OtherSession"] = OtherSession
                 res["data"] = data
         elif Action == "getLoginHistory":
