@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 
-import sys, uuid
+import sys, uuid, json
 from aliyunsdkdysmsapi.request.v20170525 import SendSmsRequest
 from aliyunsdkdysmsapi.request.v20170525 import QuerySendDetailsRequest
 from aliyunsdkcore.client import AcsClient
@@ -75,6 +75,11 @@ def SendSms(phone_numbers, vcode):
 
     # 调用短信发送接口，返回json
     smsResponse = acs_client.do_action_with_exception(smsRequest)
+
+    try:
+        smsResponse = json.loads(smsResponse)
+    except:
+        return dict(success=False, msg="System is abnormal")
 
     # TODO 业务处理
     if isinstance(smsResponse, dict):
