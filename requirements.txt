@@ -12,3 +12,4 @@ user_agents
 upyun
 pycrypto
 bleach
+aliyun-python-sdk-dysmsapi

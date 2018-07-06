@@ -58,6 +58,8 @@ ListEqualSplit = lambda l, n=5: [l[i:i+n] for i in range(0, len(l), n)]
 gen_rnd_filename = lambda: "%s%s" % (datetime.datetime.now().strftime('%Y%m%d%H%M%S'), str(random.randrange(1000, 10000)))
 # 文件名合法性验证
 allowed_file = lambda filename: '.' in filename and filename.rsplit('.', 1)[1] in set(['png', 'jpg', 'jpeg', 'gif'])
+# 获取今天日期
+get_today = lambda format="%Y-%m-%d %H:%M":datetime.datetime.now().strftime(format)
 
 
 def ip_check(ip):

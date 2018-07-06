@@ -81,6 +81,21 @@ EMAIL = {
     # 是否使用SSL加密
 }
 
+# 发送短信配置段
+PHONE = {
+
+    "ACCESS_KEY_ID": getenv("passport_phone_keyid"),
+    # 阿里云api密钥key
+
+    "ACCESS_KEY_SECRET": getenv("passport_phone_keysecret"),
+    # 阿里云api密钥secret加密串
+
+    "sign_name": getenv("passport_phone_sign_name"),
+    # 阿里云短信签名名称
+
+    "template_code": getenv("passport_phone_template_code")
+    # 阿里云短信模版CODE
+}
 
 # 系统配置
 SYSTEM = {

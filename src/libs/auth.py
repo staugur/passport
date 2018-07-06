@@ -52,6 +52,21 @@ class Authentication(object):
                     return data["uid"] if success and getUid else success
         return False
 
+    def __check_hasPhone(self, phone, getUid=False):
+        """检查是否存在手机账号，不检测账号状态"""
+        if phone_check(phone):
+            sql = "SELECT uid FROM user_auth WHERE identity_type=1 AND identifier=%s"
+            try:
+                data = self.db.get(sql, phone)
+            except Exception, e:
+                logger.warn(e, exc_info=True)
+            else:
+                logger.debug(data)
+                if data and isinstance(data, dict):
+                    success = "uid" in data
+                    return data["uid"] if success and getUid else success
+        return False
+
     def __check_sendEmailVcode(self, email, vcode, scene="signUp"):
         """校验发送给邮箱的验证码
         @param email str: 邮箱账号
@@ -59,7 +74,18 @@ class Authentication(object):
         @param scene str: 校验场景 signUp-注册 signIn-登录 forgot-忘记密码
         """
         if email_check(email) and vcode and scene in ("signUp", "signIn", "forgot"):
-            key = "passport:{}:vcode:{}".format(scene, email)
+            key = "passport:vcode:{}:{}".format(scene, email)
+            return self.rc.get(key) == vcode
+        return False
+
+    def __check_sendSMSVcode(self, phone, vcode, scene="signUp"):
+        """校验发送给手机的验证码
+        @param phone str: 手机号
+        @param vcode str: 验证码
+        @param scene str: 校验场景 signUp-注册 signIn-登录 forgot-忘记密码
+        """
+        if phone_check(phone) and vcode and scene in ("signUp", "signIn", "forgot"):
+            key = "passport:vcode:{}:{}".format(scene, phone)
             return self.rc.get(key) == vcode
         return False
 
@@ -191,6 +217,7 @@ class Authentication(object):
             @param repassword str: 重复密码
             @param register_ip str: 注册IP地址
         流程：
+            # 2、1调整下顺序可以减少代码或者参考signIn合并
             1. 判断账号类型，仅支持邮箱、手机号两种本地账号。
             2. 校验密码、验证码是否合格、正确。
             3. 密码、验证码通过后，当为邮箱时，校验邮箱是否存在；当为手机时，校验手机是否存在。
@@ -203,7 +230,7 @@ class Authentication(object):
             # NO.2 检查密码、验证码
             if password and repassword and password == repassword and 6 <= len(password) <= 30:
                 certificate = generate_password_hash(password)
-                if vcode and len(vcode) == 6 and self.__check_sendEmailVcode(account, vcode, scene="signUp"):
+                if vcode and len(vcode) == 6 and self.__check_sendEmailVcode(account, vcode, "signUp"):
                     # NO.3 检查账号是否存在
                     if self.__check_hasEmail(account):
                         res.update(msg="Email already exists")
@@ -217,7 +244,21 @@ class Authentication(object):
                 res.update(msg="Invalid password: Inconsistent password or length failed twice")
         elif phone_check(account):
             # 账号类型：手机
-            res.update(msg="Not support phone number")
+            # NO.2 检查密码、验证码
+            if password and repassword and password == repassword and 6 <= len(password) <= 30:
+                certificate = generate_password_hash(password)
+                if vcode and len(vcode) == 6 and self.__check_sendSMSVcode(account, vcode, "signUp"):
+                    # NO.3 检查账号是否存在
+                    if self.__check_hasPhone(account):
+                        res.update(msg="Phone already exists")
+                    else:
+                        guid = gen_uniqueId()
+                        upts = self.__signUp_transacion(guid=guid, identifier=account, identity_type=1, certificate=certificate, verified=1, register_ip=register_ip)
+                        res.update(upts)
+                else:
+                    res.update(msg="Invalid verification code")
+            else:
+                res.update(msg="Invalid password: Inconsistent password or length failed twice")
         else:
             # 账号类型：非法，拒绝
             res.update(msg="Invalid account")
@@ -236,9 +277,9 @@ class Authentication(object):
         """
         res = dict(msg=None, success=False)
         # NO.1 检查账号类型
-        if email_check(account):
-            # 账号类型：邮箱
-            identity_type = 2
+        if email_check(account) or phone_check(account):
+            # 账号类型：邮箱、手机
+            identity_type = 2 if email_check(account) else 1
             # NO.2 检查账号
             if password and 6 <= len(password) < 30:
                 sql = "SELECT uid,certificate FROM user_auth WHERE identity_type={} AND identifier=%s AND status=1".format(identity_type)
@@ -259,9 +300,6 @@ class Authentication(object):
                         res.update(msg="Invalid account: does not exist or has been disabled")
             else:
                 res.update(msg="Invalid password: length unqualified")
-        elif phone_check(account):
-            # 账号类型：手机
-            res.update(msg="Not support phone number")
         else:
             # 账号类型：非法，拒绝
             res.update(msg="Invalid account")
@@ -529,7 +567,7 @@ class Authentication(object):
             uid = self.__check_hasEmail(account, getUid=True)
             if uid:
                 # NO.3 检查验证码
-                if vcode and len(vcode) == 6 and self.__check_sendEmailVcode(email=account, vcode=vcode, scene="forgot"):
+                if vcode and len(vcode) == 6 and self.__check_sendEmailVcode(account, vcode, "forgot"):
                     # NO.4 重置密码
                     if password and 6 <= len(password) <= 30:
                         certificate = generate_password_hash(password)
@@ -549,7 +587,27 @@ class Authentication(object):
                 res.update(msg="Invalid account")
         elif phone_check(account):
             # 账号类型：手机
-            res.update(msg="Not support phone number")
+            uid = self.__check_hasPhone(account, getUid=True)
+            if uid:
+                # NO.3 检查验证码
+                if vcode and len(vcode) == 6 and self.__check_sendSMSVcode(account, vcode, "forgot"):
+                    # NO.4 重置密码
+                    if password and 6 <= len(password) <= 30:
+                        certificate = generate_password_hash(password)
+                        try:
+                            sql = "UPDATE user_auth SET certificate=%s WHERE identity_type in (1,2) AND uid=%s"
+                            data = self.db.update(sql, certificate, uid)
+                        except Exception, e:
+                            logger.error(e, exc_info=True)
+                            res.update(msg="System is abnormal")
+                        else:
+                            res.update(success=True)
+                    else:
+                        res.update(msg="Invalid password: length unqualified")
+                else:
+                    res.update(msg="Invalid verification code")
+            else:
+                res.update(msg="Invalid account")
         else:
             # 账号类型：非法，拒绝
             res.update(msg="Invalid account")

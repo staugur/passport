@@ -27,7 +27,7 @@ layui.define(['base', 'form', 'layer'], function(exports) {
                 }
             });
         } else {
-            layer.tips('请填写邮箱账号', '#account', {
+            layer.tips('请填写邮箱或手机号', '#account', {
                 tips: 3
             });
             enable_sendCode();

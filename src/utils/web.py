@@ -461,6 +461,7 @@ def dfr(res, default='en-US'):
             "Registration failed": u"注册失败",
             "Check failed": u"校验未通过",
             "Email already exists": u"邮箱已存在",
+            "Phone already exists": u"手机已存在",
             "Invalid verification code": u"无效的验证码",
             "Invalid password: Inconsistent password or length failed twice": u"无效的密码：两次密码不一致或长度不合格",
             "Not support phone number": u"暂不支持手机号",
@@ -469,8 +470,10 @@ def dfr(res, default='en-US'):
             "Invalid account: does not exist or has been disabled": u"无效的账号：不存在或已禁用",
             "Invalid password: length unqualified": u"无效的密码：长度不合格",
             "Have sent the verification code, please check the mailbox": u"已发送过验证码，请查收邮箱",
+            "Have sent the verification code, please check the mobile phone": u"已发送过验证码，请查收手机短信",
             "Sent verification code, valid for 300 seconds": u"已发送验证码，有效期300秒",
             "Mail delivery failed, please try again later": u"邮件发送失败，请稍后重试",
+            "SMS failed to send, please try again later": u"邮件发送失败，请稍后重试",
             "Third-party login binding failed": u"第三方登录绑定失败",
             "Has been bound to other accounts": u"已经绑定其他账号",
             "Operation failed, rolled back": u"操作失败，已回滚",
@@ -490,6 +493,8 @@ def dfr(res, default='en-US'):
             "You are logged in, please log out": u"您已登录，请先注销",
             "Man-machine verification failed": u"人机验证失败",
             "Bad mailbox format": u"邮箱格式错误",
+            "Bad phone format": u"手机号格式错误",
+            "Current scene The number of text messages sent by your mobile phone has reached the upper limit today": u"当前场景您的手机发送短信次数今日已达到上限",
         },
         # 繁体中文-香港
         "zh-HK": {
@@ -500,6 +505,7 @@ def dfr(res, default='en-US'):
             "Registration failed": u"注册失敗",
             "Check failed": u"校驗未通過",
             "Email already exists": u"郵箱已存在",
+            "Phone already exists": u"手機已存在",
             "Invalid verification code": u"無效的驗證碼",
             "Invalid password: Inconsistent password or length failed twice": u"無效的密碼：兩次密碼不一致或長度不合格",
             "Not support phone number": u"暫不支持手機號",
@@ -508,8 +514,10 @@ def dfr(res, default='en-US'):
             "Invalid account: does not exist or has been disabled": u"無效的帳號：不存在或已禁用",
             "Invalid password: length unqualified": u"無效的密碼：長度不合格",
             "Have sent the verification code, please check the mailbox": u"已發送過驗證碼，請查收郵箱",
+            "Have sent the verification code, please check the mobile phone": u"已發送過驗證碼，請查收手機短信",
             "Sent verification code, valid for 300 seconds": u"已發送驗證碼，有效期300秒",
             "Mail delivery failed, please try again later": u"郵件發送失敗，請稍後重試",
+            "SMS failed to send, please try again later": u"短信發送失敗，請稍後重試",
             "Third-party login binding failed": u"第三方登錄綁定失敗",
             "Has been bound to other accounts": u"已經綁定其他賬號",
             "Operation failed, rolled back": u"操作失敗，已回滾",
@@ -529,6 +537,8 @@ def dfr(res, default='en-US'):
             "You are logged in, please log out": u"您已登錄，請先註銷",
             "Man-machine verification failed": u"人機驗證失敗",
             "Bad mailbox format": u"郵箱格式錯誤",
+            "Bad phone format": u"手機號格式錯誤",
+            "Current scene The number of text messages sent by your mobile phone has reached the upper limit today": u"當前場景您的手機發送短信次數今日已達到上限",
         }
     }
     if isinstance(res, dict) and not "en" in language:

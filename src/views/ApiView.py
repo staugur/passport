@@ -13,9 +13,10 @@ import base64
 import os.path
 from config import SYSTEM, UPYUN as Upyun
 from utils.send_email_msg import SendMail
+from utils.send_phone_msg import SendSms
 from utils.upyunstorage import CloudStorage
 from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi, FastPushMessage, analysis_sessionId
-from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent, getIpArea
+from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent, getIpArea, get_today
 from libs.auth import Authentication
 from flask import Blueprint, request, jsonify, g, url_for
 from werkzeug import secure_filename
@@ -35,7 +36,7 @@ def misc_sendVcode():
     if email_check(account):
         # 生成验证码，校验的话，libs.auth.Authentication类中`__check_sendEmailVcode`方法
         email = account
-        key = "passport:{}:vcode:{}".format(scene, email)
+        key = "passport:vcode:{}:{}".format(scene, email)
         try:
             hasKey = g.redis.exists(key)
         except Exception, e:
@@ -61,7 +62,40 @@ def misc_sendVcode():
                 else:
                     res.update(msg="Mail delivery failed, please try again later")
     elif phone_check(account):
-        res.update(msg="Not support phone number")
+        # 短信验证码，要求同个场景每个手机每天只能发送3次，每个场景验证码有效期5min，校验的话，libs.auth.Authentication类中`__check_sendSMSVcode`方法
+        phone = account
+        key = "passport:vcode:{}:{}".format(scene, phone)
+        keyTimes = "passport:sendsms:{}:{}:{}".format(scene, phone, get_today("%Y%m%d"))
+        try:
+            hasKey = g.redis.exists(key)
+            keyData = int(g.redis.get(keyTimes) or 0)
+        except Exception, e:
+            logger.error(e, exc_info=True)
+            res.update(msg="System is abnormal")
+        else:
+            if hasKey:
+                res.update(msg="Have sent the verification code, please check the mobile phone")
+            else:
+                if keyData >= 3:
+                    res.update(msg="Current scene The number of text messages sent by your mobile phone has reached the upper limit today")
+                else:
+                    vcode = generate_verification_code()
+                    result = SendSms(phone, vcode)
+                    if result["success"]:
+                        try:
+                            pipe = g.redis.pipeline()
+                            pipe.set(key, vcode)
+                            pipe.expire(key, 300)
+                            pipe.incrby(keyTimes, 1)
+                            pipe.expire(keyTimes, 86400)
+                            pipe.execute()
+                        except Exception, e:
+                            logger.error(e, exc_info=True)
+                            res.update(msg="System is abnormal")
+                        else:
+                            res.update(msg="Sent verification code, valid for 300 seconds", success=True)
+                    else:
+                        res.update(msg="SMS failed to send, please try again later")
     else:
         res.update(msg="Invalid account")
     logger.debug(res)
