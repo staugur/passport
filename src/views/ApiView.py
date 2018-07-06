@@ -16,7 +16,7 @@ from utils.send_email_msg import SendMail
 from utils.send_phone_msg import SendSms
 from utils.upyunstorage import CloudStorage
 from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi, FastPushMessage, analysis_sessionId
-from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent, getIpArea, get_today
+from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent, getIpArea, get_today, generate_digital_verification_code
 from libs.auth import Authentication
 from flask import Blueprint, request, jsonify, g, url_for
 from werkzeug import secure_filename
@@ -79,7 +79,7 @@ def misc_sendVcode():
                 if keyData >= 3:
                     res.update(msg="Current scene The number of text messages sent by your mobile phone has reached the upper limit today")
                 else:
-                    vcode = generate_verification_code()
+                    vcode = generate_digital_verification_code()
                     result = SendSms(phone, vcode)
                     if result["success"]:
                         try:

@@ -222,7 +222,7 @@ def timestring_to_timestamp(timestring, format="%Y-%m-%d %H:%M:%S"):
         return int(time.mktime(timeArray))
 
 
-def generate_verification_code():
+def generate_verification_code(length=6):
     ''' 随机生成6位的验证码 '''
     code_list = []
     for i in range(10):  # 0-9数字
@@ -232,10 +232,14 @@ def generate_verification_code():
     for i in range(97, 123):  # a-z
         code_list.append(chr(i))
 
-    myslice = random.sample(code_list, 6)  # 从list中随机获取6个元素，作为一个片断返回
+    myslice = random.sample(code_list, length)  # 从list中随机获取6个元素，作为一个片断返回
     verification_code = ''.join(myslice)  # list to string
     return verification_code
 
+def generate_digital_verification_code(length=6):
+    code = []
+    code = ''.join(str(i) for i in random.sample(range(0,9),length))
+    return code
 
 def parse_userAgent(user_agent):
     """ 解析User-Agent """
