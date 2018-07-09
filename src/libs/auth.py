@@ -135,7 +135,13 @@ class Authentication(object):
                 if data and isinstance(data, dict):
                     return int(data["register_source"])
 
+<<<<<<< .mine
+    def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified, register_ip="", expire_time=0, is_realname=0, use_profile_sql=True, define_profile_sql=None):
+||||||| .r447
+    def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified, register_ip="", expire_time=0, use_profile_sql=True, define_profile_sql=None):
+=======
     def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified=1, register_ip="", expire_time=0, use_profile_sql=True, define_profile_sql=None, is_realname=0):
+>>>>>>> .r449
         ''' begin的方式使用事务注册账号，
         参数：
             @param guid str: 系统账号唯一标识
@@ -239,6 +245,7 @@ class Authentication(object):
                         guid = gen_uniqueId()
                         upts = self.__signUp_transacion(guid=guid, identifier=account, identity_type=2, certificate=certificate, verified=1, register_ip=register_ip)
                         res.update(upts)
+                        res.update(uid=guid)
                 else:
                     res.update(msg="Invalid verification code")
             else:
@@ -256,6 +263,7 @@ class Authentication(object):
                         guid = gen_uniqueId()
                         upts = self.__signUp_transacion(guid=guid, identifier=account, identity_type=1, certificate=certificate, verified=1, register_ip=register_ip, is_realname=1)
                         res.update(upts)
+                        res.update(uid=guid)
                 else:
                     res.update(msg="Invalid verification code")
             else:
@@ -535,7 +543,7 @@ class Authentication(object):
                     # 是注册源流程
                     identity_types = self.__list_identity_type(uid)
                     if 2 in identity_types or 1 in identity_types:
-                        # 这里需设计为绑定了2-email、3-mobile时已经设置密码
+                        # 这里需设计为绑定了2-email、1-mobile时已经设置密码
                         res.update(self.__remove_identity_type(uid, identity_type))
                     else:
                         res.update(msg="Please bind the email or phone first", code=2)
