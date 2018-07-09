@@ -3,8 +3,8 @@
     passport.utils.send_phone_msg
     ~~~~~~~~~~~~~~
 
-    send sms
-    
+    短信业务调用接口示例，版本号：v20170525
+
     :copyright: (c) 2018 by staugur.
     :license: MIT, see LICENSE for more details.
 """
@@ -19,12 +19,6 @@ from aliyunsdkcore.http import format_type as FT
 from config import PHONE
 from .tool import phone_check, logger
 
-"""
-短信业务调用接口示例，版本号：v20170525
-
-Created on 2017-06-12
-
-"""
 try:
     reload(sys)
     sys.setdefaultencoding('utf8')

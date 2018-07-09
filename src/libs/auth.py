@@ -135,7 +135,7 @@ class Authentication(object):
                 if data and isinstance(data, dict):
                     return int(data["register_source"])
 
-    def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified, register_ip="", expire_time=0, use_profile_sql=True, define_profile_sql=None):
+    def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified=1, register_ip="", expire_time=0, use_profile_sql=True, define_profile_sql=None, is_realname=0):
         ''' begin的方式使用事务注册账号，
         参数：
             @param guid str: 系统账号唯一标识
@@ -147,6 +147,7 @@ class Authentication(object):
             @param expire_time int: 特指OAuth过期时间戳，暂时保留
             @param use_profile_sql bool: 定义是否执行define_profile_sql
             @param define_profile_sql str: 自定义写入`user_profile`表的sql(需要完整可直接执行SQL)
+            @param is_realname int: 是否实名，1-实名(手机注册或绑定)， 0-未实名
         流程：
             1、写入`user_auth`表
             2、写入`user_profile`表
@@ -159,11 +160,11 @@ class Authentication(object):
         if guid and identifier and \
                 identity_type and \
                 certificate and \
-                verified and \
                 isinstance(guid, (str, unicode)) and \
                 len(guid) == 22 and \
                 identity_type in (0, 1, 2, 3, 4, 5, 6, 7, 8, 9) and \
-                verified in (1, 0):
+                verified in (1, 0) and \
+                is_realname in (1, 0):
             ctime = get_current_timestamp()
             try:
                 logger.debug("transaction, start")
@@ -188,7 +189,7 @@ class Authentication(object):
                         else:
                             sql_2 = "INSERT INTO user_profile (uid, register_source, register_ip, ctime, is_realname, is_admin) VALUES (%s, %s, %s, %s, %s, %s)"
                             try:
-                                info = self.db.insert(sql_2, guid, identity_type, register_ip, ctime, 0, 0)
+                                info = self.db.insert(sql_2, guid, identity_type, register_ip, ctime, is_realname, 0)
                             except:
                                 raise
                     logger.debug('transaction, commit')
@@ -253,7 +254,7 @@ class Authentication(object):
                         res.update(msg="Phone already exists")
                     else:
                         guid = gen_uniqueId()
-                        upts = self.__signUp_transacion(guid=guid, identifier=account, identity_type=1, certificate=certificate, verified=1, register_ip=register_ip)
+                        upts = self.__signUp_transacion(guid=guid, identifier=account, identity_type=1, certificate=certificate, verified=1, register_ip=register_ip, is_realname=1)
                         res.update(upts)
                 else:
                     res.update(msg="Invalid verification code")
