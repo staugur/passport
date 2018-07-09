@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 from config import SYSTEM
-from utils.web import login_required, anonymous_required, adminlogin_required, dfr, oauth2_name2type, get_redirect_url, checkGet_ssoRequest, checkSet_ssoTicketSid, set_redirectLoginstate, set_jsonifyLoginstate, VaptchaApi
+from utils.web import login_required, anonymous_required, adminlogin_required, dfr, oauth2_name2type, get_redirect_url, checkGet_ssoRequest, checkSet_ssoTicketSid, set_redirectLoginstate, set_jsonifyLoginstate, VaptchaApi, FastPushMessage
 from utils.tool import logger, email_check, phone_check, md5
 from libs.auth import Authentication
 from urllib import urlencode
@@ -72,6 +72,8 @@ def signUp():
             repassword = request.form.get("repassword")
             auth = Authentication(g.mysql, g.redis)
             result = auth.signUp(account=account, vcode=vcode, password=password, repassword=repassword, register_ip=g.ip)
+            #注册欢迎消息
+            FastPushMessage(result, "欢迎您的加入！%s使用中有任何问题，都可以反馈哦。" %("" if email_check(account) else "您使用手机注册，已经完成实名认证！", ))
             if result["success"]:
                 res.update(code=0, nextUrl=url_for('.signIn'))
             else:

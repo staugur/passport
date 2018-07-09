@@ -242,6 +242,8 @@ def oauth2_type2name(otype):
     1手机号 2邮箱 3GitHub 4qq 5微信 6百度 7新浪微博 8Coding 9码云
     """
     BIND = {
+        1: "mobile",
+        2: "email",
         3: "github",
         4: "qq",
         5: "wechat",
@@ -606,5 +608,6 @@ def FastPushMessage(res, msg):
     @param msg str: 消息内容，支持有限的html标签
     """
     if res.get("code") == 0 or res.get("success") == True:
-        if g.uid and msg:
-            return g.api.usermsg.push_message(g.uid, msg)
+        uid = res.get("uid") or g.uid
+        if uid and msg:
+            return g.api.usermsg.push_message(uid, msg)

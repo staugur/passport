@@ -101,10 +101,13 @@ layui.define(["base", "element", "util", "layer", "form"], function(exports) {
                 $('#avatar').attr('src', userdata.avatar);
                 //重新渲染表单
                 form.render();
+                //账号绑定
                 for (var index = 0; index < userdata.bind.length; index++) {
+                    var auth_type = userdata.bind[index].auth_type;
                     var identity_type = userdata.bind[index].identity_type;
-                    $("#oauth-" + identity_type).addClass("app-havebind");
-                    $("#oauth-" + identity_type + "-tip").html('已成功绑定，您可以使用' + passport.socialAccountVisiblenameMapping(identity_type) + '帐号直接登录，当然，您也可以<a href="/unbind?identity_name=' + identity_type + '" class="acc-unbind" type="' + identity_type + '">解除绑定</a>');
+                    var unbind_msg = auth_type === "oauth" ? '<a href="/unbind?identity_name=' + identity_type + '" class="acc-unbind" type="' + identity_type + '">解除绑定</a>' : '<a href="javascript:;" class="acc-unbind" type="' + identity_type + '">修改绑定</a>';
+                    $("#auth-" + identity_type).addClass("app-havebind");
+                    $("#auth-" + identity_type + "-tip").html('已成功绑定，您可以使用' + passport.socialAccountVisiblenameMapping(identity_type) + '帐号直接登录，当然，您也可以' + unbind_msg);
                 }
             }
         }

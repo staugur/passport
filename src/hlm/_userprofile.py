@@ -30,13 +30,14 @@ class UserProfileManager(ServiceBase):
         """
         bind = []
         if uid:
-            sql = "SELECT id,identity_type,ctime,mtime,etime FROM user_auth WHERE identity_type in (3, 4, 5, 6, 7, 8, 9) AND status=1 AND uid=%s"
+            #sql = "SELECT id,identity_type,ctime,mtime,etime FROM user_auth WHERE identity_type in (1, 2, 3, 4, 5, 6, 7, 8, 9) AND status=1 AND uid=%s"
+            sql = "SELECT id,identity_type,ctime,mtime,etime FROM user_auth WHERE status=1 AND uid=%s"
             try:
                 data = self.mysql.query(sql, uid)
             except Exception, e:
                 logger.error(e, exc_info=True)
             else:
-                bind = [{"identity_type": oauth2_type2name(i["identity_type"]), "ctime": i["ctime"], "mtime": i["mtime"]} for i in data]
+                bind = [{"identity_type": oauth2_type2name(i["identity_type"]), "ctime": i["ctime"], "mtime": i["mtime"], "auth_type": "lauth" if i["identity_type"] in (1, 2) else "oauth"} for i in data]
         return bind
 
     def __checkUsersetLock(self, etime):
