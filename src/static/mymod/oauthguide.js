@@ -59,6 +59,7 @@ layui.define(['base', 'form', 'layer', 'element'], function(exports) {
                 });
             }
         });
+        return false;
     });
     //直接登录事件
     form.on("submit(directLogin)", function(data) {
@@ -92,6 +93,7 @@ layui.define(['base', 'form', 'layer', 'element'], function(exports) {
                 });
             }
         });
+        return false;
     });
     //输出接口
     exports('oauthguide', null);

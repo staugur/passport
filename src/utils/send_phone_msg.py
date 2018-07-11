@@ -32,9 +32,6 @@ REGION = "cn-hangzhou"
 PRODUCT_NAME = "Dysmsapi"
 DOMAIN = "dysmsapi.aliyuncs.com"
 
-acs_client = AcsClient(PHONE["ACCESS_KEY_ID"], PHONE["ACCESS_KEY_SECRET"], REGION)
-region_provider.add_endpoint(PRODUCT_NAME, REGION, DOMAIN)
-
 def SendSms(phone_numbers, vcode):
     """使用阿里云短信服务发生验证码
     phone_numbers: 手机号
@@ -68,11 +65,13 @@ def SendSms(phone_numbers, vcode):
     smsRequest.set_PhoneNumbers(phone_numbers)
 
     # 调用短信发送接口，返回json
-    smsResponse = acs_client.do_action_with_exception(smsRequest)
-
     try:
+        acs_client = AcsClient(PHONE["ACCESS_KEY_ID"], PHONE["ACCESS_KEY_SECRET"], REGION)
+        region_provider.add_endpoint(PRODUCT_NAME, REGION, DOMAIN)
+        smsResponse = acs_client.do_action_with_exception(smsRequest)
         smsResponse = json.loads(smsResponse)
-    except:
+    except Exception,e:
+        logger.error(e, exc_info=True)
         return dict(success=False, msg="System is abnormal")
 
     # TODO 业务处理

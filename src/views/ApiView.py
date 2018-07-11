@@ -32,9 +32,9 @@ def misc_sendVcode():
     res = dict(msg=None, success=False)
     account = request.form.get("account")
     scene = request.form.get("scene") or request.args.get("scene") or "signUp"
-    scenemap = dict(signUp=u"注册", signIn=u"登录", forgot=u"忘记密码")
+    scenemap = dict(signUp=u"注册", bindLauth=u"绑定本地化账号", forgot=u"忘记密码")
     if email_check(account):
-        # 生成验证码，校验的话，libs.auth.Authentication类中`__check_sendEmailVcode`方法
+        # 生成验证码，校验的话，libs.auth.Authentication类中`__check_sendVcode`方法
         email = account
         key = "passport:vcode:{}:{}".format(scene, email)
         try:
@@ -62,7 +62,7 @@ def misc_sendVcode():
                 else:
                     res.update(msg="Mail delivery failed, please try again later")
     elif phone_check(account):
-        # 短信验证码，要求同个场景每个手机每天只能发送3次，每个场景验证码有效期5min，校验的话，libs.auth.Authentication类中`__check_sendSMSVcode`方法
+        # 短信验证码，要求同个场景每个手机每天只能发送3次，每个场景验证码有效期5min，校验的话，libs.auth.Authentication类中`__check_sendVcode`方法
         phone = account
         key = "passport:vcode:{}:{}".format(scene, phone)
         keyTimes = "passport:sendsms:{}:{}:{}".format(scene, phone, get_today("%Y%m%d"))
@@ -187,6 +187,16 @@ def userprofile():
     if request.method == "GET":
         getBind = True if request.args.get("getBind") in ("true", "True", True) else False
         res = g.api.userprofile.getUserProfile(g.uid, getBind)
+    elif request.method == "POST":
+        Action = request.args.get("Action")
+        if Action == "bindLauth":
+            account = request.form.get("account")
+            vcode = request.form.get("vcode")
+            password = request.form.get("password")
+            auth = Authentication()
+            res = auth.bindLauth(uid=g.uid, account=account, vcode=vcode, password=password)
+            if res["success"] == True and res["show_realname_tip"] == True:
+                res['set_realname'] = g.api.userprofile.updateUserRealname(g.uid)
     elif request.method == "PUT":
         """修改个人资料，包含：基本资料、密码、头像、社交账号绑定"""
         Action = request.args.get("Action")

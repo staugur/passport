@@ -31,13 +31,23 @@ class UserProfileManager(ServiceBase):
         bind = []
         if uid:
             #sql = "SELECT id,identity_type,ctime,mtime,etime FROM user_auth WHERE identity_type in (1, 2, 3, 4, 5, 6, 7, 8, 9) AND status=1 AND uid=%s"
-            sql = "SELECT id,identity_type,ctime,mtime,etime FROM user_auth WHERE status=1 AND uid=%s"
+            sql = "SELECT id,identity_type,identifier,ctime,mtime,etime FROM user_auth WHERE status=1 AND uid=%s"
             try:
                 data = self.mysql.query(sql, uid)
             except Exception, e:
                 logger.error(e, exc_info=True)
             else:
-                bind = [{"identity_type": oauth2_type2name(i["identity_type"]), "ctime": i["ctime"], "mtime": i["mtime"], "auth_type": "lauth" if i["identity_type"] in (1, 2) else "oauth"} for i in data]
+                # 定义map解析函数
+                def parse(i):
+                    if i["identity_type"] == 1:
+                        identifier = "{}****{}".format(i["identifier"][0:3], i["identifier"][7:])
+                    elif i["identity_type"] == 2:
+                        identifier = "{}****{}@{}".format(i["identifier"].split('@')[0][0:3], i["identifier"].split('@')[0][7:], i["identifier"].split('@')[-1])
+                    else:
+                        identifier = ""
+                    return {"identity_type": oauth2_type2name(i["identity_type"]), "ctime": i["ctime"], "mtime": i["mtime"], "auth_type": "lauth" if i["identity_type"] in (1, 2) else "oauth", "identifier": identifier}
+                bind = map(parse, data)
+                #
         return bind
 
     def __checkUsersetLock(self, etime):
@@ -258,6 +268,22 @@ class UserProfileManager(ServiceBase):
             res.update(msg="There are invalid parameters", code=4)
         return res
 
+    def updateUserRealname(self, uid):
+        """设置用户为实名"""
+        res = dict(msg=None, code=1)
+        if uid:
+            sql = "UPDATE user_profile SET is_realname=1 WHERE uid=%s"
+            try:
+                self.mysql.update(sql, uid)
+            except Exception, e:
+                logger.error(e, exc_info=True)
+                res.update(msg="System is abnormal")
+            else:
+                res.update(code=0, refreshCache=self.refreshUserProfile(uid))
+        else:
+            res.update(msg="There are invalid parameters", code=4)
+        return res
+
     def __check_modifyPass(self, uid):
         """检查是否可以修改密码，即是否存在邮箱或手机号"""
         if uid:
@@ -275,15 +301,15 @@ class UserProfileManager(ServiceBase):
         """校验用户密码
         @param password str: 要校验的密码
         """
-        if uid and password and 6 <= len(password) <= 30:
-            sql = "SELECT certificate FROM user_auth WHERE identity_type IN (1,2) AND uid = %s"
+        if uid and len(uid) == 22 and password and 6 <= len(password) <= 30:
+            sql = "SELECT certificate FROM user_auth WHERE identity_type IN (1,2) AND uid=%s"
             try:
-                data = self.mysql.get(sql, uid)
+                data = self.mysql.query(sql, uid)
             except Exception, e:
                 logger.error(e, exc_info=True)
             else:
-                if data and isinstance(data, dict) and "certificate" in data:
-                    certificate = data["certificate"]
+                if data and isinstance(data, (list, tuple)):
+                    certificate = data[0]["certificate"]
                     return check_password_hash(certificate, password)
         return False
 
@@ -349,3 +375,4 @@ class UserProfileManager(ServiceBase):
             else:
                 res.update(data=data1, code=0, count=data2.get("count(id)"))
         return res
+

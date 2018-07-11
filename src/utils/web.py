@@ -458,6 +458,7 @@ def dfr(res, default='en-US'):
         "zh-CN": {
             "Hello World": u"世界，你好",
             "Account already exists": u"账号已存在",
+            "Account already bind": u"账号已被绑定",
             "System is abnormal": u"系统异常，请稍后再试",
             "Registration success": u"注册成功",
             "Registration failed": u"注册失败",
@@ -502,6 +503,7 @@ def dfr(res, default='en-US'):
         "zh-HK": {
             "Hello World": u"世界，你好",
             "Account already exists": u"帳號已存在",
+            "Account already bind": u"賬號已被綁定",
             "System is abnormal": u"系統异常",
             "Registration success": u"注册成功",
             "Registration failed": u"注册失敗",

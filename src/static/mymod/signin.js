@@ -40,6 +40,7 @@ layui.define(['base', 'form', 'layer'], function(exports) {
                 });
             }
         });
+        return false;
     });
     //输出接口
     exports("signin", null);

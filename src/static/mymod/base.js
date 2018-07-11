@@ -21,25 +21,6 @@ layui.define(["element", "util", "layer"], function(exports) {
     util.fixbar({
         bgcolor: '#009688'
     });
-    //用户反馈
-    $('#feedback').on('click', function() {
-        var width = $(window).width(),
-            height = 460;
-        if (width > 400) {
-            width = 400;
-        } else {
-            width = width / 4 * 3;
-            height = 480;
-        }
-        layer.open({
-            type: 2,
-            title: '意见反馈',
-            shadeClose: false,
-            shade: 0.3,
-            area: [width + 'px', height + 'px'],
-            content: '/feedback.html'
-        });
-    });
     //公共接口
     var base = {
         ajax: function(url, success, options) {
@@ -142,6 +123,76 @@ layui.define(["element", "util", "layer"], function(exports) {
             }
         }
     };
+    //用户反馈
+    $('#feedback').on('click', function() {
+        var width = $(window).width(),
+            height = 460;
+        if (width > 400) {
+            width = 400;
+        } else {
+            width = width / 4 * 3;
+            height = 480;
+        }
+        layer.open({
+            type: 2,
+            title: '意见反馈',
+            shadeClose: false,
+            shade: 0.3,
+            area: [width + 'px', height + 'px'],
+            content: '/feedback.html'
+        });
+    });
+    //注册账号、绑定本地账号时发送验证码
+    $('#sms-tip-msg').on('click', function() {
+        disable_sendCode();
+        var wait = 300;
+        var account = $('input[name="account"]').val();
+        if (account) {
+            base.ajax("/api/miscellaneous/_sendVcode", function(res) {
+                check();
+            }, {
+                method: 'post',
+                data: {
+                    account: account,
+                    scene: $('#scene').val() || "signUp"
+                },
+                msgprefix: false,
+                fail: function(res) {
+                    layer.msg(res.msg);
+                    enable_sendCode();
+                }
+            });
+        } else {
+            layer.tips('请填写邮箱或手机号', '#account', {
+                tips: 3
+            });
+            enable_sendCode();
+        }
+
+        function disable_sendCode() {
+            $('#sms-tip-msg').attr("disabled", "disabled");
+            $('#sms-tip-msg').addClass("layui-disabled");
+        }
+
+        function enable_sendCode() {
+            $('#sms-tip-msg').removeAttr("disabled");
+            $('#sms-tip-msg').removeClass("layui-disabled");
+        }
+
+        function check() {
+            if (wait == 0) {
+                enable_sendCode();
+                $('#sms-tip-msg').text("重发验证码");
+                wait = 300;
+            } else {
+                $('#sms-tip-msg').text(wait + "秒后重发");
+                wait--;
+                setTimeout(function() {
+                    check();
+                }, 1000)
+            }
+        }
+    });
     //输出接口
     exports('base', base);
 });

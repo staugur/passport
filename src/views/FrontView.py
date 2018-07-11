@@ -30,6 +30,10 @@ def index():
 @login_required
 def userset():
     """用户基本设置"""
+    Action = request.args.get("Action")
+    if Action == "bindLauth":
+        # 绑定
+        return render_template("user/user.bind.html")
     return render_template("user/setting.html")
 
 @FrontBlueprint.route('/user/app/')

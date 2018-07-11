@@ -5,10 +5,11 @@
 {% block container %}
 <div class="login">
     <h1>{{ self.title() }}</h1>
-    <div class="layui-form">
+    <form class="layui-form">
         <div class="layui-form-item">
             <input class="layui-input" name="account" id="account" placeholder="邮箱或手机号" lay-verify="required" lay-verType="tips" type="text" autofocus="autofocus" maxlength="50">
         </div>
+        <input type="hidden" name="scene" id="scene" value="signUp">
         <div class="layui-form-item">
             <div class="layui-input-inline">
                 <input class="layui-input" name="vcode" placeholder="验证码" id="vcode"  lay-verify="required" lay-verType="tips" type="text" maxlength="6">
@@ -30,12 +31,12 @@
             {% include "auth/vaptcha_form.html" %}
         </div>
         <button class="layui-btn layui-btn-fluid layui-disabled" lay-submit="" lay-filter="signUp" disabled="disabled" id="submitbutton">注册</button>
-    </div>
+    </form>
     <div class="fetures">
         <a href="{{ url_for('front.signIn') }}">返回登录！</a>
     </div>
     {% include "public/footer.html" %}
-</div>
+</fro>
 {% endblock %}
 
 {% block script %}

@@ -6,57 +6,6 @@ layui.define(['base', 'form', 'layer'], function(exports) {
         form = layui.form,
         layer = layui.layer,
         $ = layui.jquery;
-    //发送验证码
-    $('#sms-tip-msg').on('click', function() {
-        disable_sendCode();
-        var wait = 300;
-        var account = $('input[name="account"]').val();
-        if (account) {
-            base.ajax("/api/miscellaneous/_sendVcode", function(res) {
-                console.log(res);
-                check();
-            }, {
-                method: 'post',
-                data: {
-                    account: account
-                },
-                msgprefix: false,
-                fail: function(res) {
-                    layer.msg(res.msg);
-                    enable_sendCode();
-                }
-            });
-        } else {
-            layer.tips('请填写邮箱或手机号', '#account', {
-                tips: 3
-            });
-            enable_sendCode();
-        }
-
-        function disable_sendCode() {
-            $('#sms-tip-msg').attr("disabled", "disabled");
-            $('#sms-tip-msg').addClass("layui-disabled");
-        }
-
-        function enable_sendCode() {
-            $('#sms-tip-msg').removeAttr("disabled");
-            $('#sms-tip-msg').removeClass("layui-disabled");
-        }
-
-        function check() {
-            if (wait == 0) {
-                enable_sendCode();
-                $('#sms-tip-msg').text("重发验证码");
-                wait = 300;
-            } else {
-                $('#sms-tip-msg').text(wait + "秒后重发");
-                wait--;
-                setTimeout(function() {
-                    check();
-                }, 1000)
-            }
-        }
-    });
     //表单自定义校验
     form.verify({
         passwd: function(value, item) { //value：表单的值、item：表单的DOM对象
@@ -109,6 +58,7 @@ layui.define(['base', 'form', 'layer'], function(exports) {
                 });
             }
         });
+        return false;
     });
     //输出接口
     exports("signup", null);

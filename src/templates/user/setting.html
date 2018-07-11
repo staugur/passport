@@ -19,6 +19,7 @@
             </ul>
             <div class="layui-tab-content" style="padding: 20px 0;">
                 <div class="layui-form layui-form-pane layui-tab-item layui-show">
+                    <div id="RealnameShow"></div>
                     <form method="post">
                         <div class="layui-form-item">
                             <label for="nick_name" class="layui-form-label">个性昵称</label>
@@ -139,32 +140,13 @@
                     <ul class="app-bind">
                         <li class="fly-msg" id="auth-email">
                             <i class="saintic-icon saintic-icon-email"></i>
-                            <span id="auth-email-tip">尚未绑定，绑定后可以使用邮箱帐号登录，您可以<a href="#" type="qq">立即绑定</a></span>
+                            <span id="auth-email-tip">尚未绑定，绑定后可以使用邮箱帐号登录，您可以<a href="/user/setting/?Action=bindLauth" type="email" class="lauth-bind">立即绑定</a></span>
                         </li>
                         <li class="fly-msg" id="auth-mobile">
                             <i class="saintic-icon saintic-icon-mobilephone"></i>
-                            <span id="auth-mobile-tip">尚未绑定，绑定后可以使用手机号登录，并且完成实名认证，您可以<a href="#" type="qq">立即绑定</a></span>
+                            <span id="auth-mobile-tip">尚未绑定，绑定后可以使用手机号登录，并且完成实名认证，您可以<a href="/user/setting/?Action=bindLauth" type="mobile" class="lauth-bind">立即绑定</a></span>
                         </li>
                     </ul>
-                        <div class="layui-form-item">
-                            <label for="L_email" class="layui-form-label">手机</label>
-                            <div class="layui-input-inline">
-                                <input type="text" id="L_phone" name="phone" required="" lay-verify="phone" autocomplete="off" value="18201707941" class="layui-input" disabled="" style="cursor: not-allowed !important;">
-                            </div>
-                            <div class="layui-form-mid layui-word-aux">
-                                <span style="color: #5FB878">您已完成手机号绑定，已正式成为社区实名用户。</span> 手机号暂不支持修改。 
-                            </div>
-                        </div>
-                        <div class="layui-form-item">
-                            <label for="L_vercode" class="layui-form-label">验证码</label>
-                            <div class="layui-input-inline">
-                                <input type="text" id="L_vercode" name="vercode" required="" lay-verify="required" placeholder="请输入手机验证码" autocomplete="off" class="layui-input">
-                            </div>
-                            <div class="layui-form-mid" style="padding: 0!important;">
-                                <button type="button" class="layui-btn layui-btn-normal" id="FLY-getvercode">获取验证码</button>
-                            </div>
-                        </div>
-
                     <blockquote class="layui-elem-quote">我绑定的第三方社会化帐号</blockquote>
                     <ul class="app-bind">
                         {% if CONFIG.PLUGINS.qq.ENABLE in ("true", "True", True) %}

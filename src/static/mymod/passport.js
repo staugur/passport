@@ -105,9 +105,17 @@ layui.define(["base", "element", "util", "layer", "form"], function(exports) {
                 for (var index = 0; index < userdata.bind.length; index++) {
                     var auth_type = userdata.bind[index].auth_type;
                     var identity_type = userdata.bind[index].identity_type;
-                    var unbind_msg = auth_type === "oauth" ? '<a href="/unbind?identity_name=' + identity_type + '" class="acc-unbind" type="' + identity_type + '">解除绑定</a>' : '<a href="javascript:;" class="acc-unbind" type="' + identity_type + '">修改绑定</a>';
+                    var unbind_msg = auth_type === "oauth" ? '<a href="/unbind?identity_name=' + identity_type + '" class="acc-unbind" type="' + identity_type + '">解除绑定</a>' : '<a href="/user/setting/?Action=bindLauth" class="acc-unbind lauth-bind" type="' + identity_type + '">修改绑定</a>';
                     $("#auth-" + identity_type).addClass("app-havebind");
                     $("#auth-" + identity_type + "-tip").html('已成功绑定，您可以使用' + passport.socialAccountVisiblenameMapping(identity_type) + '帐号直接登录，当然，您也可以' + unbind_msg);
+                    //绑定本地化账号页面
+                    if (identity_type === "email") {
+                        $("#LAY_BindInfoEmail").html('<label for="activate">您的邮箱：</label><span class="layui-form-text">' + userdata.bind[index].identifier + '<em style="color:#009688;">（已成功绑定）</em></span>');
+                    }
+                    if (identity_type === "mobile") {
+                        $("#RealnameShow").html('<blockquote class="layui-elem-quote"><i class="saintic-icon saintic-icon-realname-logo layui-hide-xs nickname-realname" title="已实名认证"></i>&nbsp;<span style="color: #5FB878">您已完成手机号绑定，成为实名认证用户，修改请移步账号绑定！</span></blockquote>');
+                        $("#LAY_BindInfoPhone").html('<label for="activate">您的手机：</label><span class="layui-form-text">' + userdata.bind[index].identifier + '<em style="color:#009688;">（已成功绑定）</em></span>');
+                    }
                 }
             }
         }

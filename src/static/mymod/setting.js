@@ -317,6 +317,7 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
             });
         }
     });
+
     function showSize(base64url) {
         //获取base64图片大小，返回KB数字
         var str = base64url.replace('data:image/png;base64,', '');

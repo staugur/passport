@@ -67,27 +67,106 @@ class Authentication(object):
                     return data["uid"] if success and getUid else success
         return False
 
-    def __check_sendEmailVcode(self, email, vcode, scene="signUp"):
-        """校验发送给邮箱的验证码
-        @param email str: 邮箱账号
+    def __check_sendVcode(self, account, vcode, scene="signUp"):
+        """校验发送的验证码
+        @param account str: 邮箱或手机号
         @param vcode str: 验证码
-        @param scene str: 校验场景 signUp-注册 signIn-登录 forgot-忘记密码
+        @param scene str: 校验场景 signUp-注册 bindLauth-绑定本地账号 forgot-忘记密码
         """
-        if email_check(email) and vcode and scene in ("signUp", "signIn", "forgot"):
-            key = "passport:vcode:{}:{}".format(scene, email)
-            return self.rc.get(key) == vcode
+        if email_check(account) or phone_check(account):
+            if vcode and len(vcode) == 6 and scene in ("signUp", "bindLauth", "forgot"):
+                key = "passport:vcode:{}:{}".format(scene, account)
+                return self.rc.get(key) == vcode
         return False
 
-    def __check_sendSMSVcode(self, phone, vcode, scene="signUp"):
-        """校验发送给手机的验证码
-        @param phone str: 手机号
-        @param vcode str: 验证码
-        @param scene str: 校验场景 signUp-注册 signIn-登录 forgot-忘记密码
+    def __checkUserPassword(self, uid, password):
+        """校验用户密码 <- hlm._userprofile.__checkUserPassword
+        @param password str: 要校验的密码
         """
-        if phone_check(phone) and vcode and scene in ("signUp", "signIn", "forgot"):
-            key = "passport:vcode:{}:{}".format(scene, phone)
-            return self.rc.get(key) == vcode
+        if uid and len(uid) == 22 and password and 6 <= len(password) <= 30:
+            sql = "SELECT certificate FROM user_auth WHERE identity_type IN (1,2) AND uid=%s"
+            try:
+                data = self.db.query(sql, uid)
+            except Exception, e:
+                logger.error(e, exc_info=True)
+            else:
+                if data and isinstance(data, (list, tuple)):
+                    certificate = data[0]["certificate"]
+                    return check_password_hash(certificate, password)
         return False
+
+    def bindLauth(self, uid, account, vcode, password):
+        """绑定本地化账号，需要密码做校验或重置
+        参数：
+            @param account str: 注册时的账号，邮箱/手机号
+            @param vcode str: 验证码
+            @param password str: 密码
+        流程：
+            1. 检查参数是否合法
+            2. 检查账号类型、验证码
+            3. 检查用户是否有本地化账号
+                3.1 无本地化账号时，需要password参数生成密码，并且插入数据；
+                3.2 有本地化账号时，需要校验password是否匹配，匹配后：
+                    3.3 如果账号类型已经绑定，则修改，否则插入
+        """
+        res = dict(msg=None, success=False, show_realname_tip=False)
+        # NO.1
+        if uid and len(uid) == 22 and account and vcode and len(vcode) == 6 and password and 6 <= len(password) <= 30:
+            # NO.2
+            if email_check(account) or phone_check(account):
+                if self.__check_sendVcode(account, vcode, "bindLauth"):
+                    # NO.3
+                    user_its = self.__list_identity_type(uid)
+                    identity_type = 1 if phone_check(account) else 2
+                    # `绑定邮箱或手机`函数
+                    def bindEmailOrPhone():
+                        res = dict(success=False)
+                        sql = "INSERT INTO user_auth (uid, identity_type, identifier, certificate, verified, status, ctime) VALUES (%s, %s, %s, %s, %s, %s, %s)"
+                        try:
+                            self.db.insert(sql, uid, identity_type, account, generate_password_hash(password), 1, 1, get_current_timestamp())
+                        except IntegrityError:
+                            res.update(msg="Account already bind")
+                        except Exception,e:
+                            logger.error(e, exc_info=True)
+                            res.update(msg="System is abnormal")
+                        else:
+                            res.update(success=True)
+                        if res["success"] and identity_type == 1:
+                            # 只有第一次绑定手机成功时设置为实名用户
+                            res.update(show_realname_tip=True)
+                        return res
+                    # 用户的所有账号类型中包含1或2即存在本地化账号
+                    if 1 in user_its or 2 in user_its:
+                        # NO3.2 有本地化账号
+                        if self.__checkUserPassword(uid, password):
+                            # NO3.3
+                            if identity_type in user_its:
+                                # 修改邮箱或手机
+                                sql = "UPDATE user_auth SET identifier=%s,mtime=%s WHERE identity_type=%s AND uid=%s"
+                                try:
+                                    self.db.update(sql, account, get_current_timestamp(), identity_type, uid)
+                                except Exception,e:
+                                    logger.error(e, exc_info=True)
+                                    res.update(msg="System is abnormal")
+                                else:
+                                    res.update(success=True)
+                            else:
+                                # 绑定邮箱或手机
+                                res.update(bindEmailOrPhone())
+                        else:
+                            res.update(msg="Wrong password")
+                    else:
+                        # NO3.1 无本地化账号, 绑定邮箱或手机
+                        res.update(bindEmailOrPhone())
+
+                else:
+                    res.update(msg="Invalid verification code")
+            else:
+                res.update(msg="Invalid account")
+        else:
+            res.update(msg="There are invalid parameters")
+        logger.info(res)
+        return res
 
     def __list_identity_type(self, uid):
         """查询用户id绑定的所有账号类型，不检测账号状态
@@ -101,7 +180,7 @@ class Authentication(object):
                 logger.error(e, exc_info=True)
             else:
                 if data and isinstance(data, (list, tuple)):
-                    return tuple([ i["identity_type"] for i in data ])
+                    return tuple([ int(i["identity_type"]) for i in data ])
         return tuple()
 
     def __remove_identity_type(self, uid, identity_type):
@@ -135,13 +214,7 @@ class Authentication(object):
                 if data and isinstance(data, dict):
                     return int(data["register_source"])
 
-<<<<<<< .mine
-    def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified, register_ip="", expire_time=0, is_realname=0, use_profile_sql=True, define_profile_sql=None):
-||||||| .r447
-    def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified, register_ip="", expire_time=0, use_profile_sql=True, define_profile_sql=None):
-=======
-    def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified=1, register_ip="", expire_time=0, use_profile_sql=True, define_profile_sql=None, is_realname=0):
->>>>>>> .r449
+    def __signUp_transacion(self, guid, identifier, identity_type, certificate, verified=1, register_ip="", expire_time=0, is_realname=0, use_profile_sql=True, define_profile_sql=None):
         ''' begin的方式使用事务注册账号，
         参数：
             @param guid str: 系统账号唯一标识
@@ -151,9 +224,9 @@ class Authentication(object):
             @param verified int: 是否已验证 0-未验证 1-已验证
             @param register_ip str: 注册IP地址
             @param expire_time int: 特指OAuth过期时间戳，暂时保留
+            @param is_realname int: 是否实名，1-实名(手机注册或绑定)， 0-未实名
             @param use_profile_sql bool: 定义是否执行define_profile_sql
             @param define_profile_sql str: 自定义写入`user_profile`表的sql(需要完整可直接执行SQL)
-            @param is_realname int: 是否实名，1-实名(手机注册或绑定)， 0-未实名
         流程：
             1、写入`user_auth`表
             2、写入`user_profile`表
@@ -237,7 +310,7 @@ class Authentication(object):
             # NO.2 检查密码、验证码
             if password and repassword and password == repassword and 6 <= len(password) <= 30:
                 certificate = generate_password_hash(password)
-                if vcode and len(vcode) == 6 and self.__check_sendEmailVcode(account, vcode, "signUp"):
+                if vcode and len(vcode) == 6 and self.__check_sendVcode(account, vcode, "signUp"):
                     # NO.3 检查账号是否存在
                     if self.__check_hasEmail(account):
                         res.update(msg="Email already exists")
@@ -255,7 +328,7 @@ class Authentication(object):
             # NO.2 检查密码、验证码
             if password and repassword and password == repassword and 6 <= len(password) <= 30:
                 certificate = generate_password_hash(password)
-                if vcode and len(vcode) == 6 and self.__check_sendSMSVcode(account, vcode, "signUp"):
+                if vcode and len(vcode) == 6 and self.__check_sendVcode(account, vcode, "signUp"):
                     # NO.3 检查账号是否存在
                     if self.__check_hasPhone(account):
                         res.update(msg="Phone already exists")
@@ -523,7 +596,7 @@ class Authentication(object):
         return res
 
     def unbind(self, uid, identity_type):
-        """解绑账号，要求已经登录系统
+        """解绑OAuth账号，要求已经登录系统
         参数：
             @param uid str: 用户id
             @param identity_type int: 账号类型，参见`oauth2_name2type`函数
@@ -576,7 +649,7 @@ class Authentication(object):
             uid = self.__check_hasEmail(account, getUid=True)
             if uid:
                 # NO.3 检查验证码
-                if vcode and len(vcode) == 6 and self.__check_sendEmailVcode(account, vcode, "forgot"):
+                if vcode and len(vcode) == 6 and self.__check_sendVcode(account, vcode, "forgot"):
                     # NO.4 重置密码
                     if password and 6 <= len(password) <= 30:
                         certificate = generate_password_hash(password)
@@ -599,7 +672,7 @@ class Authentication(object):
             uid = self.__check_hasPhone(account, getUid=True)
             if uid:
                 # NO.3 检查验证码
-                if vcode and len(vcode) == 6 and self.__check_sendSMSVcode(account, vcode, "forgot"):
+                if vcode and len(vcode) == 6 and self.__check_sendVcode(account, vcode, "forgot"):
                     # NO.4 重置密码
                     if password and 6 <= len(password) <= 30:
                         certificate = generate_password_hash(password)
@@ -622,3 +695,4 @@ class Authentication(object):
             res.update(msg="Invalid account")
         logger.info(res)
         return res
+

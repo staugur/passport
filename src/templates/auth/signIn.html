@@ -15,7 +15,7 @@
         <div class="layui-form-item">
             {% include "auth/vaptcha_form.html" %}
         </div>
-        <button class="layui-btn layui-btn-fluid layui-disabled" lay-submit="" lay-filter="signIn" disabled="disabled" id="submitbutton">登录</button>
+        <button class="layui-btn layui-btn-fluid layui-disabled" lay-submit lay-filter="signIn" disabled="disabled" id="submitbutton">登录</button>
     </form>
     <div class="fetures">
         <a href="{{ url_for('front.signUp') }}" class="signup">免费注册！</a>
