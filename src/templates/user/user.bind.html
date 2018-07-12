@@ -61,7 +61,8 @@
                         <div class="layui-form-item">
                             <label for="nick_name" class="layui-form-label">验证码</label>
                             <div class="layui-input-inline">
-                                <input style="display:none"><!-- for disable autocomplete on chrome -->
+                                <label style="display:none;"><span></span><input type="text"></label>
+                                <label style="display:none;"><span></span><input type="password"></label>
                                 <input class="layui-input" name="vcode" placeholder="验证码" id="vcode"  lay-verify="required" lay-verType="tips" type="text" maxlength="6" autocomplete="off">
                             </div>
                             <div class="layui-form-mid">
