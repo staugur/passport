@@ -57,6 +57,13 @@
                                 <input type="text" id="account" name="account" required lay-verify="required" lay-verType="tips" value="" class="layui-input" placeholder='绑定的邮箱或手机号' autofocus="autofocus" maxlength="50">
                             </div>
                         </div>
+                        <div class="layui-form-item">
+                            <label for="nick_name" class="layui-form-label">密码</label>
+                            <div class="layui-input-inline">
+                                <input class="layui-input" name="password" placeholder="本地化账号密码" lay-verify="required|passwd" lay-verType="tips" type="password">
+                            </div>
+                            <div class="layui-form-mid layui-word-aux">请阅读上方关于密码的帮助提示！</div>
+                        </div>
                         <input type="hidden" name="scene" id="scene" value="bindLauth">
                         <div class="layui-form-item">
                             <label for="nick_name" class="layui-form-label">验证码</label>
@@ -66,14 +73,6 @@
                             <div class="layui-form-mid">
                                 <button class="layui-btn layui-btn layui-btn-xs" id="sms-tip-msg">获取验证码</button>
                             </div>
-                        </div>
-                        <input type="text" style="display: none">
-                        <div class="layui-form-item">
-                            <label for="nick_name" class="layui-form-label">密码</label>
-                            <div class="layui-input-inline">
-                                <input class="layui-input" name="password" placeholder="本地化账号密码" lay-verify="required|passwd" lay-verType="tips" type="password">
-                            </div>
-                            <div class="layui-form-mid layui-word-aux">请阅读上方关于密码的帮助提示！</div>
                         </div>
                         <div class="layui-form-item">
                             <button class="layui-btn " lay-submit="" lay-filter="lauthBind" id="submitbutton">提交表单</button>
