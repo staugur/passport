@@ -145,6 +145,8 @@ class Authentication(object):
                                 sql = "UPDATE user_auth SET identifier=%s,mtime=%s WHERE identity_type=%s AND uid=%s"
                                 try:
                                     self.db.update(sql, account, get_current_timestamp(), identity_type, uid)
+                                except IntegrityError:
+                                    res.update(msg="Account already bind")
                                 except Exception,e:
                                     logger.error(e, exc_info=True)
                                     res.update(msg="System is abnormal")
