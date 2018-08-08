@@ -82,12 +82,13 @@ def GlobalTemplateVariables():
 
 @app.before_request
 def before_request():
+    sessionId = request.cookies.get("sessionId", request.headers.get("sessionId"))
     g.startTime = time.time()
     g.redis = create_redis_engine()
     g.mysql = create_mysql_engine()
-    g.signin = verify_sessionId(request.cookies.get("sessionId"))
-    g.sid, g.uid = analysis_sessionId(request.cookies.get("sessionId"), "tuple") if g.signin else (None, None)
-    app.logger.debug("uid: {}, sid: {}".format(g.uid, g.sid))
+    g.signin = verify_sessionId(sessionId)
+    g.sid, g.uid = analysis_sessionId(sessionId, "tuple") if g.signin else (None, None)
+    logger.debug("uid: {}, sid: {}".format(g.uid, g.sid))
     g.api = api
     g.ip = request.headers.get('X-Real-Ip', request.remote_addr)
     g.agent = request.headers.get("User-Agent")
@@ -125,6 +126,9 @@ def after_request(response):
     after_request_hook = plugin.get_all_cep.get("after_request_hook")
     for cep_func in after_request_hook():
         cep_func(request=request, response=response, data=data)
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    response.headers['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
+    response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Orgin,sessionId,XMLHttpRequest,Referer,Accept,Authorization,Cache-Control,Content-Type,Keep-Alive,Origin,User-Agent,X-Requested-With'
     return response
 
 @app.teardown_request
