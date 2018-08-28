@@ -13,4 +13,3 @@ upyun
 pycrypto
 bleach
 aliyun-python-sdk-dysmsapi
-supervisor

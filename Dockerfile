@@ -1,8 +1,8 @@
-FROM registry.cn-beijing.aliyuncs.com/staugur/alpine:python
+FROM registry.cn-beijing.aliyuncs.com/staugur/python
 MAINTAINER staugur <staugur@saintic.com>
 ADD src /passport
-ADD misc/supervisord.conf /etc/supervisord.conf
 ADD requirements.txt /tmp
-RUN pip install --timeout 30 --index https://pypi.douban.com/simple/ -r /tmp/requirements.txt
+RUN yum install -y gcc gcc-c++ python-devel libffi-devel openssl-devel mysql-devel &&\
+    pip install --timeout 30 --index https://pypi.douban.com/simple/ -r /tmp/requirements.txt
 WORKDIR /passport
-ENTRYPOINT ["supervisord"]
+ENTRYPOINT ["sh", "online_gunicorn.sh", "run"]
