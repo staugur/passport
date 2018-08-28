@@ -34,6 +34,7 @@ function Monthly2Number() {
 
 case $1 in
 start)
+    #后台启动
     if [ -f $pidfile ]; then
         echo "Has pid($(cat $pidfile)) in $pidfile, please check, exit." ; exit 1
     else
@@ -46,6 +47,11 @@ start)
             echo "$procname start over with pid ${pid}"
         fi
     fi
+    ;;
+
+run)
+    #前台运行
+    gunicorn -w $cpu_count --threads 16 -b ${host}:${port} main:app -k gevent --max-requests 250 --name $procname
     ;;
 
 stop)
@@ -93,6 +99,6 @@ restart)
     ;;
 
 *)
-    echo "Usage: $0 start|stop|restart|status"
+    echo "Usage: $0 start|run|stop|restart|status"
     ;;
 esac
