@@ -23,10 +23,11 @@ import time
 from version import __version__
 from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO, get_current_timestamp
 from utils.web import verify_sessionId, analysis_sessionId, tpl_adminlogin_required, get_redirect_url
-from libs.plugins import PluginManager
 from hlm import UserAppManager, UserSSOManager, UserMsgManager, UserProfileManager
 from views import FrontBlueprint, ApiBlueprint
-from flask import Flask, request, g, jsonify
+from flask import request, g, jsonify
+from flask_pluginkit import PluginManager
+from flask_multistatic import MultiStaticFlask as Flask
 reload(sys)
 sys.setdefaultencoding('utf-8')
 
@@ -52,23 +53,7 @@ api = DO({
 })
 
 # 初始化插件管理器(自动扫描并加载运行)
-plugin = PluginManager()
-
-# 注册多模板文件夹
-loader = jinja2.ChoiceLoader([
-    app.jinja_loader,
-    jinja2.FileSystemLoader([p.get("plugin_tpl_path") for p in plugin.get_enabled_plugins if os.path.isdir(os.path.join(app.root_path, p["plugin_tpl_path"]))]),
-])
-app.jinja_loader = loader
-
-# 注册全局模板扩展点
-for tep_name, tep_func in plugin.get_all_tep.iteritems():
-    app.add_template_global(tep_func, tep_name)
-
-# 注册蓝图扩展点
-for bep in plugin.get_all_bep:
-    prefix = bep["prefix"]
-    app.register_blueprint(bep["blueprint"], url_prefix=prefix)
+plugin = PluginManager(app)
 
 # 注册视图包中蓝图
 app.register_blueprint(FrontBlueprint)
@@ -94,20 +79,7 @@ def before_request():
     g.agent = request.headers.get("User-Agent")
     # 仅是重定向页面快捷定义
     g.redirect_uri = get_redirect_url()
-    # 上下文扩展点之请求后(返回前)
-    before_request_hook = plugin.get_all_cep.get("before_request_hook")
-    for cep_func in before_request_hook():
-        cep_func(request=request, g=g)
-    before_request_return = plugin.get_all_cep.get("before_request_return")
-    for cep_func in before_request_return():
-        resp = cep_func(request=request, g=g)
-        try:
-            success = resp.is_before_request_return
-        except:
-            logger.warn("Plugin returns abnormalities when before_request_return")
-        else:
-            if success is True:
-                return resp
+
 
 @app.after_request
 def after_request(response):
@@ -122,10 +94,6 @@ def after_request(response):
         "clickTime": get_current_timestamp()
     }
     access_logger.info(data)
-    # 上下文扩展点之请求后(返回前)
-    after_request_hook = plugin.get_all_cep.get("after_request_hook")
-    for cep_func in after_request_hook():
-        cep_func(request=request, response=response, data=data)
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Orgin,sessionId,XMLHttpRequest,Referer,Accept,Authorization,Cache-Control,Content-Type,Keep-Alive,Origin,User-Agent,X-Requested-With'
@@ -139,9 +107,6 @@ def teardown_request(exception):
         g.redis.connection_pool.disconnect()
     if hasattr(g, "mysql"):
         g.mysql.close()
-    teardown_request_hook = plugin.get_all_cep.get("teardown_request_hook")
-    for cep_func in teardown_request_hook():
-        cep_func(request=request, g=g, exception=exception)
 
 @app.errorhandler(500)
 def server_error(error=None):
@@ -155,8 +120,6 @@ def server_error(error=None):
 
 @app.errorhandler(404)
 def not_found(error=None):
-    if error:
-        err_logger.debug("404: {}".format(error))
     message = {
         'code': 404,
         'msg': 'Not Found: ' + request.url,

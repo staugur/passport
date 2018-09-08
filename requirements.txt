@@ -1,4 +1,6 @@
 Flask==0.10.1
+Flask-PluginKit
+flask-multistatic
 requests
 setproctitle
 redis

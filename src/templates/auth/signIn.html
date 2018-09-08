@@ -23,16 +23,7 @@
     </div>
     <div class="thirds">
         第三方账号登录：
-        {%- if auth_signIn_socialLogin_include %}
-            {% for ai in auth_signIn_socialLogin_include() %}
-                {% include ai %}
-            {% endfor %}
-        {%- endif %}
-        {%- if auth_signIn_socialLogin_string %}
-            {% for as in auth_signIn_socialLogin_string() %}
-                {{ as|safe }}
-            {% endfor %}
-        {%- endif %}
+        {% for hf in get_tep('auth_signIn_socialLogin_include').HTMLFile %}{% include hf %}{% endfor %}
     </div>
     {% include "public/footer.html" %}
 </div>
