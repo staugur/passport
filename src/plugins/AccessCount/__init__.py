@@ -10,11 +10,11 @@
 """
 
 from __future__ import absolute_import
-from utils.tool import plugin_logger
+from utils.tool import plugin_logger, get_current_timestamp
 from libs.base import PluginBase
 from config import PLUGINS
-from flask import request
-import datetime, json
+from flask import request, g
+import datetime, time, json
 
 __name__ = "AccessCount"
 __description__ = "IP、PV、UV统计插件"
@@ -41,7 +41,17 @@ class AccessCount(PluginBase):
 
     def Record_ip_pv(self, **kwargs):
         """ 记录ip、ip、uv """
-        data = kwargs.get("data")
+        data = {
+            "status_code": kwargs.get("response").status_code,
+            "method": request.method,
+            "ip": g.ip,
+            "url": request.url,
+            "referer": request.headers.get('Referer'),
+            "agent": request.headers.get("User-Agent"),
+            "TimeInterval": "%0.2fs" %float(time.time() - g.startTime),
+            "clickTime": get_current_timestamp()
+        }
+        self.logger.info(data)
         pvKey = "passport:AccessCount:pv"
         ipKey = "passport:AccessCount:ip:{}".format(self.get_today)
         uvKey = "passport:AccessCount:uv"

@@ -476,7 +476,7 @@ def dfr(res, default='en-US'):
             "Have sent the verification code, please check the mobile phone": u"已发送过验证码，请查收手机短信",
             "Sent verification code, valid for 300 seconds": u"已发送验证码，有效期300秒",
             "Mail delivery failed, please try again later": u"邮件发送失败，请稍后重试",
-            "SMS failed to send, please try again later": u"邮件发送失败，请稍后重试",
+            "SMS failed to send, please try again later": u"短信发送失败，请稍后重试",
             "Third-party login binding failed": u"第三方登录绑定失败",
             "Has been bound to other accounts": u"已经绑定其他账号",
             "Operation failed, rolled back": u"操作失败，已回滚",

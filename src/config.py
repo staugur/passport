@@ -54,6 +54,7 @@ VAPTCHA = {
 
 # 又拍云存储配置
 UPYUN = {
+    "enable":getenv("passport_upyun_enable", False),
     "bucket": getenv("passport_upyun_bucket", ""),
     "username": getenv("passport_upyun_username", ""),
     "password": getenv("passport_upyun_password", ""),

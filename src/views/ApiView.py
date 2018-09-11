@@ -8,15 +8,14 @@
     :copyright: (c) 2017 by staugur.
     :license: MIT, see LICENSE for more details.
 """
+import os
 import json
 import base64
-import os.path
 from config import SYSTEM, UPYUN as Upyun
 from utils.send_email_msg import SendMail
 from utils.send_phone_msg import SendSms
-from utils.upyunstorage import CloudStorage
 from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi, FastPushMessage, analysis_sessionId
-from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent, getIpArea, get_today, generate_digital_verification_code
+from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent, getIpArea, get_today, generate_digital_verification_code, UploadImage2Upyun
 from libs.auth import Authentication
 from flask import Blueprint, request, jsonify, g, url_for
 from werkzeug import secure_filename
@@ -25,6 +24,9 @@ from werkzeug import secure_filename
 ApiBlueprint = Blueprint("api", __name__)
 #初始化手势验证码服务
 vaptcha = VaptchaApi()
+#文件上传文件夹, 相对于项目根目录, 请勿改动static/部分
+IMAGE_FOLDER  = 'static/upload/'
+UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), IMAGE_FOLDER)
 
 @ApiBlueprint.route('/miscellaneous/_sendVcode', methods=['POST'])
 def misc_sendVcode():
@@ -245,18 +247,24 @@ def useruploadpub():
     f = request.files.get('file')
     callableAction = request.args.get("callableAction")
     if f and allowed_file(f.filename):
-        filename = secure_filename(gen_rnd_filename() + "." + f.filename.split('.')[-1])  # 随机命名
-        basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
-        imgUrl = os.path.join(basedir, filename)
-        try:
-            # 又拍云存储封装接口
-            upyunapi = CloudStorage(timeout=15)
-            upyunapi.put(imgUrl, f.stream.read())
-        except Exception, e:
-            logger.error(e, exc_info=True)
-            res.update(code=2, msg="System is abnormal")
+        filename = gen_rnd_filename() + "." + secure_filename(f.filename).split('.')[-1]  # 随机命名
+        # 判断是否上传到又拍云还是保存到本地
+        if Upyun['enable'] in ('true', 'True', True):
+            basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
+            imgUrl = os.path.join(basedir, filename)
+            try:
+                # 又拍云存储封装接口
+                UploadImage2Upyun(imgUrl, f.stream.read())
+            except Exception, e:
+                logger.error(e, exc_info=True)
+                res.update(code=2, msg="System is abnormal")
+            else:
+                imgUrl = Upyun['dn'].strip("/") + imgUrl
+                res.update(data=dict(src=imgUrl), code=0)
         else:
-            imgUrl = Upyun['dn'].strip("/") + imgUrl
+            if not os.path.exists(UPLOAD_FOLDER): os.makedirs(UPLOAD_FOLDER)
+            f.save(os.path.join(UPLOAD_FOLDER, filename))
+            imgUrl = request.url_root + IMAGE_FOLDER + filename
             res.update(data=dict(src=imgUrl), code=0)
     else:
         res.update(code=3, msg="Unsuccessfully obtained file or format is not allowed")
@@ -269,20 +277,31 @@ def userupload():
     # 通过base64形式上传图片
     res = dict(code=1, msg=None)
     picStr = request.form.get('picStr')
-    callableAction = request.args.get("callableAction")
     if picStr:
-        basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
-        imgUrl = os.path.join(basedir, gen_rnd_filename() + ".png")
-        try:
-            # 又拍云存储封装接口
-            upyunapi = CloudStorage(timeout=15)
-            upyunapi.put(imgUrl, base64.b64decode(picStr))
-        except Exception, e:
-            logger.error(e, exc_info=True)
-            res.update(code=2, msg="System is abnormal")
+        # 判断是否上传到又拍云还是保存到本地
+        if Upyun['enable'] in ('true', 'True', True):
+            basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
+            imgUrl = os.path.join(basedir, gen_rnd_filename() + ".png")
+            try:
+                # 又拍云存储封装接口
+                UploadImage2Upyun(imgUrl, base64.b64decode(picStr))
+            except Exception, e:
+                logger.error(e, exc_info=True)
+                res.update(code=2, msg="System is abnormal")
+            else:
+                imgUrl = Upyun['dn'].strip("/") + imgUrl
+                res.update(imgUrl=imgUrl, code=0)
         else:
-            imgUrl = Upyun['dn'].strip("/") + imgUrl
+            filename = gen_rnd_filename() + ".png"
+            if not os.path.exists(UPLOAD_FOLDER): os.makedirs(UPLOAD_FOLDER)
+            with open(os.path.join(UPLOAD_FOLDER, filename), "wb") as f:
+                f.write(base64.b64decode(picStr))
+            imgUrl = request.url_root + IMAGE_FOLDER + filename
             res.update(imgUrl=imgUrl, code=0)
+        # "回调"动作
+        if res.get("imgUrl"):
+            imgUrl = res.get("imgUrl")
+            callableAction = request.args.get("callableAction")
             if callableAction == "UpdateAvatar":
                 resp = g.api.userprofile.updateUserAvatar(uid=g.uid, avatarUrl=imgUrl)
                 res.update(resp)

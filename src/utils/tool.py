@@ -18,13 +18,14 @@ import shortuuid
 import requests
 import time
 import datetime
+import upyun
 from uuid import uuid4
 from log import Logger
 from base64 import b32encode
 from redis import from_url
 from torndb import Connection
 from user_agents import parse as user_agents_parse
-from config import SYSTEM, REDIS as REDIS_URL, MYSQL as MYSQL_URL
+from config import SYSTEM, REDIS as REDIS_URL, MYSQL as MYSQL_URL, UPYUN
 from version import __version__
 
 
@@ -296,3 +297,10 @@ def sso_request(kwargs):
                 return sso_request(url, params=params, data=data, timeout=timeout, num_retries=num_retries-1)
         else:
             return resp
+
+def UploadImage2Upyun(FilePath, FileData):
+    """ Upload image to Upyun Cloud with Api """
+
+    up  = upyun.UpYun(UPYUN.get("bucket"), username=UPYUN.get("username"), password=UPYUN.get("password"), timeout=10, endpoint=upyun.ED_AUTO)
+    res = up.put(FilePath, FileData)
+    return res
