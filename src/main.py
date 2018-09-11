@@ -21,7 +21,7 @@ import sys
 import config
 import time
 from version import __version__
-from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO, get_current_timestamp
+from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO
 from utils.web import verify_sessionId, analysis_sessionId, tpl_adminlogin_required, get_redirect_url
 from hlm import UserAppManager, UserSSOManager, UserMsgManager, UserProfileManager
 from views import FrontBlueprint, ApiBlueprint
@@ -83,21 +83,11 @@ def before_request():
 
 @app.after_request
 def after_request(response):
-    data = {
-        "status_code": response.status_code,
-        "method": request.method,
-        "ip": g.ip,
-        "url": request.url,
-        "referer": request.headers.get('Referer'),
-        "agent": request.headers.get("User-Agent"),
-        "TimeInterval": "%0.2fs" %float(time.time() - g.startTime),
-        "clickTime": get_current_timestamp()
-    }
-    access_logger.info(data)
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
     response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Orgin,sessionId,XMLHttpRequest,Referer,Accept,Authorization,Cache-Control,Content-Type,Keep-Alive,Origin,User-Agent,X-Requested-With'
     return response
+
 
 @app.teardown_request
 def teardown_request(exception):
@@ -107,6 +97,7 @@ def teardown_request(exception):
         g.redis.connection_pool.disconnect()
     if hasattr(g, "mysql"):
         g.mysql.close()
+
 
 @app.errorhandler(500)
 def server_error(error=None):
