@@ -65,7 +65,7 @@ layui.define(["base", "element", "util", "layer", "form"], function(exports) {
                 $('#nav_nickname').after('<i class="saintic-icon saintic-icon-realname-logo layui-hide-xs nickname-realname" title="已实名认证"></i>');
             }
             //更新顶部导航头像
-            $('#nav_avatar').attr('src', userdata.avatar || '/static/images/avatar/default.png');
+            $('#nav_avatar').attr('src', userdata.avatar || 'https://img.saintic.com/cdn/images/defaultAvatar.png');
             //前端缓存
             layui.cache.user = userdata;
             //设置页填充资料
