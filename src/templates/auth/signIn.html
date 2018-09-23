@@ -23,7 +23,7 @@
     </div>
     <div class="thirds">
         第三方账号登录：
-        {% for hf in get_tep('auth_signIn_socialLogin_include').HTMLFile %}{% include hf %}{% endfor %}
+        {{ emit_tep('auth_signIn_socialLogin_include') }}
     </div>
     {% include "public/footer.html" %}
 </div>
