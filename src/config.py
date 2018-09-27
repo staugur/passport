@@ -145,31 +145,31 @@ SYSTEM = {
 PLUGINS = {
 
     "weibo": {
-        "ENABLE": getenv("passport_weibo_enable", True),
+        "ENABLE": getenv("passport_weibo_enable", False),
         "APP_ID": getenv("passport_weibo_appid"),
         "APP_KEY": getenv("passport_weibo_appkey"),
         "REDIRECT_URI": getenv("passport_weibo_redirecturi", "https://passport.saintic.com/oauth2/weibo/authorized")
     },
     "qq": {
-        "ENABLE": getenv("passport_qq_enable", True),
+        "ENABLE": getenv("passport_qq_enable", False),
         "APP_ID": getenv("passport_qq_appid"),
         "APP_KEY": getenv("passport_qq_appkey"),
         "REDIRECT_URI": getenv("passport_qq_redirecturi", "https://passport.saintic.com/oauth2/qq/authorized")
     },
     "github": {
-        "ENABLE": getenv("passport_github_enable", True),
+        "ENABLE": getenv("passport_github_enable", False),
         "APP_ID": getenv("passport_github_appid"),
         "APP_KEY": getenv("passport_github_appkey"),
         "REDIRECT_URI": getenv("passport_github_redirecturi", "https://passport.saintic.com/oauth2/github/authorized")
     },
     "coding": {
-        "ENABLE": getenv("passport_coding_enable", True),
+        "ENABLE": getenv("passport_coding_enable", False),
         "APP_ID": getenv("passport_coding_appid"),
         "APP_KEY": getenv("passport_coding_appkey"),
         "REDIRECT_URI": getenv("passport_coding_redirecturi", "https://passport.saintic.com/oauth2/coding/authorized")
     },
     "gitee": {
-        "ENABLE": getenv("passport_gitee_enable", True),
+        "ENABLE": getenv("passport_gitee_enable", False),
         "APP_ID": getenv("passport_gitee_appid"),
         "APP_KEY": getenv("passport_gitee_appkey"),
         "REDIRECT_URI": getenv("passport_gitee_redirecturi", "https://passport.saintic.com/oauth2/gitee/authorized")
