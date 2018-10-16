@@ -91,7 +91,7 @@ layui.define(["passport", "table", "element", "form", "layer", "util", "laytpl"]
         where: {
             Action: "getLoginHistory"
         },
-        page: true, //开启分页
+        page: false, //开启分页
         cellMinWidth: 30,
         loading: true,
         cols: [
