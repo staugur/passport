@@ -16,7 +16,7 @@ from config import PLUGINS
 from flask import request, g
 import datetime, time, json
 
-__name__ = "AccessCount"
+__plugin_name__ = "AccessCount"
 __description__ = "IP、PV、UV统计插件"
 __author__ = "staugur"
 __version__ = "0.1"

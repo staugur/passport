@@ -22,7 +22,7 @@ from flask import Blueprint, request, jsonify, g, redirect, url_for
 
 #：Your plug-in name must be consistent with the plug-in directory name.
 #：你的插件名称，必须和插件目录名称等保持一致.
-__name__        = "ssoserver"
+__plugin_name__ = "ssoserver"
 #: Plugin describes information. What does it do?
 #: 插件描述信息,什么用处.
 __description__ = "SSO Server"
