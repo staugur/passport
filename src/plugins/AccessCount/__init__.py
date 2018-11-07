@@ -66,5 +66,5 @@ class AccessCount(PluginBase):
         except:
             pass
 
-    def register_cep(self):
+    def register_hep(self):
         return {"after_request_hook": self.Record_ip_pv}
