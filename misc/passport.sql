@@ -21,7 +21,7 @@ CREATE TABLE `sso_apps` (
   `mtime` int(10) DEFAULT NULL COMMENT '更新时间',
   PRIMARY KEY (`id`),
   UNIQUE KEY `name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
 -- ----------------------------
 -- Table structure for user_auth
@@ -44,7 +44,7 @@ CREATE TABLE `user_auth` (
   KEY `status` (`status`) USING BTREE,
   KEY `idx_uid` (`uid`) USING BTREE,
   KEY `identity_type` (`identity_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=10250 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='用户授权表';
 
 -- ----------------------------
 -- Table structure for user_loginlog
@@ -64,7 +64,7 @@ CREATE TABLE `user_loginlog` (
   `browser_family` varchar(30) CHARACTER SET utf8 DEFAULT NULL COMMENT '浏览器种类及版本，如chrome 60.0.3122',
   PRIMARY KEY (`id`),
   KEY `idx_uid_type_time` (`uid`,`login_type`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=235 DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='登录日志表';
 
 -- ----------------------------
 -- Table structure for user_profile
@@ -91,4 +91,4 @@ CREATE TABLE `user_profile` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uid` (`uid`),
   UNIQUE KEY `dn` (`domain_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=utf8mb4 COMMENT='用户个人资料表';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='用户个人资料表';
