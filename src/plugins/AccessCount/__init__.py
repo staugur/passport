@@ -19,7 +19,7 @@ import datetime, time, json
 __plugin_name__ = "AccessCount"
 __description__ = "IP、PV、UV统计插件"
 __author__ = "staugur"
-__version__ = "0.1"
+__version__ = "0.1.0"
 __license__ = "MIT"
 if PLUGINS["AccessCount"] in ("true", "True", True):
     __state__ = "enabled"
