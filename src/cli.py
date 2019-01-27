@@ -177,11 +177,12 @@ if __name__ == "__main__":
     refresh_loginlog = args.refresh_loginlog
     refresh_clicklog = args.refresh_clicklog
     createSuperuser = args.createSuperuser
-    if refresh_loginlog:
-        execute_refresh_loginlog()
-    elif refresh_clicklog:
-        execute_refresh_clicklog()
-    elif createSuperuser:
+    if createSuperuser:
         exec_createSuperuser()
     else:
-        parser.print_help()
+        if refresh_loginlog:
+            execute_refresh_loginlog()
+        if refresh_clicklog:
+            execute_refresh_clicklog()
+        else:
+            parser.print_help()
