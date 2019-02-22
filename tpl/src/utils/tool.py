@@ -18,7 +18,7 @@ from config import SYSTEM
 ip_pat          = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 mail_pat        = re.compile(r"([0-9a-zA-Z\_*\.*\-*]+)@([a-zA-Z0-9\-*\_*\.*]+)\.([a-zA-Z]+$)")
 chinese_pat     = re.compile(u"[\u4e00-\u9fa5]+")
-Universal_pat   = re.compile(r"[a-zA-Z\_][0-9a-zA-Z\_]*")
+Universal_pat   = re.compile(r"^[a-zA-Z\_][0-9a-zA-Z\_]*$")
 comma_pat       = re.compile(r"\s*,\s*")
 logger          = Logger("sys").getLogger
 err_logger      = Logger("error").getLogger
