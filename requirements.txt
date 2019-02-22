@@ -1,7 +1,6 @@
 Flask
 flask_multistatic
 Flask-PluginKit>=2.1.0
-flask_multistatic
 requests
 setproctitle
 redis
