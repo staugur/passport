@@ -22,6 +22,12 @@
                     <div id="RealnameShow"></div>
                     <form method="post">
                         <div class="layui-form-item">
+                            <label for="uid" class="layui-form-label">账号ID</label>
+                            <div class="layui-input-inline">
+                                <input type="text" id="uid" name="uid" value="{{ g.uid }}" class="layui-input layui-disabled" disabled="disabled">
+                            </div>
+                        </div>
+                        <div class="layui-form-item">
                             <label for="nick_name" class="layui-form-label">个性昵称</label>
                             <div class="layui-input-inline">
                                 <input type="text" id="nick_name" name="nick_name" required lay-verify="required|nick_name" lay-verType="tips" autocomplete="off" value="" class="layui-input layui-disabled" placeholder='起一个喜欢的别名吧' disabled="disabled">
