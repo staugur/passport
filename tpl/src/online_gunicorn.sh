@@ -10,7 +10,7 @@ cd $dir
 
 #准备环境
 if [ -r online_preboot.sh ]; then
-    . online_preboot.sh
+    source ./online_preboot.sh
 fi
 
 #定义常量(请勿更改)
