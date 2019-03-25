@@ -6,10 +6,13 @@
 <div class="layui-form layui-form-pane">
     <form method="post">
         <div class="layui-form-item" pane>
-            <select name="point" lay-verify="required">
-                <option value="">请选择模块</option>
+            <select id="point" name="point" lay-verify="required">
+                <option value="">请选择主题</option>
                 <option value="建议">建议</option>
-                <optgroup label="功能反馈">
+                <option value="博客">博客</option>
+                <option value="开放平台">开放平台</option>
+                <option value="短网址">短网址服务</option>
+                <optgroup label="Passport">
                     <option value="注册">注册</option>
                     <option value="登录">登录</option>
                     <option value="第三方登录">第三方登录</option>
@@ -18,9 +21,6 @@
                     <option value="我的消息">我的消息</option>
                     <option value="其他">其他</option>
                 </optgroup>
-                <option value="博客">博客</option>
-                <option value="开放平台">开放平台</option>
-                <option value="短网址">短网址</option>
             </select>
         </div>
         <div class="layui-form-item layui-form-text">
@@ -30,7 +30,7 @@
             </div>
         </div>
         <div class="layui-form-item" pane>
-            <input type="text" name="email" lay-verify="newemail" placeholder="联系邮箱（留下联系邮箱，以便我们快速反馈）" class="layui-input">    
+            <input type="text" name="email" lay-verify="newemail" placeholder="联系邮箱（建议留下联系邮箱，以便我们快速反馈）" class="layui-input">    
         </div>
         <div class="layui-form-item">
             <button class="layui-btn" lay-filter="feedback" lay-submit id="feedbackSubmit">提交</button>
@@ -56,6 +56,17 @@ layui.use(['form', 'layedit', 'layer'], function() {
             type: 'post',
         }
     });
+    //根据查询参数重新渲染select
+    var subject = "{{ request.args.get('t') }}";
+    var options = document.getElementById('point').children;
+    if (subject==="blog") {
+        options[2].selected=true;
+    }else if (subject==="open") {
+        options[3].selected=true;
+    }else if (subject==="satic.io") {
+        options[4].selected=true;
+    }
+    form.render('select');
     //表单自定义校验
     form.verify({
         newemail: function(value, item) {
