@@ -28,12 +28,12 @@ GLOBAL = {
 
 
 MYSQL = getenv("passport_mysql_url")
-# MYSQL数据库连接信息
+# 必填-MYSQL数据库连接信息
 # mysql://host:port:user:password:database?charset=&timezone=
 
 
 REDIS = getenv("passport_redis_url")
-# Redis数据库连接信息，格式：
+# 必填-Redis数据库连接信息，格式：
 # redis://[:password]@host:port/db
 # host,port必填项,如有密码,记得密码前加冒号,默认localhost:6379/0
 

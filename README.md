@@ -3,11 +3,7 @@ Unified authentication and authorization management SSO system for SaintIC Org.
 
 
 # Docuement
-[https://www.saintic.com/blog/134.html](https://www.saintic.com/blog/134.html "https://www.saintic.com/blog/134.html")
-
-
-# LICENSE
-MIT
+[http://docs.saintic.com/740448](http://docs.saintic.com/740448 "https://www.kancloud.cn/staugur/staugur/740448")
 
 
 ## Environment
