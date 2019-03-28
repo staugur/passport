@@ -42,7 +42,7 @@
                                 <input type="text" id="domain_name" name="domain_name" value="" class="layui-input layui-disabled" placeholder='独一无二的主页标识' lay-verify="domain_name" lay-verType="tips" disabled="disabled">
                             </div>
                             <div class="layui-form-mid layui-word-aux">
-                                仅能修改一次，您的个性域名是：{{ CONFIG.SYSTEM.PersonalizedDomainNamePrefix }}<b id="domain_name_suffix"></b>
+                                仅能修改一次，{% if CONFIG.SYSTEM.PersonalizedDomainNamePrefix %}个性域名是：{{ CONFIG.SYSTEM.PersonalizedDomainNamePrefix }}<b id="domain_name_suffix">无</b>{% else %}若您部署<a href="https://github.com/staugur/EauDouce" target="_blank">博客程序</a>，则可显示您的个性域名！{% endif %}
                             </div>
                         </div>
                         <div class="layui-form-item">

@@ -30,9 +30,8 @@
 {% endblock %}
 
 {% block script %}
-<script src="https://cdn.vaptcha.com/v.js"></script>
+{% include "auth/vaptcha_js.html" %}
 <script type="text/javascript">
-    {% include "auth/vaptcha_js.html" %}
     layui.use("signin");
 </script>
 {% endblock %}

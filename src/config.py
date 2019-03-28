@@ -38,11 +38,8 @@ REDIS = getenv("passport_redis_url")
 # host,port必填项,如有密码,记得密码前加冒号,默认localhost:6379/0
 
 
-# 手势验证码配置段
+# 手势验证码配置段：必填
 VAPTCHA = {
-
-    "enable": getenv("passport_vaptcha_enable", True),
-    # 是否启用手势验证码
 
     "vid": getenv("passport_vaptcha_vid"),
     # 验证单元id
@@ -63,7 +60,7 @@ UPYUN = {
 }
 
 
-# 邮箱配置段
+# 邮箱配置段：建议
 EMAIL = {
 
     "useraddr": getenv("passport_email_useraddr"),
@@ -82,7 +79,7 @@ EMAIL = {
     # 是否使用SSL加密
 }
 
-# 发送短信配置段
+# 发送短信配置段：建议
 PHONE = {
 
     "ACCESS_KEY_ID": getenv("passport_phone_keyid"),
@@ -130,20 +127,24 @@ SYSTEM = {
     },
     # 缓存启用项
 
-    "PersonalizedDomainNamePrefix": getenv("passport_personalizeddomainnameprefix", "https://www.saintic.com/user/"),
-    # 个性域名前缀：业务系统中用户对公个人主页前缀地址
+    "PersonalizedDomainNamePrefix": getenv("passport_personalizeddomainnameprefix", ""),
+    # 个性域名前缀：业务系统中用户对公个人主页前缀地址，此配置项在github.com/staugur/EauDouce程序中可以体现
 
     "SESSION_EXPIRE": int(getenv("passport_session_expire", 604800)),
     # session过期时间，单位秒，默认7d
 
-    "EMAIL": getenv("passport_system_email", "staugur@saintic.com"),
-    # 系统反馈收件人
+    "EMAIL": getenv("passport_system_email", ""),
+    # 意见反馈收件人
+
+    "STATUS": getenv("passport_status_url", "")
+    # 服务状态地址，此程序需要部署github.com/saintic/ssp
 }
 
 
 # 插件配置段
 PLUGINS = {
 
+    # 下面几个是第三方登录插件
     "weibo": {
         "ENABLE": getenv("passport_weibo_enable", False),
         "APP_ID": getenv("passport_weibo_appid"),
@@ -174,5 +175,7 @@ PLUGINS = {
         "APP_KEY": getenv("passport_gitee_appkey"),
         "REDIRECT_URI": getenv("passport_gitee_redirecturi", "https://passport.saintic.com/oauth2/gitee/authorized")
     },
+
     "AccessCount": True,
+    # 访问统计插件
 }

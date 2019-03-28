@@ -92,3 +92,27 @@ CREATE TABLE `user_profile` (
   UNIQUE KEY `uid` (`uid`),
   UNIQUE KEY `dn` (`domain_name`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COMMENT='用户个人资料表';
+
+
+-- ----------------------------
+-- Table structure for sys_clicklog
+-- ----------------------------
+DROP TABLE IF EXISTS `sys_clicklog`;
+CREATE TABLE `sys_clicklog` (
+  `id` int(6) NOT NULL AUTO_INCREMENT,
+  `url` varchar(255) COLLATE utf8_unicode_ci NOT NULL,
+  `agent` varchar(500) COLLATE utf8_unicode_ci NOT NULL,
+  `method` varchar(8) COLLATE utf8_unicode_ci NOT NULL,
+  `ip` varchar(15) COLLATE utf8_unicode_ci NOT NULL,
+  `status_code` char(3) COLLATE utf8_unicode_ci NOT NULL,
+  `referer` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL,
+  `isp` varchar(200) CHARACTER SET utf8 DEFAULT NULL,
+  `browserType` varchar(10) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '浏览器终端类型，入pc mobile bot tablet',
+  `browserDevice` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '浏览器设备，如pc，xiaomi，iphone',
+  `browserOs` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '浏览器所在操作系统，如windows10，iPhone',
+  `browserFamily` varchar(50) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '浏览器种类及版本，如chrome 60.0.3122',
+  `clickTime` int(10) DEFAULT '0',
+  `TimeInterval` varchar(8) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '请求处理的时间秒数',
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `id` (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;

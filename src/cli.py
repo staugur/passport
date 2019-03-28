@@ -184,5 +184,5 @@ if __name__ == "__main__":
             execute_refresh_loginlog()
         if refresh_clicklog:
             execute_refresh_clicklog()
-        else:
+        if not refresh_loginlog and not refresh_clicklog:
             parser.print_help()

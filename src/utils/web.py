@@ -561,9 +561,8 @@ class VaptchaApi(object):
     """手势验证码封装接口"""
 
     def __init__(self):
-        self.__enable = True if VAPTCHA["enable"] in ("true", "True", True) else False
         self.__vaptcha = pyvaptcha(VAPTCHA["vid"], VAPTCHA["key"])
-        self.__checkkey = "passport:vaptcha"
+        self.__checkkey = lambda challenge: "passport:vaptcha:%s" %challenge
 
     @property
     def getChallenge(self):
@@ -572,7 +571,13 @@ class VaptchaApi(object):
         """
         sceneid = request.args.get("sceneid") or ""
         data = json.loads(self.__vaptcha.get_challenge(sceneid))
-        g.redis.hset(self.__checkkey, data["challenge"], 0)
+        pipe = g.redis.pipeline()
+        pipe.set(self.__checkkey(data["challenge"]), 0)
+        pipe.expire(self.__checkkey(data["challenge"]), 600)
+        try:
+            pipe.execute()
+        except:
+            pass
         return data
 
     @property
@@ -595,11 +600,11 @@ class VaptchaApi(object):
         token = request.form.get("token")
         challenge = request.form.get("challenge")
         if token and challenge:
-            if int(g.redis.hget(self.__checkkey, challenge) or 0) == 1:
+            if int(g.redis.get(self.__checkkey(challenge)) or 0) == 1:
                 return True
             else:
                 if self.__vaptcha.validate(challenge, token, sceneid):
-                    g.redis.hset(self.__checkkey, challenge, 1)
+                    g.redis.set(self.__checkkey(challenge), 1)
                     return True
         return False
 

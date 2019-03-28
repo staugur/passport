@@ -1,3 +1,5 @@
+<script src="https://cdn.vaptcha.com/v.js"></script>
+<script type="text/javascript">
     var vaptchaObj;
     window.vaptcha({
         vid: "{{ vaptcha.vid }}", //验证单元id, string, 必填
@@ -21,3 +23,4 @@
         vaptchaObj = vaptcha_obj;
         vaptchaObj.init();
     });
+</script>

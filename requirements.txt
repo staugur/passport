@@ -1,9 +1,8 @@
 Flask
-flask_multistatic
-Flask-PluginKit>=2.1.0
+Flask-PluginKit>=2.1.1
 requests
 setproctitle
-redis
+redis==2.10.6
 torndb
 MySQL-python
 gevent
