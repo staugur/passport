@@ -1,5 +1,5 @@
 <div class="fly-footer">
-  <p><script>document.write( new Date().getFullYear() );</script> &copy; SaintIC. All rights reserved.&nbsp;</p>
+  <p>&copy; <script>document.write( new Date().getFullYear() );</script> All rights reserved.&nbsp;</p>
   <p>
     <a href="{{ url_for('front.terms') }}" target="_blank">服务条款</a>
     <a href="javascript:;" id="feedback">意见反馈</a>
@@ -8,5 +8,6 @@
     {% if CONFIG.SYSTEM.STATUS %}
     <a href="https://status.satic.io/" target="_blank" title="SaintIC Status">服务状态</a>
     {% endif %}
+    <a href="https://github.com/staugur/EauDouce" target="_blank">Powered by EauDouce</a>
   </p>
 </div>

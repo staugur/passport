@@ -1,8 +1,8 @@
-Flask
+Flask>=0.10.0
 Flask-PluginKit>=2.1.1
 requests
 setproctitle
-redis==2.10.6
+redis<=2.10.6
 torndb
 MySQL-python
 gevent

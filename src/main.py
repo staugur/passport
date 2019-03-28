@@ -26,8 +26,7 @@ from utils.web import verify_sessionId, analysis_sessionId, tpl_adminlogin_requi
 from hlm import UserAppManager, UserSSOManager, UserMsgManager, UserProfileManager
 from views import FrontBlueprint, ApiBlueprint
 from flask import request, g, jsonify
-from flask_pluginkit import PluginManager
-from flask_multistatic import MultiStaticFlask as Flask
+from flask_pluginkit import Flask, PluginManager
 reload(sys)
 sys.setdefaultencoding('utf-8')
 

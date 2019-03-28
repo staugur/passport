@@ -65,15 +65,5 @@ SYSTEM = {
 
     "JWT_SECRET_KEY": getenv("demo_jwt_secret_key", "WBlE7_#qDf2vRb@vM!Zw#lqrg@rdd3A6"),
     # utils.jwt.JWTUtil类中所用加密key
-
-    "Sign": {
-        "version": getenv("demo_sign_version", "v1"),
-        "accesskey_id": getenv("demo_sign_accesskeyid", "accesskey_id"),
-        "accesskey_secret": getenv("demo_sign_accesskeysecret", "accesskey_secret"),
-    }
-    # utils.Signature.Signature类中所有签名配置
 }
 
-
-#插件配置段
-PLUGINS = {}

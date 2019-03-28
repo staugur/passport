@@ -53,12 +53,10 @@ class AccessCount(PluginBase):
         }
         self.logger.info(data)
         pvKey = "passport:AccessCount:pv"
-        ipKey = "passport:AccessCount:ip:{}".format(self.get_today)
         uvKey = "passport:AccessCount:uv"
         clickKey = "passport:AccessCount:clicklog"
         pipe = self.redis.pipeline()
         pipe.hincrby(pvKey, self.get_today, 1)
-        pipe.sadd(ipKey, data.get("ip"))
         pipe.hincrby(uvKey, request.base_url, 1)
         pipe.rpush(clickKey, json.dumps(data))
         try:
