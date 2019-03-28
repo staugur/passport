@@ -136,8 +136,11 @@ SYSTEM = {
     "EMAIL": getenv("passport_system_email", ""),
     # 意见反馈收件人
 
-    "STATUS": getenv("passport_status_url", "")
+    "STATUS": getenv("passport_status_url", ""),
     # 服务状态地址，此程序需要部署github.com/saintic/ssp
+
+    "CASENUMBER": getenv("passport_casenumber")
+    # 备案号
 }
 
 
