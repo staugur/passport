@@ -179,6 +179,6 @@ PLUGINS = {
         "REDIRECT_URI": getenv("passport_gitee_redirecturi", "https://passport.saintic.com/oauth2/gitee/authorized")
     },
 
-    "AccessCount": True,
+    "AccessCount": getenv("passport_accesscount"),
     # 访问统计插件
 }

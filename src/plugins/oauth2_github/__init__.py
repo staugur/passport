@@ -131,3 +131,11 @@ class OAuth2_Github_Main(PluginBase):
         """注册蓝图入口, 返回蓝图路由前缀及蓝图名称"""
         bep = {"prefix": "/oauth2/github", "blueprint": plugin_blueprint}
         return bep
+
+def register():
+    om = OAuth2_Github_Main()
+    return dict(
+        tep=om.register_tep(),
+        bep=om.register_bep(),
+    )
+

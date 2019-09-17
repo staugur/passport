@@ -116,3 +116,8 @@ class SSOServerMain(PluginBase):
         """注册蓝图入口, 返回蓝图路由前缀及蓝图名称"""
         bep = {"prefix": "/sso", "blueprint": sso_blueprint}
         return bep
+
+def register():
+    return dict(
+        bep=SSOServerMain().register_bep()
+    )
