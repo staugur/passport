@@ -31,7 +31,7 @@ from version import __version__
 
 ip_pat = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
 mail_pat = re.compile(r"([0-9a-zA-Z\_*\.*\-*]+)@([a-zA-Z0-9\-*\_*\.*]+)\.([a-zA-Z]+$)")
-mobilephone_pat = re.compile(r'1[3,4,5,7,8]\d{9}')
+mobilephone_pat = re.compile(r'1[3,4,5,6,7,8,9]\d{9}')
 Universal_pat = re.compile(r'^[a-zA-Z\_][0-9a-zA-Z\_]*$')
 domain_name_pat = re.compile(r'^[a-z][0-9a-z\_]{4,32}$')
 comma_pat = re.compile(r"\s*,\s*")

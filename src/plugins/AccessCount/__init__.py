@@ -39,8 +39,13 @@ class AccessCount(PluginBase):
         """ 获取现在时间可见串 """
         return datetime.datetime.now().strftime("%Y%m%d")
 
+<<<<<<< HEAD
     def Record_ip_pv(self, resp):
+=======
+    def Record_ip_pv(self, *args, **kwargs):
+>>>>>>> e71e08904a6f846b570d475cf28f6694fa47d0c0
         """ 记录ip、ip、uv """
+        resp = kwargs.get("response") or args[0]
         data = {
             "status_code": resp.status_code,
             "method": request.method,
@@ -51,14 +56,13 @@ class AccessCount(PluginBase):
             "TimeInterval": "%0.2fs" %float(time.time() - g.startTime),
             "clickTime": get_current_timestamp()
         }
-        self.logger.info(data)
         pvKey = "passport:AccessCount:pv"
         uvKey = "passport:AccessCount:uv"
         clickKey = "passport:AccessCount:clicklog"
         pipe = self.redis.pipeline()
         pipe.hincrby(pvKey, self.get_today, 1)
         pipe.hincrby(uvKey, request.base_url, 1)
-        pipe.rpush(clickKey, json.dumps(data))
+        #pipe.rpush(clickKey, json.dumps(data))
         try:
             pipe.execute()
         except:
@@ -66,3 +70,8 @@ class AccessCount(PluginBase):
 
     def register_hep(self):
         return {"after_request_hook": self.Record_ip_pv}
+
+def register():
+    return dict(
+        hep=dict(after_request=AccessCount().Record_ip_pv)
+    )
