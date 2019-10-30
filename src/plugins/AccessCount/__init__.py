@@ -39,11 +39,7 @@ class AccessCount(PluginBase):
         """ 获取现在时间可见串 """
         return datetime.datetime.now().strftime("%Y%m%d")
 
-<<<<<<< HEAD
-    def Record_ip_pv(self, resp):
-=======
     def Record_ip_pv(self, *args, **kwargs):
->>>>>>> e71e08904a6f846b570d475cf28f6694fa47d0c0
         """ 记录ip、ip、uv """
         resp = kwargs.get("response") or args[0]
         data = {

@@ -7,7 +7,7 @@
     {% endif %}
     <a href="http://www.layui.com/" target="_blank">使用Layui框架</a>
     {% if CONFIG.SYSTEM.STATUS %}
-    <a href="https://status.satic.io/" target="_blank" title="SaintIC Status">服务状态</a>
+    <a href="{{ CONFIG.SYSTEM.STATUS }}" target="_blank" title="SaintIC Status">服务状态</a>
     {% endif %}
   </p>
   <p>Copyright &copy; <script>document.write( new Date().getFullYear() );</script> Powered by <a href="https://github.com/staugur/passport" target="_blank">passport</a></p>
