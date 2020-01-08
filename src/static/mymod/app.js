@@ -34,11 +34,6 @@ layui.define(["passport", "table", "element", "form", "layer", "util"], function
         cols: [
             [ //表头
                 {
-                    field: 'id',
-                    title: 'ID',
-                    sort: true,
-                    width: 60
-                }, {
                     field: 'name',
                     title: '应用名',
                     width: 120
@@ -52,13 +47,13 @@ layui.define(["passport", "table", "element", "form", "layer", "util"], function
                 }, {
                     field: 'ctime',
                     title: '创建时间',
-                    width: 160,
+                    width: 170,
                     templet: function(d) {
                         return util.toDateString(d.ctime * 1000);
                     }
                 }, {
                     fixed: 'right',
-                    width: 160,
+                    width: 180,
                     align: 'center',
                     toolbar: '#userAppBar'
                 } //这里的toolbar值是模板元素的选择器

@@ -55,8 +55,8 @@ UPYUN = {
     "bucket": getenv("passport_upyun_bucket", ""),
     "username": getenv("passport_upyun_username", ""),
     "password": getenv("passport_upyun_password", ""),
-    "dn": getenv("passport_upyun_dn", "https://img.saintic.com"),
-    "basedir": getenv("passport_upyun_basedir", "/test")
+    "dn": getenv("passport_upyun_dn", ""),
+    "basedir": getenv("passport_upyun_basedir", "/passport")
 }
 
 
@@ -137,7 +137,7 @@ SYSTEM = {
     # 意见反馈收件人
 
     "STATUS": getenv("passport_status_url", ""),
-    # 服务状态地址，此程序需要部署github.com/saintic/ssp
+    # 服务状态地址
 
     "CASENUMBER": getenv("passport_casenumber")
     # 备案号

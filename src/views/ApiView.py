@@ -14,8 +14,8 @@ import base64
 from config import SYSTEM, UPYUN as Upyun
 from utils.send_email_msg import SendMail
 from utils.send_phone_msg import SendSms
-from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi, FastPushMessage, analysis_sessionId
-from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent, getIpArea, get_today, generate_digital_verification_code, UploadImage2Upyun
+from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi, FastPushMessage, analysis_sessionId, set_sessionId
+from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent, getIpArea, get_today, generate_digital_verification_code, UploadImage2Upyun, comma_pat
 from libs.auth import Authentication
 from flask import Blueprint, request, jsonify, g, url_for
 from werkzeug import secure_filename
@@ -195,7 +195,7 @@ def userprofile():
             account = request.form.get("account")
             vcode = request.form.get("vcode")
             password = request.form.get("password")
-            auth = Authentication()
+            auth = Authentication(g.mysql, g.redis)
             res = auth.bindLauth(uid=g.uid, account=account, vcode=vcode, password=password)
             if res["success"] == True and res["show_realname_tip"] == True:
                 res['set_realname'] = g.api.userprofile.updateUserRealname(g.uid)
@@ -323,7 +323,7 @@ def fgp():
         account = request.form.get("account")
         password = request.form.get("password")
         if vaptcha.validate:
-            auth = Authentication()
+            auth = Authentication(g.mysql, g.redis)
             result = auth.forgot(account=account, vcode=vcode, password=password)
             if result["success"]:
                 res.update(code=0, nextUrl=url_for("front.signIn"))
@@ -369,3 +369,26 @@ def usersecurity():
     return jsonify(dfr(res))
 
 
+@ApiBlueprint.route("/user/login", methods=["POST"])
+def userlogin():
+    if request.method == 'POST':
+        res = dict(code=1)
+        auth = Authentication(g.mysql, g.redis)
+        result = auth.signIn(
+            account=request.form.get("account"),
+            password=request.form.get("password")
+        )
+        if result["success"]:
+            # 记录登录日志
+            auth.brush_loginlog(result, login_ip=g.ip, user_agent=g.agent)
+            fields = request.form.get("fields") or "is_admin,avatar,nick_name"
+            fields = [i for i in comma_pat.split(fields) if i]
+            infores = g.api.userprofile.getUserProfile(result["uid"])
+            data = {}
+            if infores["code"] == 0:
+                data = infores["data"]
+            data.update(token=set_sessionId(data.get("uid")))
+            res.update(code=0, data={k: data[k] for k in fields if k in data})
+        else:
+            res.update(msg=result["msg"])
+        return jsonify(dfr(res))
