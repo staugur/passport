@@ -165,7 +165,7 @@ def getIpArea(ip):
     url = "http://ip.taobao.com/service/getIpInfo.php?ip={0}".format(ip)
     try:
         data = DO(requests.get(url, timeout=10, headers=headers).json())
-    except requests.exceptions.Timeout:
+    except (requests.exceptions.Timeout, ValueError):
         try:
             data = DO(requests.get(url, headers=headers).json())
         except Exception:
