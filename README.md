@@ -3,7 +3,7 @@ Unified authentication and authorization management SSO system for SaintIC Org.
 
 
 # Docuement
-[http://docs.saintic.com/740448](http://docs.saintic.com/740448 "https://www.kancloud.cn/staugur/staugur/740448")
+[Passport Docs](https://docs.saintic.com/passport/)
 
 
 ## Environment
