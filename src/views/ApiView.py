@@ -383,11 +383,12 @@ def userlogin():
             auth.brush_loginlog(result, login_ip=g.ip, user_agent=g.agent)
             fields = request.form.get("fields") or "is_admin,avatar,nick_name"
             fields = [i for i in comma_pat.split(fields) if i]
+            fields = list(set(fields).update(["avatar", "nick_name"]))
             infores = g.api.userprofile.getUserProfile(result["uid"])
             data = {}
             if infores["code"] == 0:
                 data = infores["data"]
-            data.update(token=set_sessionId(data.get("uid")))
+            data.update(token=set_sessionId(data.get("uid"), 7200))
             res.update(code=0, data={k: data[k] for k in fields if k in data})
         else:
             res.update(msg=result["msg"])
