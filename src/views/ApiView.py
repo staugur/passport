@@ -384,7 +384,9 @@ def userlogin():
             auth.brush_loginlog(result, login_ip=g.ip, user_agent=g.agent)
             fields = request.form.get("fields") or "is_admin,avatar,nick_name"
             fields = [i for i in comma_pat.split(fields) if i]
-            fields = list(set(fields).update(["avatar", "nick_name"]))
+            fields = set(fields)
+            fields.update(["avatar", "nick_name"])
+            fields = list(fields)
             infores = g.api.userprofile.getUserProfile(uid)
             data = {}
             if infores["code"] == 0:
