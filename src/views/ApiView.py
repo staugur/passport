@@ -11,11 +11,12 @@
 import os
 import json
 import base64
+import requests
 from config import SYSTEM, UPYUN as Upyun, PICBED
 from utils.send_email_msg import SendMail
 from utils.send_phone_msg import SendSms
 from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi, FastPushMessage, analysis_sessionId, set_sessionId
-from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent, getIpArea, get_today, generate_digital_verification_code, UploadImage2Upyun, comma_pat, sso_request
+from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent, getIpArea, get_today, generate_digital_verification_code, UploadImage2Upyun, comma_pat
 from libs.auth import Authentication
 from flask import Blueprint, request, jsonify, g, url_for
 from werkzeug import secure_filename
@@ -281,17 +282,16 @@ def userupload():
         # 判断是否上传到picbed图床、又拍云还是保存到本地
         if PICBED['enable'] in ('true', 'True', True):
             try:
-                resp = sso_request(dict(
-                    url=PICBED["api"],
-                    data=dict(picbed=picStr),
-                    headers=dict(Authorization="LinkToken %s" % PICBED["LinkToken"])
-                ))
+                resp = requests.post(PICBED["api"], data=dict(picbed=picStr, album="passport"), headers=dict(Authorization="LinkToken %s" % PICBED["LinkToken"]), timeout=5).json()
                 if not isinstance(resp, dict):
                     raise
             except Exception as e:
                 res.update(code=4, msg=e)
             else:
-                res.update(imgUrl=resp['src'], code=0)
+                if resp.get('code') == 0:
+                    res.update(imgUrl=resp['src'], code=0)
+                else:
+                    res.update(resp)
         elif Upyun['enable'] in ('true', 'True', True):
             basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
             imgUrl = os.path.join(basedir, gen_rnd_filename() + ".png")
