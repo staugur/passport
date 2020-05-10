@@ -289,7 +289,8 @@ def sso_request(kwargs):
         data = kwargs.get("data", None)
         timeout = kwargs.get("timeout", 5)
         num_retries = kwargs.get("num_retries", 0)
-        headers = {"User-Agent": "Mozilla/5.0 (X11; CentOS; Linux i686; rv:7.0.1406) Gecko/20100101 PassportClient/{}".format(__version__)}
+        headers = kwargs.get("headers") or {}
+        headers["User-Agent"] = "Mozilla/5.0 (X11; CentOS; Linux i686; rv:7.0.1406) Gecko/20100101 PassportClient/{}".format(__version__)
         try:
             resp = requests.post(url, params=params, headers=headers, timeout=timeout, data=dict(data=json.dumps(data))).json()
         except requests.exceptions.Timeout,e:

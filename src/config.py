@@ -49,9 +49,17 @@ VAPTCHA = {
 }
 
 
+# picbed图床
+PICBED = {
+    "enable": getenv("passport_picbed_enable", False),
+    "api": getenv("passport_picbed_api"),
+    "LinkToken": getenv("passport_picbed_linktoken")
+}
+
+
 # 又拍云存储配置
 UPYUN = {
-    "enable":getenv("passport_upyun_enable", False),
+    "enable": getenv("passport_upyun_enable", False),
     "bucket": getenv("passport_upyun_bucket", ""),
     "username": getenv("passport_upyun_username", ""),
     "password": getenv("passport_upyun_password", ""),
