@@ -250,7 +250,24 @@ def useruploadpub():
     if f and allowed_file(f.filename):
         filename = gen_rnd_filename() + "." + secure_filename(f.filename).split('.')[-1]  # 随机命名
         # 判断是否上传到又拍云还是保存到本地
-        if Upyun['enable'] in ('true', 'True', True):
+        if PICBED['enable'] in ('true', 'True', True):
+            try:
+                files = {
+                    'picbed': (
+                        filename, f.stream.read(), 'image/%s' % filename.split(".")[-1]
+                    )
+                }
+                resp = requests.post(PICBED["api"], files=files, data=dict(album="passport"), headers=dict(Authorization="LinkToken %s" % PICBED["LinkToken"]), timeout=5).json()
+                if not isinstance(resp, dict):
+                    raise
+            except Exception as e:
+                res.update(code=4, msg=e)
+            else:
+                if resp.get('code') == 0:
+                    res.update(data=dict(src=resp['src']), code=0)
+                else:
+                    res.update(resp)
+        elif Upyun['enable'] in ('true', 'True', True):
             basedir = Upyun['basedir'] if Upyun['basedir'].startswith('/') else "/" + Upyun['basedir']
             imgUrl = os.path.join(basedir, filename)
             try:
