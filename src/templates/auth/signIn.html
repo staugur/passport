@@ -12,10 +12,7 @@
         <div class="layui-form-item">
             <input class="layui-input" name="password" placeholder="登录密码" value=""  lay-verify="required|passwd" lay-verType="tips" type="password">
         </div>
-        <div class="layui-form-item">
-            {% include "auth/vaptcha_form.html" %}
-        </div>
-        <button class="layui-btn layui-btn-fluid layui-disabled" lay-submit lay-filter="signIn" disabled="disabled" id="submitbutton">登录</button>
+        <button class="layui-btn layui-btn-fluid" lay-submit lay-filter="signIn" id="submitbutton">登录</button>
     </form>
     <div class="fetures">
         <a href="{{ url_for('front.signUp') }}" class="signup">免费注册！</a>
@@ -30,7 +27,6 @@
 {% endblock %}
 
 {% block script %}
-{% include "auth/vaptcha_js.html" %}
 <script type="text/javascript">
     layui.use("signin");
 </script>

@@ -15,7 +15,7 @@ import requests
 from config import SYSTEM, UPYUN as Upyun, PICBED
 from utils.send_email_msg import SendMail
 from utils.send_phone_msg import SendSms
-from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, VaptchaApi, FastPushMessage, analysis_sessionId, set_sessionId
+from utils.web import email_tpl, dfr, apilogin_required, apianonymous_required, apiadminlogin_required, FastPushMessage, analysis_sessionId, set_sessionId
 from utils.tool import logger, generate_verification_code, email_check, phone_check, ListEqualSplit,  gen_rnd_filename, allowed_file, timestamp_to_timestring, get_current_timestamp, parse_userAgent, getIpArea, get_today, generate_digital_verification_code, UploadImage2Upyun, comma_pat
 from libs.auth import Authentication
 from flask import Blueprint, request, jsonify, g, url_for
@@ -23,8 +23,6 @@ from werkzeug import secure_filename
 
 # 初始化前台蓝图
 ApiBlueprint = Blueprint("api", __name__)
-#初始化手势验证码服务
-vaptcha = VaptchaApi()
 #文件上传文件夹, 相对于项目根目录, 请勿改动static/部分
 IMAGE_FOLDER  = 'static/upload/'
 UPLOAD_FOLDER = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), IMAGE_FOLDER)
@@ -104,10 +102,6 @@ def misc_sendVcode():
     logger.debug(res)
     return jsonify(dfr(res))
 
-@ApiBlueprint.route("/miscellaneous/_getDownTime")
-def misc_getDownTime():
-    """Vaptcha宕机模式接口"""
-    return jsonify(vaptcha.getDownTime)
 
 @ApiBlueprint.route("/miscellaneous/feedback/", methods=["POST"])
 def misc_feedback():
@@ -352,15 +346,12 @@ def fgp():
         vcode = request.form.get("vcode")
         account = request.form.get("account")
         password = request.form.get("password")
-        if vaptcha.validate:
-            auth = Authentication(g.mysql, g.redis)
-            result = auth.forgot(account=account, vcode=vcode, password=password)
-            if result["success"]:
-                res.update(code=0, nextUrl=url_for("front.signIn"))
-            else:
-                res.update(msg=result["msg"])
+        auth = Authentication(g.mysql, g.redis)
+        result = auth.forgot(account=account, vcode=vcode, password=password)
+        if result["success"]:
+            res.update(code=0, nextUrl=url_for("front.signIn"))
         else:
-            res.update(msg="Man-machine verification failed")
+            res.update(msg=result["msg"])
     return jsonify(dfr(res))
 
 @ApiBlueprint.route("/user/security/", methods=["GET", "POST", "DELETE"])
