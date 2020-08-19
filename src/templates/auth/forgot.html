@@ -21,10 +21,7 @@
                 <button class="layui-btn layui-btn layui-btn-xs" id="sms-tip-msg">获取验证码</button>
             </div>
         </div>
-        <div class="layui-form-item">
-            {% include "auth/vaptcha_form.html" %}
-        </div>
-        <button class="layui-btn layui-btn-fluid layui-disabled" lay-submit="" lay-filter="forgot" disabled="disabled" id="submitbutton">重置</button>
+        <button class="layui-btn layui-btn-fluid" lay-submit="" lay-filter="forgot" id="submitbutton">重置</button>
     </div>
     <div class="fetures">
         想起密码？<a href="{{ url_for('front.signIn') }}">返回登录！</a>
@@ -34,7 +31,6 @@
 {% endblock %}
 
 {% block script %}
-{% include "auth/vaptcha_js.html" %}
 <script type="text/javascript">
     layui.use("forgot");
 </script>

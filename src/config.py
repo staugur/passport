@@ -38,17 +38,6 @@ REDIS = getenv("passport_redis_url")
 # host,port必填项,如有密码,记得密码前加冒号,默认localhost:6379/0
 
 
-# 手势验证码配置段：必填
-VAPTCHA = {
-
-    "vid": getenv("passport_vaptcha_vid"),
-    # 验证单元id
-
-    "key": getenv("passport_vaptcha_key")
-    # 验证单元key
-}
-
-
 # picbed图床
 PICBED = {
     "enable": getenv("passport_picbed_enable", False),

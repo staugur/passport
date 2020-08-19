@@ -9,7 +9,7 @@
     :license: MIT, see LICENSE for more details.
 """
 from config import SYSTEM
-from utils.web import login_required, anonymous_required, adminlogin_required, dfr, oauth2_name2type, get_redirect_url, checkGet_ssoRequest, checkSet_ssoTicketSid, set_redirectLoginstate, set_jsonifyLoginstate, VaptchaApi, FastPushMessage
+from utils.web import login_required, anonymous_required, adminlogin_required, dfr, oauth2_name2type, get_redirect_url, checkGet_ssoRequest, checkSet_ssoTicketSid, set_redirectLoginstate, set_jsonifyLoginstate, FastPushMessage
 from utils.tool import logger, email_check, phone_check, md5
 from libs.auth import Authentication
 from urllib import urlencode
@@ -17,8 +17,6 @@ from flask import Blueprint, request, render_template, g, redirect, url_for, fla
 
 #初始化前台蓝图
 FrontBlueprint = Blueprint("front", __name__)
-#初始化手势验证码服务
-vaptcha = VaptchaApi()
 
 @FrontBlueprint.route('/')
 @login_required
@@ -69,7 +67,7 @@ def usersecurity():
 def signUp():
     if request.method == 'POST':
         res = dict(msg=None, code=1, nextUrl=url_for('.signUp'))
-        if vaptcha.validate:
+        if True:
             account = request.form.get("account")
             vcode = request.form.get("vcode")
             password = request.form.get("password")
@@ -84,9 +82,8 @@ def signUp():
                 res.update(msg=result["msg"])
         else:
             res.update(msg="Man-machine verification failed")
-        print res
         return jsonify(dfr(res))
-    return render_template("auth/signUp.html", vaptcha=vaptcha.getChallenge)
+    return render_template("auth/signUp.html")
 
 @FrontBlueprint.route('/signIn', methods=['GET', 'POST'])
 def signIn():
@@ -130,7 +127,7 @@ def signIn():
         if request.method == 'POST':
             # POST请求不仅要设置登录态、还要设置全局会话
             res = dict(msg=None, code=1, nextUrl=url_for('.signIn', sso=sso) if sso_isOk else url_for('.signIn'))
-            if vaptcha.validate:
+            if True:
                 auth = Authentication(g.mysql, g.redis)
                 result = auth.signIn(account=request.form.get("account"), password=request.form.get("password"))
                 if result["success"]:
@@ -149,7 +146,7 @@ def signIn():
             #return redirect(url_for('.signIn', sso=sso)) if sso_isOk else redirect(url_for('.signIn'))
         else:
             # GET请求仅用于渲染
-            return render_template("auth/signIn.html", vaptcha=vaptcha.getChallenge)
+            return render_template("auth/signIn.html")
 
 @FrontBlueprint.route("/OAuthGuide", methods=["GET", "POST"])
 @anonymous_required
@@ -161,7 +158,7 @@ def OAuthGuide():
         logger.debug("OAuthGuide, sso type: {}, content: {}".format(type(sso), sso))
         res = dict(msg=None, code=1)
         if Action == "bindLogin":
-            if vaptcha.validate:
+            if True:
                 auth = Authentication()
                 result = auth.oauth2_bindLogin(openid=request.form.get("openid"), account=request.form.get("account"), password=request.form.get("password"))
                 if result["success"]:
@@ -198,7 +195,7 @@ def OAuthGuide():
             #return redirect(url_for("front.OAuthGuide", openid=openid, sso=sso))
     else:
         if request.args.get("openid"):
-            return render_template("auth/OAuthGuide.html", vaptcha=vaptcha.getChallenge)
+            return render_template("auth/OAuthGuide.html")
         else:
             return redirect(g.redirect_uri)
 
@@ -252,7 +249,7 @@ def unbind():
 @anonymous_required
 def fgp():
     # 忘记密码重置页
-    return render_template("auth/forgot.html", vaptcha=vaptcha.getChallenge)
+    return render_template("auth/forgot.html")
 
 @FrontBlueprint.route("/terms.html")
 def terms():

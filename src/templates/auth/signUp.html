@@ -27,10 +27,7 @@
         <div class="layui-form-item">
             <input type="checkbox" name="terms" lay-skin="primary" lay-verify="terms" title="同意服务条款" lay-verType="tips" id="terms">
         </div>
-        <div class="layui-form-item">
-            {% include "auth/vaptcha_form.html" %}
-        </div>
-        <button class="layui-btn layui-btn-fluid layui-disabled" lay-submit="" lay-filter="signUp" disabled="disabled" id="submitbutton">注册</button>
+        <button class="layui-btn layui-btn-fluid" lay-submit="" lay-filter="signUp" id="submitbutton">注册</button>
     </form>
     <div class="fetures">
         <a href="{{ url_for('front.signIn') }}">返回登录！</a>
@@ -40,7 +37,6 @@
 {% endblock %}
 
 {% block script %}
-{% include "auth/vaptcha_js.html" %}
 <script type="text/javascript">
     layui.use("signup");
 </script>

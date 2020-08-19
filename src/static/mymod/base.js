@@ -192,6 +192,8 @@ layui.define(["element", "util", "layer"], function(exports) {
                 }, 1000)
             }
         }
+
+        return false;
     });
     //输出接口
     exports('base', base);
