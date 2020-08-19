@@ -391,6 +391,12 @@ class OAuth2(object):
             data = resp.text
         return data
 
+    def get_userinfo_for_github(self, access_token):
+        url = self._get_userinfo_url
+        headers = dict(Authorization="token %s" % access_token)
+        resp = self.requests.get(url, headers=headers) if self._get_userinfo_method == 'get' else self.requests.post(url, headers=headers)
+        return resp.json()
+
     def get_userinfo(self, access_token, **params):
         '''登录第三步：根据access_token获取用户信息(部分开放平台需要先获取openid、uid，可配置get_openid_url，先请求get_openid接口)'''
         _request_params = self._make_params(
