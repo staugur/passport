@@ -24,9 +24,11 @@ from log import Logger
 from base64 import b32encode
 from redis import from_url
 from torndb import Connection
+from os.path import join, dirname
 from user_agents import parse as user_agents_parse
 from config import SYSTEM, REDIS as REDIS_URL, MYSQL as MYSQL_URL, UPYUN
 from version import __version__
+from .ip2region import Ip2Region
 
 
 ip_pat = re.compile(r"^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$")
@@ -156,32 +158,19 @@ class DO(dict):
         except KeyError:
             raise AttributeError(name)
 
-
 def getIpArea(ip):
-    """查询IP地址信息，返回格式：国家 省级 市级 运营商"""
-    if ip == "127.0.0.1":
-        return u"本地IP"
-    headers = {"User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/59.0.3071.86 Safari/537.36"}
-    url = "http://ip.taobao.com/service/getIpInfo.php?ip={0}".format(ip)
-    try:
-        data = DO(requests.get(url, timeout=10, headers=headers).json())
-    except (requests.exceptions.Timeout, ValueError):
-        try:
-            data = DO(requests.get(url, headers=headers).json())
-        except Exception:
-            return "Unknown"
-        else:
-            data = DO(data.data)
+    """查询IP地址信息，返回格式：国家 区域 省级 市级 运营商"""
+    if not ip or not isinstance(ip, (str, unicode)):
+        return ""
+    db = Ip2Region(join(dirname(__file__), 'ip2region.db'))
+    ret = db.memorySearch(ip)
+    if "region" in ret:
+        region = ret["region"].replace("0", "")
+        country, area, province, city, isp = region.split("|")
+        res = "{0} {1} {2} {3}".format(country, area, province, city, isp)
+        return ' '.join(res.split())
     else:
-        data = DO(data.data)
-    if u'内网IP' in data.city:
-        city = data.city
-    else:
-        if data.city:
-            city = data.city if u"市" in data.city else data.city + u"市"
-        else:
-            city = data.city
-    return u"{0} {1} {2} {3}".format(data.country, data.region.replace(u'市', ''), city, data.isp)
+        return ""
 
 
 def get_current_timestamp():
