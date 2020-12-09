@@ -81,7 +81,7 @@ def authorized():
     resp = github.url_code(resp)
     if resp and isinstance(resp, dict) and "access_token" in resp:
         # 根据access_token获取用户基本信息
-        user = github.get_userinfo(resp["access_token"])
+        user = github.get_userinfo_for_github(resp["access_token"])
         # 处理第三方登录逻辑
         auth = Authentication(g.mysql, g.redis)
         # 第三方账号登录入口`oauth2_go`
