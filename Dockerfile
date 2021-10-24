@@ -1,8 +1,12 @@
-FROM registry.cn-beijing.aliyuncs.com/staugur/python
-MAINTAINER staugur <staugur@saintic.com>
-ADD src /passport
-ADD requirements.txt /tmp
-RUN yum install -y gcc gcc-c++ python-devel libffi-devel openssl-devel mysql-devel &&\
-    pip install --timeout 30 --index https://pypi.douban.com/simple/ -r /tmp/requirements.txt
+FROM python:2.7-slim
+ARG PIPMIRROR=https://pypi.org/simple
+COPY requirements.txt .
+RUN apt update &&\
+    apt install -y --no-install-recommends default-libmysqlclient-dev python-dev build-essential &&\
+    sed '/st_mysql_options options;/a unsigned int reconnect;' /usr/include/mysql/mysql.h -i.bkp &&\
+    pip install --timeout 30 --index $PIPMIRROR --no-cache-dir -r requirements.txt &&\
+    rm -rf /var/lib/apt/lists/* requirements.txt
+COPY src /passport
 WORKDIR /passport
-ENTRYPOINT ["sh", "online_gunicorn.sh", "run"]
+EXPOSE 10030
+ENTRYPOINT ["sh", "online_gunicorn.sh", "entrypoint"]

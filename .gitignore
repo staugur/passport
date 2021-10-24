@@ -92,3 +92,4 @@ logs/
 src/logs/
 src/logs/sys.log
 src/static/upload/
+.DS_Store
