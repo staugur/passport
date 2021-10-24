@@ -123,7 +123,7 @@ SYSTEM = {
     "STATUS": getenv("passport_status_url", ""),
     # 服务状态地址
     "CASENUMBER": getenv("passport_casenumber")
-    # 备案号
+    # ICP备案号
 }
 
 

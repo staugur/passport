@@ -7,10 +7,9 @@ torndb==0.3
 MySQL-python==1.2.5
 gevent==1.4.0
 gunicorn==19.9.0
-vaptchasdk==1.0.1
 shortuuid==0.5.0
 user_agents
 upyun==2.5.3
 pycrypto==2.6.1
-bleach==3.1.0
+bleach==3.3.0
 aliyun-python-sdk-dysmsapi==1.0.0

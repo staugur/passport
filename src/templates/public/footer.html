@@ -3,9 +3,8 @@
     <a href="{{ url_for('front.terms') }}" target="_blank">服务条款</a>
     <a href="javascript:;" id="feedback">意见反馈</a>
     {% if CONFIG.SYSTEM.CASENUMBER %}
-    <a href="http://www.miitbeian.gov.cn/" target="_blank">{{ CONFIG.SYSTEM.CASENUMBER }}</a>
+    <a href="https://beian.miit.gov.cn/" target="_blank">{{ CONFIG.SYSTEM.CASENUMBER }}</a>
     {% endif %}
-    <a href="http://www.layui.com/" target="_blank">使用Layui框架</a>
     {% if CONFIG.SYSTEM.STATUS %}
     <a href="{{ CONFIG.SYSTEM.STATUS }}" target="_blank" title="SaintIC Status">服务状态</a>
     {% endif %}

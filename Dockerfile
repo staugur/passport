@@ -9,4 +9,4 @@ RUN apt update &&\
 COPY src /passport
 WORKDIR /passport
 EXPOSE 10030
-ENTRYPOINT ["sh", "online_gunicorn.sh", "entrypoint"]
+ENTRYPOINT ["bash", "online_gunicorn.sh", "entrypoint"]
