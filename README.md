@@ -20,9 +20,9 @@ Unified authentication and authorization management SSO system for SaintIC Org.
     1.0 yum install -y gcc gcc-c++ python-devel libffi-devel openssl-devel mysql-devel
     1.1 git clone https://github.com/staugur/passport && cd passport
     1.2 pip install -r requirements.txt
-    1.3 MySQL需要导入misc/passport.sql数据库文件
+    1.3 MySQL需要导入 `misc/passport.sql` 数据库文件
 
-2. 修改src/config.py中配置项, getenv函数后是环境变量及其默认值(优先环境变量，其次默认值)。
+2. 修改 `src/config.py` 中配置项, getenv函数后是环境变量及其默认值(优先环境变量，其次默认值)。
     2.1 修改GLOBAL全局配置项(主要是端口、日志级别)
     2.2 修改MODULES核心配置项账号认证模块的MYSQL信息
     2.3 修改PLUGINS插件配置项(主要是第三方登录)
