@@ -28,6 +28,8 @@
 
 {% block script %}
 <script type="text/javascript">
-    layui.use("signin");
+    layer.ready(function(){
+        layui.use("signin");
+    });
 </script>
 {% endblock %}

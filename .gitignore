@@ -93,3 +93,4 @@ src/logs/
 src/logs/sys.log
 src/static/upload/
 .DS_Store
+online_preboot.sh

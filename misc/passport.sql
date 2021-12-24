@@ -80,7 +80,7 @@ CREATE TABLE `user_profile` (
   `gender` tinyint(1) unsigned DEFAULT '2' COMMENT '用户性别 0-女 1-男 2-保密',
   `birthday` int(10) unsigned DEFAULT '0' COMMENT '用户生日时间戳',
   `signature` varchar(140) DEFAULT '' COMMENT '用户个人签名',
-  `avatar` varchar(255) DEFAULT 'https://img.saintic.com/cdn/images/defaultAvatar.png' COMMENT '头像',
+  `avatar` varchar(255) DEFAULT 'https://static.saintic.com/cdn/images/defaultAvatar.png' COMMENT '头像',
   `location` varchar(50) DEFAULT '' COMMENT '地址',
   `ctime` int(10) unsigned NOT NULL DEFAULT '0' COMMENT '账号创建时间',
   `mtime` int(10) unsigned DEFAULT '0' COMMENT '资料修改时间',

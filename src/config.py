@@ -119,7 +119,7 @@ SYSTEM = {
     "SESSION_EXPIRE": int(getenv("passport_session_expire", 604800)),
     # session过期时间，单位秒，默认7d
     "EMAIL": getenv("passport_system_email", ""),
-    # 意见反馈收件人
+    # 意见反馈或管理员收件人
     "STATUS": getenv("passport_status_url", ""),
     # 服务状态地址
     "CASENUMBER": getenv("passport_casenumber")

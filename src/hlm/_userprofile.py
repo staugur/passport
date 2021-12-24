@@ -39,15 +39,14 @@ class UserProfileManager(ServiceBase):
             else:
                 # 定义map解析函数
                 def parse(i):
-                    """
                     if i["identity_type"] == 1:
-                        identifier = "{}****{}".format(i["identifier"][0:3], i["identifier"][7:])
+                        # identifier = "{}****{}".format(i["identifier"][0:3], i["identifier"][7:])
+                        identifier = i["identifier"]
                     elif i["identity_type"] == 2:
-                        identifier = "{}****{}@{}".format(i["identifier"].split('@')[0][0:3], i["identifier"].split('@')[0][7:], i["identifier"].split('@')[-1])
+                        # identifier = "{}****{}@{}".format(i["identifier"].split('@')[0][0:3], i["identifier"].split('@')[0][7:], i["identifier"].split('@')[-1])
+                        identifier = i["identifier"]
                     else:
                         identifier = ""
-                    """
-                    identifier = ""
                     return {"identity_type": oauth2_type2name(i["identity_type"]), "ctime": i["ctime"], "mtime": i["mtime"], "auth_type": "lauth" if i["identity_type"] in (1, 2) else "oauth", "identifier": identifier}
                 bind = map(parse, data)
                 #
