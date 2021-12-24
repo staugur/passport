@@ -39,12 +39,15 @@ class UserProfileManager(ServiceBase):
             else:
                 # 定义map解析函数
                 def parse(i):
+                    """
                     if i["identity_type"] == 1:
                         identifier = "{}****{}".format(i["identifier"][0:3], i["identifier"][7:])
                     elif i["identity_type"] == 2:
                         identifier = "{}****{}@{}".format(i["identifier"].split('@')[0][0:3], i["identifier"].split('@')[0][7:], i["identifier"].split('@')[-1])
                     else:
                         identifier = ""
+                    """
+                    identifier = ""
                     return {"identity_type": oauth2_type2name(i["identity_type"]), "ctime": i["ctime"], "mtime": i["mtime"], "auth_type": "lauth" if i["identity_type"] in (1, 2) else "oauth", "identifier": identifier}
                 bind = map(parse, data)
                 #
@@ -126,6 +129,7 @@ class UserProfileManager(ServiceBase):
         @param uid str: 用户id
         @param profiles dict: 资料列表
         """
+        #: TODO 决不能拼接SQL，先获取当前资料，用提交更新的部分资料覆盖
         res = dict(msg=None, code=1)
         logger.debug(profiles)
         nick_name = profiles.get("nick_name")
