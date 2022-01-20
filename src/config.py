@@ -122,8 +122,15 @@ SYSTEM = {
     # 意见反馈或管理员收件人
     "STATUS": getenv("passport_status_url", ""),
     # 服务状态地址
-    "CASENUMBER": getenv("passport_casenumber")
+    "CASENUMBER": getenv("passport_casenumber"),
     # ICP备案号
+    "AUTH_BG_VIDEO_WEBM": getenv(
+        "passport_authbgvideo_webm", "/static/videos/bg.webm"
+    ),
+    "AUTH_BG_VIDEO_MP4": getenv(
+        "passport_authbgvideo_mp4", "/static/videos/bg.mp4"
+    ),
+    # 登录页背景视频
 }
 
 
