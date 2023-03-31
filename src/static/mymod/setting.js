@@ -2,7 +2,7 @@
     基本设置页面
 */
 
-layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload"], function(exports) {
+layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload"], function (exports) {
     'use strict';
     var passport = layui.passport,
         element = layui.element,
@@ -17,7 +17,7 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
         element.tabChange('user', location.hash.replace(/^#/, ''));
     }
     //监听tab切换
-    element.on('tab(user)', function() {
+    element.on('tab(user)', function () {
         var othis = $(this),
             layid = othis.attr('lay-id');
         if (layid) {
@@ -28,18 +28,18 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
     laydate.render({
         elem: '#birthday',
         theme: "molv",
-        done: function(value, date, endDate) {
+        done: function (value, date, endDate) {
             $('#birthday').val(value);
         }
     });
     //实时显示个性域名
-    $('#domain_name').on("input propertychange", function() {
+    $('#domain_name').on("input propertychange", function () {
         var value = $(this).val();
         $('#domain_name_suffix').html(value);
     });
     //表单自定义校验
     form.verify({
-        nick_name: function(value, item) { //value：表单的值、item：表单的DOM对象
+        nick_name: function (value, item) { //value：表单的值、item：表单的DOM对象
             if (value) {
                 if (passport.safeCheck(value) === false) {
                     return '昵称存在违规特殊字符';
@@ -49,7 +49,7 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
                 }
             }
         },
-        domain_name: function(value, item) { //value：表单的值、item：表单的DOM对象
+        domain_name: function (value, item) { //value：表单的值、item：表单的DOM对象
             if (value) {
                 if (!new RegExp("^[a-z][a-z0-9_\\s·]+$").test(value)) {
                     return '个性域名不合法：以英文开头全部小写且无特殊字符';
@@ -65,12 +65,12 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
                 }
             }
         },
-        nowpass: function(value, item) {
+        nowpass: function (value, item) {
             if (value.length < 6 || value.length > 30 || value.indexOf(" ") != -1) {
                 return '密码必须6到30位，且不能出现空格';
             }
         },
-        newpass: function(value, item) {
+        newpass: function (value, item) {
             var nowpass = $('#nowpass').val();
             if (nowpass == value) {
                 return '新密码要求与当前密码不能一致';
@@ -79,7 +79,7 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
                 return '新密码必须6到30位，且不能出现空格';
             }
         },
-        repass: function(value, item) {
+        repass: function (value, item) {
             var newpass = $('#newpass').val();
             if (newpass != value) {
                 return '两次新密码输入不一致';
@@ -87,7 +87,7 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
         }
     });
     //监听修改资料提交
-    form.on('submit(profile)', function(data) {
+    form.on('submit(profile)', function (data) {
         var field = data.field; //当前容器的全部表单字段，键值对形式：{name: value}
         var profileMap = {
             nick_name: "个性昵称",
@@ -97,7 +97,7 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
             gender: "性别",
             signature: "签名"
         };
-        passport.ajax("/api/user/profile/?Action=profile", function(res) {
+        passport.ajax("/api/user/profile/?Action=profile", function (res) {
             console.log(res);
             if (res.code == 0) {
                 popup("已修改基本资料");
@@ -132,18 +132,18 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
             data: field,
             method: "put",
             msgprefix: false,
-            beforeSend: function() {
+            beforeSend: function () {
                 //禁用按钮防止重复提交
                 $("#profileSubmit").attr({
                     disabled: "disabled"
                 });
                 $('#profileSubmit').addClass("layui-disabled");
             },
-            complete: function() {
+            complete: function () {
                 $('#profileSubmit').removeAttr("disabled");
                 $('#profileSubmit').removeClass("layui-disabled");
             },
-            fail: function(res) {
+            fail: function (res) {
                 if (res.code != 0) {
                     var tip = res.msg;
                     var err = '';
@@ -157,9 +157,9 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
         return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
     });
     //监听修改密码提交
-    form.on('submit(password)', function(data) {
+    form.on('submit(password)', function (data) {
         var field = data.field; //当前容器的全部表单字段，键值对形式：{name: value}
-        passport.ajax("/api/user/profile/?Action=password", function(res) {
+        passport.ajax("/api/user/profile/?Action=password", function (res) {
             console.log(res);
             if (res.code == 0) {
                 popup("已修改密码");
@@ -168,14 +168,14 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
             data: field,
             method: 'put',
             msgprefix: '修改密码失败：',
-            beforeSend: function() {
+            beforeSend: function () {
                 //禁用按钮防止重复提交
                 $("#passwordSubmit").attr({
                     disabled: "disabled"
                 });
                 $('#passwordSubmit').addClass("layui-disabled");
             },
-            complete: function() {
+            complete: function () {
                 $('#passwordSubmit').removeAttr("disabled");
                 $('#passwordSubmit').removeClass("layui-disabled");
             }
@@ -183,7 +183,7 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
         return false; //阻止表单跳转。如果需要表单跳转，去掉这段即可。
     });
     //监听偏好设置提交
-    form.on('submit(like)', function(data) {
+    form.on('submit(like)', function (data) {
         function setCookie(name, value) {
             document.cookie = name + "=" + escape(value) + "; path=/";
         }
@@ -196,7 +196,7 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
     });
     /* 头像上传部分 */
     //弹出框水平垂直居中
-    (window.onresize = function() {
+    (window.onresize = function () {
         var win_height = $(window).height();
         var win_width = $(window).width();
         if (win_width <= 768) {
@@ -212,17 +212,17 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
         }
     })();
     //弹出图片裁剪框
-    $("#uploadAvatar").on("click", function() {
+    $("#uploadAvatar").on("click", function () {
         $(".tailoring-container").toggle();
     });
     //选择图片
-    $('#chooseImg').change(function() {
+    $('#chooseImg').change(function () {
         var file = this;
         if (!file.files || !file.files[0]) {
             return;
         }
         var reader = new FileReader();
-        reader.onload = function(evt) {
+        reader.onload = function (evt) {
             var replaceSrc = evt.target.result;
             //更换cropper的图片
             $('#tailoringImg').cropper('replace', replaceSrc, false); //默认false，适应高度，不失真
@@ -230,7 +230,7 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
         reader.readAsDataURL(file.files[0]);
     });
     //关闭裁剪框
-    $('.close-tailoring').click(function() {
+    $('.close-tailoring').click(function () {
         $(".tailoring-container").toggle();
     });
     //cropper图片裁剪
@@ -247,21 +247,21 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
         mouseWheelZoom: true, //是否允许通过鼠标滚轮来缩放图片
         touchDragZoom: true, //是否允许通过触摸移动来缩放图片
         rotatable: true, //是否允许旋转图片
-        crop: function(e) {
+        crop: function (e) {
             // 输出结果数据裁剪图像。
         }
     });
     //旋转
-    $(".cropper-rotate-btn").on("click", function() {
+    $(".cropper-rotate-btn").on("click", function () {
         $('#tailoringImg').cropper("rotate", 45);
     });
     //复位
-    $(".cropper-reset-btn").on("click", function() {
+    $(".cropper-reset-btn").on("click", function () {
         $('#tailoringImg').cropper("reset");
     });
     //换向
     var flagX = true;
-    $(".cropper-scaleX-btn").on("click", function() {
+    $(".cropper-scaleX-btn").on("click", function () {
         if (flagX) {
             $('#tailoringImg').cropper("scaleX", -1);
             flagX = false;
@@ -272,7 +272,7 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
         flagX != flagX;
     });
     //裁剪后的处理
-    $("#sureCut").on("click", function() {
+    $("#sureCut").on("click", function () {
         if ($("#tailoringImg").attr("src") == null) {
             return false;
         } else {
@@ -288,12 +288,12 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
                 return false;
             }
             //执行上传
-            passport.ajax("/api/user/upload/?callableAction=UpdateAvatar", function(res) {
+            passport.ajax("/api/user/upload/?callableAction=UpdateAvatar", function (res) {
                 console.log(res);
                 if (res.code == 0) {
                     popup("已更新头像");
                     layui.cache.user.avatar = res.imgUrl;
-                    $("#avatar").prop("src", base64url);
+                    $("#set_avatar").prop("src", base64url);
                     $('#nav_avatar').prop('src', base64url);
                     //关闭裁剪框
                     $(".tailoring-container").toggle();
@@ -302,14 +302,14 @@ layui.define(["passport", "element", "form", "layer", "laydate", "util", "upload
                 data: {
                     picStr: base64url.replace('data:image/png;base64,', '')
                 },
-                beforeSend: function() {
+                beforeSend: function () {
                     //禁用按钮防止重复提交
                     $("#sureCut").attr({
                         disabled: "disabled"
                     });
                     $('#sureCut').addClass("l-btn-disable");
                 },
-                complete: function() {
+                complete: function () {
                     //启用按钮
                     $('#sureCut').removeAttr("disabled");
                     $('#sureCut').removeClass("l-btn-disable");

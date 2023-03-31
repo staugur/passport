@@ -2,7 +2,7 @@
     Passport主入口-登录后
 */
 
-layui.define(["base", "element", "util", "layer", "form"], function(exports) {
+layui.define(["base", "element", "util", "layer", "form"], function (exports) {
     'use strict';
     var base = layui.base,
         element = layui.element,
@@ -14,15 +14,15 @@ layui.define(["base", "element", "util", "layer", "form"], function(exports) {
     //手机设备的简单适配
     var treeMobile = $('.site-tree-mobile'),
         shadeMobile = $('.site-mobile-shade');
-    treeMobile.on('click', function() {
+    treeMobile.on('click', function () {
         $('body').addClass('site-mobile');
     });
-    shadeMobile.on('click', function() {
+    shadeMobile.on('click', function () {
         $('body').removeClass('site-mobile');
     });
     //对外接口
     var passport = $.extend({}, base, {
-        socialAccountVisiblenameMapping: function(account) {
+        socialAccountVisiblenameMapping: function (account) {
             /* 社会化账号可见名映射 */
             var mapping = {
                 mobile: "手机",
@@ -37,7 +37,7 @@ layui.define(["base", "element", "util", "layer", "form"], function(exports) {
             };
             return mapping[account];
         },
-        loginTypeNameMapping: function(type) {
+        loginTypeNameMapping: function (type) {
             /* 登录账号数字类型到标识名称映射 */
             var mapping = {
                 1: "mobile",
@@ -55,7 +55,7 @@ layui.define(["base", "element", "util", "layer", "form"], function(exports) {
     });
     //获取用户信息
     var getBind = passport.getUrlPath() === "/user/setting/" ? true : false;
-    passport.ajax("/api/user/profile/?getBind=" + getBind, function(res) {
+    passport.ajax("/api/user/profile/?getBind=" + getBind, function (res) {
         if (res.code == 0) {
             var userdata = res.data;
             //更新顶部导航昵称
@@ -98,7 +98,7 @@ layui.define(["base", "element", "util", "layer", "form"], function(exports) {
                 }
                 $('#signature').val(userdata.signature);
                 //更新头像
-                $('#avatar').attr('src', userdata.avatar);
+                $('#set_avatar').attr('src', userdata.avatar);
                 //重新渲染表单
                 form.render();
                 //账号绑定
@@ -126,7 +126,7 @@ layui.define(["base", "element", "util", "layer", "form"], function(exports) {
     });
     if (passport.getUrlPath() != "/user/message/") {
         //获取用户消息统计
-        passport.ajax("/api/user/message/?Action=getCount&msgStatus=1", function(res) {
+        passport.ajax("/api/user/message/?Action=getCount&msgStatus=1", function (res) {
             if (res.code == 0) {
                 if (res.count == 0) {
                     return;
@@ -135,7 +135,7 @@ layui.define(["base", "element", "util", "layer", "form"], function(exports) {
                 var elemUser = $('.fly-nav-user');
                 var msg = $('<a class="fly-nav-msg" href="javascript:;" title="你有 ' + res.count + ' 条未读消息">' + res.count + '</a>');
                 elemUser.append(msg);
-                msg.on('click', function() {
+                msg.on('click', function () {
                     location.href = "/user/message/";
                 });
                 layer.tips('你有 ' + res.count + ' 条未读消息', msg, {
