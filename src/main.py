@@ -21,35 +21,48 @@ import sys
 import config
 import time
 from version import __version__
-from utils.tool import logger, err_logger, access_logger, create_redis_engine, create_mysql_engine, DO
-from utils.web import verify_sessionId, analysis_sessionId, tpl_adminlogin_required, get_redirect_url
+from utils.tool import (
+    logger,
+    err_logger,
+    access_logger,
+    create_redis_engine,
+    create_mysql_engine,
+    DO,
+)
+from utils.web import (
+    verify_sessionId,
+    analysis_sessionId,
+    tpl_adminlogin_required,
+    get_redirect_url,
+    get_ip,
+)
 from hlm import UserAppManager, UserSSOManager, UserMsgManager, UserProfileManager
 from views import FrontBlueprint, ApiBlueprint
 from flask import request, g, jsonify
 from flask_pluginkit import Flask, PluginManager
-reload(sys)
-sys.setdefaultencoding('utf-8')
 
-__author__ = 'staugur'
-__email__ = 'staugur@saintic.com'
-__doc__ = '统一认证与单点登录系统'
-__date__ = '2018-01-09'
+reload(sys)
+sys.setdefaultencoding("utf-8")
+
+__author__ = "staugur"
+__email__ = "staugur@saintic.com"
+__doc__ = "统一认证与单点登录系统"
+__date__ = "2018-01-09"
 
 
 # 初始化定义application
 app = Flask(__name__)
-app.config.update(
-    SECRET_KEY=os.urandom(24),
-    MAX_CONTENT_LENGTH=4 * 1024 * 1024
-)
+app.config.update(SECRET_KEY=config.SECRET_KEY, MAX_CONTENT_LENGTH=4 * 1024 * 1024)
 
 # 初始化接口管理器
-api = DO({
-    "userapp": UserAppManager(),
-    "usersso": UserSSOManager(),
-    "usermsg": UserMsgManager(),
-    "userprofile": UserProfileManager(),
-})
+api = DO(
+    {
+        "userapp": UserAppManager(),
+        "usersso": UserSSOManager(),
+        "usermsg": UserMsgManager(),
+        "userprofile": UserProfileManager(),
+    }
+)
 
 # 初始化插件管理器(自动扫描并加载运行)
 plugin = PluginManager(app)
@@ -58,11 +71,20 @@ plugin = PluginManager(app)
 app.register_blueprint(FrontBlueprint)
 app.register_blueprint(ApiBlueprint, url_prefix="/api")
 
+
 # 添加模板上下文变量
 @app.context_processor
 def GlobalTemplateVariables():
-    data = {"Version": __version__, "Author": __author__, "Email": __email__, "Doc": __doc__, "CONFIG": config, "tpl_adminlogin_required": tpl_adminlogin_required}
+    data = {
+        "Version": __version__,
+        "Author": __author__,
+        "Email": __email__,
+        "Doc": __doc__,
+        "CONFIG": config,
+        "tpl_adminlogin_required": tpl_adminlogin_required,
+    }
     return data
+
 
 @app.before_request
 def before_request():
@@ -74,7 +96,7 @@ def before_request():
     g.sid, g.uid = analysis_sessionId(sessionId, "tuple") if g.signin else (None, None)
     logger.debug("uid: {}, sid: {}".format(g.uid, g.sid))
     g.api = api
-    g.ip = request.headers.get('X-Real-Ip', request.remote_addr)
+    g.ip = get_ip()
     g.agent = request.headers.get("User-Agent")
     # 仅是重定向页面快捷定义
     g.redirect_uri = get_redirect_url()
@@ -82,9 +104,11 @@ def before_request():
 
 @app.after_request
 def after_request(response):
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET,OPTIONS'
-    response.headers['Access-Control-Allow-Headers'] = 'Access-Control-Allow-Orgin,sessionId,XMLHttpRequest,Referer,Accept,Authorization,Cache-Control,Content-Type,Keep-Alive,Origin,User-Agent,X-Requested-With'
+    response.headers["Access-Control-Allow-Origin"] = "*"
+    response.headers["Access-Control-Allow-Methods"] = "GET,OPTIONS"
+    response.headers["Access-Control-Allow-Headers"] = (
+        "sessionId,Authorization,X-Requested-With"
+    )
     return response
 
 
@@ -102,31 +126,29 @@ def teardown_request(exception):
 def server_error(error=None):
     if error:
         err_logger.error("500: {}".format(error), exc_info=True)
-    message = {
-        "msg": "Server Error",
-        "code": 500
-    }
+    message = {"msg": "Server Error", "code": 500}
     return jsonify(message), 500
+
 
 @app.errorhandler(404)
 def not_found(error=None):
     message = {
-        'code': 404,
-        'msg': 'Not Found: ' + request.url,
+        "code": 404,
+        "msg": "Not Found: " + request.url,
     }
     resp = jsonify(message)
     resp.status_code = 404
     return resp
 
+
 @app.errorhandler(403)
 def Permission_denied(error=None):
-    message = {
-        "msg": "Authentication failed, permission denied.",
-        "code": 403
-    }
+    message = {"msg": "Authentication failed, permission denied.", "code": 403}
     return jsonify(message), 403
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     from werkzeug.contrib.fixers import ProxyFix
+
     app.wsgi_app = ProxyFix(app.wsgi_app)
     app.run(host=config.GLOBAL["Host"], port=int(config.GLOBAL["Port"]), debug=True)

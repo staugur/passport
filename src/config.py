@@ -33,12 +33,13 @@ REDIS = getenv("passport_redis_url")
 # redis://[:password]@host:port/db
 # host,port必填项,如有密码,记得密码前加冒号,默认localhost:6379/0
 
+SECRET_KEY = getenv("passport_secret_key", "gVO9uEqAI5O8c7nHS03rQ0j4")
+# 应用密钥
+
 
 # picbed/sapic图床
 PICBED = {
-    "enable": getenv(
-        "passport_picbed_enable", getenv("passport_sapic_enable", False)
-    ),
+    "enable": getenv("passport_picbed_enable", getenv("passport_sapic_enable", False)),
     "api": getenv("passport_picbed_api", getenv("passport_sapic_api")),
     "LinkToken": getenv(
         "passport_picbed_linktoken", getenv("passport_sapic_linktoken")
@@ -67,7 +68,7 @@ EMAIL = {
     # 邮箱服务器地址
     "smtpPort": getenv("passport_email_smtpport", 25),
     # 邮箱服务器端口
-    "smtpSSL": getenv("passport_email_smtpssl", False)
+    "smtpSSL": getenv("passport_email_smtpssl", False),
     # 是否使用SSL加密
 }
 
@@ -79,7 +80,7 @@ PHONE = {
     # 阿里云api密钥secret加密串
     "sign_name": getenv("passport_phone_sign_name"),
     # 阿里云短信签名名称
-    "template_code": getenv("passport_phone_template_code")
+    "template_code": getenv("passport_phone_template_code"),
     # 阿里云短信模版CODE
 }
 
@@ -98,9 +99,7 @@ SYSTEM = {
     "Sign": {
         "version": getenv("passport_sign_version", "v1"),
         "accesskey_id": getenv("passport_sign_accesskeyid", "accesskey_id"),
-        "accesskey_secret": getenv(
-            "passport_sign_accesskeysecret", "accesskey_secret"
-        ),
+        "accesskey_secret": getenv("passport_sign_accesskeysecret", "accesskey_secret"),
     },
     # utils.Signature.Signature类中所有签名配置
     "CACHE_ENABLE": {
@@ -112,9 +111,7 @@ SYSTEM = {
         # 开启sso应用缓存
     },
     # 缓存启用项
-    "PersonalizedDomainNamePrefix": getenv(
-        "passport_personalizeddomainnameprefix", ""
-    ),
+    "PersonalizedDomainNamePrefix": getenv("passport_personalizeddomainnameprefix", ""),
     # 个性域名前缀：业务系统中用户对公个人主页前缀地址，此配置项在github.com/staugur/EauDouce程序中可以体现
     "SESSION_EXPIRE": int(getenv("passport_session_expire", 604800)),
     # session过期时间，单位秒，默认7d
@@ -124,12 +121,8 @@ SYSTEM = {
     # 服务状态地址
     "CASENUMBER": getenv("passport_casenumber"),
     # ICP备案号
-    "AUTH_BG_VIDEO_WEBM": getenv(
-        "passport_authbgvideo_webm", "/static/videos/bg.webm"
-    ),
-    "AUTH_BG_VIDEO_MP4": getenv(
-        "passport_authbgvideo_mp4", "/static/videos/bg.mp4"
-    ),
+    "AUTH_BG_VIDEO_WEBM": getenv("passport_authbgvideo_webm", "/static/videos/bg.webm"),
+    "AUTH_BG_VIDEO_MP4": getenv("passport_authbgvideo_mp4", "/static/videos/bg.mp4"),
     # 登录页背景视频
 }
 
