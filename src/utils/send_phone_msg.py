@@ -39,6 +39,7 @@ def SendSms(phone_numbers, vcode):
     """
     if not phone_check(phone_numbers):
         return dict(success=False, msg="Bad phone format")
+    return dict(success=False, msg="Sending SMS messages is not supported.")
     business_id = uuid.uuid1()
     sign_name = PHONE["sign_name"]
     template_code = PHONE["template_code"]
