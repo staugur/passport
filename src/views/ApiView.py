@@ -96,7 +96,10 @@ def misc_sendVcode():
                         else:
                             res.update(msg="Sent verification code, valid for 300 seconds", success=True)
                     else:
-                        res.update(msg="SMS failed to send, please try again later")
+                        if "msg" in result:
+                            res.update(msg=result["msg"])
+                        else:
+                            res.update(msg="SMS failed to send, please try again later")
     else:
         res.update(msg="Invalid account")
     logger.debug(res)

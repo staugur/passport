@@ -502,6 +502,7 @@ def dfr(res, default='en-US'):
             "Bad mailbox format": u"邮箱格式错误",
             "Bad phone format": u"手机号格式错误",
             "Current scene The number of text messages sent by your mobile phone has reached the upper limit today": u"当前场景您的手机发送短信次数今日已达到上限",
+            "Sending SMS messages is not supported": u"发送短信功能暂不支持",
         },
         # 繁体中文-香港
         "zh-HK": {
@@ -547,6 +548,7 @@ def dfr(res, default='en-US'):
             "Bad mailbox format": u"郵箱格式錯誤",
             "Bad phone format": u"手機號格式錯誤",
             "Current scene The number of text messages sent by your mobile phone has reached the upper limit today": u"當前場景您的手機發送短信次數今日已達到上限",
+            "Sending SMS messages is not supported": u"發送短信功能暫不支持",
         }
     }
     if isinstance(res, dict) and not "en" in language:
