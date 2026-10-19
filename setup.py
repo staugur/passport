@@ -59,7 +59,7 @@ setup(
     install_requires=get_requires("prod"),
     entry_points={"console_scripts": ["passportd = passportd.cli:cli"]},
     classifiers=[
-        "Development Status :: 4 - Beta",
+        "Development Status :: 5 - Production/Stable",
         "Framework :: Flask",
         "Environment :: Web Environment",
         "Intended Audience :: Developers",

@@ -10,10 +10,18 @@ v2.9.0
 - 新增后台管理功能，admin / superadmin 角色均可访问，支持用户角色管理与 OIDC 应用管理。
 - OIDC 应用可在后台标记为内部应用，等效于配置项 ``OIDC_INTERNAL_CLIENTS``。
 - 后台写操作（用户角色、启用禁用、内部应用标记）记入安全审计日志，操作者与被操作用户均可查看。
+- 后台用户管理列表新增注册时间，按天展示。
+- OIDC 客户端支持配置最多 5 个回调地址，授权请求携带的 redirect_uri 命中白名单即放行。
+- 回调地址入库与请求校验均自动剥离查询参数与锚点，仅保留 scheme://域名或IP:端口/路径。
+- 新增站点配置 SITE_CONTACT_MAIL（管理员邮箱），页脚展示「联系与反馈」按钮，点击通过邮件联系。
 
 .. code-block:: sql
 
    ALTER TABLE passport_oauth_client ADD COLUMN is_internal BOOLEAN NOT NULL DEFAULT FALSE;
+   ALTER TABLE passport_oauth_client ADD COLUMN redirect_uri2 TEXT NOT NULL DEFAULT '';
+   ALTER TABLE passport_oauth_client ADD COLUMN redirect_uri3 TEXT NOT NULL DEFAULT '';
+   ALTER TABLE passport_oauth_client ADD COLUMN redirect_uri4 TEXT NOT NULL DEFAULT '';
+   ALTER TABLE passport_oauth_client ADD COLUMN redirect_uri5 TEXT NOT NULL DEFAULT '';
 
 修复
 ~~~~

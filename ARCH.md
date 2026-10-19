@@ -56,7 +56,7 @@ passportd 是一个 **OpenID Connect (OIDC) / OAuth2 统一认证服务**，同�
 │  │ name (UK)   │ 应用名称                                           │ │
 │  │ client_id   │ 客户端 ID (24位随机串)                              │ │
 │  │ client_secret│ 客户端密钥 (48位随机串)                            │ │
-│  │ redirect_uri│ 回调地址                                           │ │
+│  │ redirect_uri│ 回调地址（最多 5 个，仅 scheme://host[:port][/path]）     │ │
 │  │ scope       │ openid profile ...                                 │ │
 │  │ is_internal │ 1=内部应用(可授予 role scope) 0=外部                │ │
 │  │ grant_type  │ authorization_code                                 │ │
@@ -681,7 +681,7 @@ id_token = JWT (RS256 签名)
 
 ```
 GET    /api/oidc/client               → 列出我的所有 OIDC Client（含授权用户数）
-POST   /api/oidc/client               → 创建新 Client (name, redirect_uri, homepage, scope, bio)
+POST   /api/oidc/client               → 创建新 Client (name, redirect_uri[1-5], homepage, scope, bio)
 PUT    /api/oidc/client               → 更新 Client 信息
 DELETE /api/oidc/client               → 删除 Client (级联删除关联 Token)
 GET    /api/user/oauth/authorizations → 我的授权记录（最近 10 条）

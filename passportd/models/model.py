@@ -132,10 +132,15 @@ class OAuthClient(Model):
     homepage = CharField(default="")
     #: 简介
     bio = TextField(default="")
-    #: 客户端标识和密钥以及回调地址
+    #: 客户端标识和密钥以及回调地址（最多 5 个，冗余存储于固定列，
+    #: 仅保留 scheme://host[:port][/path]，查询参数与片段已在入库时剥离）
     client_id = CharField(max_length=24, index=True)
     client_secret = CharField(max_length=48)
     redirect_uri = TextField()
+    redirect_uri2 = TextField(default="")
+    redirect_uri3 = TextField(default="")
+    redirect_uri4 = TextField(default="")
+    redirect_uri5 = TextField(default="")
     #: 授权类型，支持 authorization_code
     grant_type = CharField(default="authorization_code")
     #: 响应类型，支持 code
@@ -356,6 +361,13 @@ def init_db() -> None:
             "is_internal",
             "BOOLEAN NOT NULL DEFAULT {}".format(_bool_default),
         )
+        # 备用回调地址（最多 4 个，首列 redirect_uri 必填），启动时自动补齐
+        for i in range(2, 6):
+            _ensure_column(
+                OAuthClient._meta.table_name,
+                "redirect_uri{}".format(i),
+                "TEXT NOT NULL DEFAULT ''",
+            )
 
 
 def _ensure_column(table_name: str, column: str, definition: str) -> None:

@@ -165,6 +165,16 @@
             return '<span class="has-text-grey-light">未知</span>';
         }
 
+        // 注册时间：仅显示到天（YYYY-MM-DD）
+        function formatDate(ts) {
+            if (!ts || ts <= 0) return '—';
+            let d = new Date(ts * 1000);
+            let yyyy = d.getFullYear();
+            let mm = String(d.getMonth() + 1).padStart(2, '0');
+            let dd = String(d.getDate()).padStart(2, '0');
+            return yyyy + '-' + mm + '-' + dd;
+        }
+
         // 头像：有 avatar 用图片，否则占位图标
         function avatarHtml(avatar, nickname) {
             if (avatar) {
@@ -240,6 +250,7 @@
                 + '<th>地区</th>'
                 + '<th>账号</th>'
                 + '<th>平台角色</th>'
+                + '<th>注册时间</th>'
                 + '<th>状态</th>'
                 + '<th style="width: 180px;">操作</th>'
                 + '</tr></thead><tbody>';
@@ -248,6 +259,7 @@
                     return '<span class="tag is-light is-size-7 mr-1">' + escHtml(a.account) + '</span>';
                 }).join('') || '<span class="has-text-grey-light">—</span>';
                 let roles = platformRoles(u.role).map(roleTag).join(' ') || '<span class="has-text-grey-light">—</span>';
+                let ctime = formatDate(u.ctime);
                 let statusTag = (u.status === 0)
                     ? '<span class="tag is-danger is-light">已禁用</span>'
                     : '<span class="tag is-success is-light">正常</span>';
@@ -263,6 +275,7 @@
                     + '<td class="is-size-7">' + escHtml(u.location || '—') + '</td>'
                     + '<td>' + accounts + '</td>'
                     + '<td>' + roles + '</td>'
+                    + '<td class="is-size-7">' + ctime + '</td>'
                     + '<td>' + statusTag + '</td>'
                     + '<td><div class="buttons are-small">'
                     + '<button class="button is-primary is-light js-role" data-uid="' + escHtml(u.uid) + '">'

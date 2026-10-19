@@ -30,6 +30,7 @@ from authlib.oidc.core import OpenIDCode, UserInfo
 from flask import g, request
 
 from ..basis.conf import config
+from ..basis.errors import ParamError
 from ..basis.vars import (
     OIDC_CODE_EXP,
     OIDC_EXP,
@@ -46,6 +47,7 @@ from ..models.user import get_user_by_uid, get_user_email
 from ..utils.common import (
     compute_kid,
     normalize_builtin_role,
+    normalize_redirect_uri,
     now,
     rdb,
     read_rsa_private_key,
@@ -161,12 +163,19 @@ class OIDCClient(ClientMixin, AuthorizationCodeMixin):
         return self.client_id
 
     def check_redirect_uri(self, redirect_uri) -> bool:
-        """校验回调 URI 是否匹配注册时配置的 redirect_uri。
+        """校验回调 URI 是否命中注册的白名单之一。
+
+        注册与请求携带的回调地址均只保留 ``scheme://host[:port][/path]``，
+        因此此处先剥离请求方的查询参数与片段再做成员判断。
 
         :param redirect_uri: 待校验的回调 URI
-        :returns: 匹配返回 True，否则 False
+        :returns: 命中白名单返回 True，否则 False
         """
-        return redirect_uri == self.client_info["redirect_uri"]
+        try:
+            candidate = normalize_redirect_uri(redirect_uri)
+        except ParamError:
+            return False
+        return candidate in self.client_info.get("redirect_uris", [])
 
     def check_client_secret(self, client_secret) -> bool:
         """校验客户端密钥是否正确。
@@ -242,11 +251,14 @@ class OIDCAuthorizationCodeObject(AuthorizationCodeMixin):
         return self.code_data["uid"]
 
     def get_redirect_uri(self) -> str:
-        """获取关联的回调 URI。
+        """获取默认（必填）回调地址。
 
-        :returns: 回调 URI 字符串
+        第一列 ``redirect_uri`` 为注册时的默认回调地址（必填），当授权请求
+        未携带 ``redirect_uri`` 时作为兜底返回。
+
+        :returns: 默认回调地址字符串
         """
-        return self.code_data["redirect_uri"]  # type: ignore
+        return self.client_info.get("redirect_uri", "")
 
     def get_scope(self) -> str:
         """获取授权的 scope 范围。

@@ -337,7 +337,9 @@
                 {% if config.get("SITE_ICP") %}&nbsp;|&nbsp; <a href="https://beian.miit.gov.cn/" target="_blank"
                     rel="noopener noreferrer" class="has-text-grey">{{ config["SITE_ICP"] }}</a>{% endif %}
                 {% if config.get("SITE_PRIVACY") %}&nbsp;|&nbsp; <a href="{{ url_for('root.front.privacy') }}"
-                    class="has-text-grey">隐私政策</a>{% endif %}</p>
+                    class="has-text-grey">隐私政策</a>{% endif %}
+                {% if config.get("SITE_CONTACT_MAIL") %}&nbsp;|&nbsp; <a class="has-text-grey"
+                    href="mailto:{{ config['SITE_CONTACT_MAIL'] }}">联系与反馈</a>{% endif %}</p>
         </div>
     </footer>
 

@@ -238,6 +238,29 @@ def upload():
         return abort(400)
 
 
+#: OIDC 客户端回调地址对应的表单字段名（最多 5 个）
+_REDIRECT_URI_FIELDS = (
+    "redirect_uri",
+    "redirect_uri2",
+    "redirect_uri3",
+    "redirect_uri4",
+    "redirect_uri5",
+)
+
+
+def _collect_redirect_uris_from_form(form) -> list:
+    """从表单收集非空回调地址字段，返回列表（最多 5 个）。
+
+    :param form: Flask 请求表单（ImmutableMultiDict）
+    :returns: 非空回调地址字符串列表
+    """
+    return [
+        form.get(field, "").strip()
+        for field in _REDIRECT_URI_FIELDS
+        if form.get(field, "").strip()
+    ]
+
+
 @bp.route("/oidc/client", methods=["POST", "GET", "PUT", "DELETE"])
 @apilogin_required
 def oidc_client():
@@ -290,7 +313,7 @@ def oidc_client():
         name = request.form.get("name", "")
         bio = request.form.get("bio", "")
         homepage = request.form.get("homepage", "")
-        redirect_uri = request.form.get("redirect_uri", "")
+        redirect_uris = _collect_redirect_uris_from_form(request.form)
         scope = request.form.get("scope", "")
         try:
             ret = update_oauth_client(
@@ -299,7 +322,7 @@ def oidc_client():
                 name=name,
                 bio=bio,
                 homepage=homepage,
-                redirect_uri=redirect_uri,
+                redirect_uris=redirect_uris if redirect_uris else None,
                 scope=scope,
             )
         except PassportError as e:
@@ -318,7 +341,7 @@ def oidc_client():
     name = request.form.get("name", "")
     bio = request.form.get("bio", "")
     homepage = request.form.get("homepage", "")
-    redirect_uri = request.form.get("redirect_uri", "")
+    redirect_uris = _collect_redirect_uris_from_form(request.form)
     scope = request.form.get("scope", "")
     try:
         ret = create_oauth_client(
@@ -326,7 +349,7 @@ def oidc_client():
             name=name,
             bio=bio,
             homepage=homepage,
-            redirect_uri=redirect_uri,
+            redirect_uris=redirect_uris,
             scope=scope,
         )
     except PassportError as e:

@@ -20,11 +20,11 @@ import logging
 from logging.handlers import TimedRotatingFileHandler
 from base64 import urlsafe_b64decode, urlsafe_b64encode
 from json import loads as json_loads, dumps as json_dumps
-from re import compile, IGNORECASE, fullmatch, search as re_search
+from re import compile, IGNORECASE, fullmatch, search as re_search, split as re_split
 from uuid import uuid4
 from hashlib import sha256
 from typing import Dict, Any, Union, Optional, List, Tuple
-from urllib.parse import urlparse
+from urllib.parse import urlparse, urlsplit, urlunsplit
 from random import sample
 from os import makedirs
 from os.path import dirname, join, isfile
@@ -42,6 +42,7 @@ from ..basis.vars import (
     PROC_NAME,
     JWE_HEADER,
     COMMON_DICT_TYPE,
+    MAX_REDIRECT_URIS,
 )
 from ..basis.common import now, timestamp_after_timestamp
 from ..basis.conf import config
@@ -181,6 +182,59 @@ def is_valid_http_url(url: str) -> bool:
         IGNORECASE,
     )
     return pattern.match(url) is not None
+
+
+def normalize_redirect_uri(uri: str) -> str:
+    """规范化 OIDC 回调地址，仅保留 scheme://host[:port][/path]。
+
+    入库与授权请求校验均使用此函数，确保回调地址不含 ``?query`` 与
+    ``#fragment``；协议限定为 ``http`` / ``https``。
+
+    :param uri: 原始回调地址字符串
+    :returns: 规范化后的回调地址
+    :raises ParamError: 地址非法或协议非 http/https 时抛出
+    """
+    if not uri or not isinstance(uri, str):
+        raise ParamError("invalid redirect_uri")
+    if not is_valid_http_url(uri):
+        raise ParamError("invalid redirect_uri")
+    parts = urlsplit(uri)
+    if parts.scheme not in ("http", "https"):
+        raise ParamError("redirect_uri scheme must be http or https")
+    if not parts.netloc:
+        raise ParamError("invalid redirect_uri")
+    # 仅保留 scheme + netloc + path，剥离 query 与 fragment
+    return urlunsplit((parts.scheme, parts.netloc, parts.path, "", ""))
+
+
+def parse_redirect_uris(raw: Union[str, List[str]]) -> List[str]:
+    """从多值输入解析并规范化回调地址列表。
+
+    支持字符串（换行/逗号/空白分隔）或列表输入；结果去重，数量限制在
+    ``MAX_REDIRECT_URIS`` 个以内，且至少 1 个。
+
+    :param raw: 原始回调地址（单行字符串或列表）
+    :returns: 规范化、去重后的回调地址列表
+    :raises ParamError: 数量为 0、超过上限或任一地址非法时抛出
+    """
+    if isinstance(raw, str):
+        items = [u.strip() for u in re_split(r"[\s,]+", raw) if u.strip()]
+    elif isinstance(raw, (list, tuple)):
+        items = [str(u).strip() for u in raw if str(u).strip()]
+    else:
+        items = []
+    if not items:
+        raise ParamError("at least one redirect_uri is required")
+    if len(items) > MAX_REDIRECT_URIS:
+        raise ParamError(
+            "at most {} redirect_uris allowed".format(MAX_REDIRECT_URIS)
+        )
+    uris: List[str] = []
+    for item in items:
+        norm = normalize_redirect_uri(item)
+        if norm not in uris:
+            uris.append(norm)
+    return uris
 
 
 def get_proxies(*candidates: Optional[str]) -> Optional[Dict[str, str]]:

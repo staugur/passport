@@ -96,6 +96,39 @@
                         <input class="input" type="url" id="form-redirect-uri" name="redirect_uri"
                             placeholder="https://example.com/callback" required>
                     </div>
+                    <p class="help">最多 5 个，每个仅保留 scheme://域名或IP:端口/路径，无需 ?查询参数 与 #锚点</p>
+                </div>
+
+                <div class="field">
+                    <label class="label">备用回调地址 2</label>
+                    <div class="control">
+                        <input class="input" type="url" id="form-redirect-uri2" name="redirect_uri2"
+                            placeholder="https://app.example.com/cb">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">备用回调地址 3</label>
+                    <div class="control">
+                        <input class="input" type="url" id="form-redirect-uri3" name="redirect_uri3"
+                            placeholder="https://app.example.com/cb">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">备用回调地址 4</label>
+                    <div class="control">
+                        <input class="input" type="url" id="form-redirect-uri4" name="redirect_uri4"
+                            placeholder="https://app.example.com/cb">
+                    </div>
+                </div>
+
+                <div class="field">
+                    <label class="label">备用回调地址 5</label>
+                    <div class="control">
+                        <input class="input" type="url" id="form-redirect-uri5" name="redirect_uri5"
+                            placeholder="https://app.example.com/cb">
+                    </div>
                 </div>
 
                 <div class="field">
@@ -285,7 +318,12 @@
                 $('#form-submit-btn').html('<span class="icon"><i class="fa-solid fa-check"></i></span><span>保存修改</span>');
                 $('#form-client-id').val(client.client_id || '');
                 $('#form-name').val(client.name || '');
-                $('#form-redirect-uri').val(client.redirect_uri || '');
+                let uris = client.redirect_uris || [];
+                $('#form-redirect-uri').val(uris[0] || '');
+                $('#form-redirect-uri2').val(uris[1] || '');
+                $('#form-redirect-uri3').val(uris[2] || '');
+                $('#form-redirect-uri4').val(uris[3] || '');
+                $('#form-redirect-uri5').val(uris[4] || '');
                 $('#form-homepage').val(client.homepage || '');
                 // 根据客户端已保存的 scope 勾选对应复选框（含 role）
                 let savedScopes = (client.scope || 'openid').split(' ');
@@ -312,6 +350,10 @@
             let formData = new FormData();
             formData.append('name', $('#form-name').val().trim());
             formData.append('redirect_uri', $('#form-redirect-uri').val().trim());
+            formData.append('redirect_uri2', $('#form-redirect-uri2').val().trim());
+            formData.append('redirect_uri3', $('#form-redirect-uri3').val().trim());
+            formData.append('redirect_uri4', $('#form-redirect-uri4').val().trim());
+            formData.append('redirect_uri5', $('#form-redirect-uri5').val().trim());
             formData.append('homepage', $('#form-homepage').val().trim());
             // 收集所有勾选的 scope 拼成空格分隔字符串（role 仅内部应用可见）
             let scopes = $('input[name="scope"]:checked').map(function () { return $(this).val(); }).get();
@@ -379,7 +421,7 @@
                 ['应用名称', client.name],
                 ['Client ID', '<code class="is-size-7">' + escHtml(client.client_id) + '</code>'],
                 ['Client Secret', '<code class="is-size-7">' + escHtml(client.client_secret) + '</code>'],
-                ['回调地址', client.redirect_uri],
+                ['回调地址', (client.redirect_uris || []).map(escHtml).join('<br>')],
                 ['Discovery 端点', '<a href="' + escHtml(discoveryUrl) + '" target="_blank" class="is-size-7">' + escHtml(discoveryUrl) + ' <span class="icon is-small"><i class="fa-solid fa-arrow-up-right-from-square"></i></span></a>'],
                 ['主页', client.homepage || '<span class="has-text-grey-light">—</span>'],
                 ['授权范围', client.scope],
@@ -450,7 +492,7 @@
                 html += '<tr>'
                     + '<td>' + escHtml(c.name) + '</td>'
                     + '<td><code class="is-size-7">' + escHtml(c.client_id) + '</code></td>'
-                    + '<td class="is-size-7" style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + escHtml(c.redirect_uri) + '</td>'
+                    + '<td class="is-size-7" style="max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">' + (function () { let u = c.redirect_uris || []; return escHtml(u[0] || '') + (u.length > 1 ? ' <span class="tag is-light is-size-7">+' + (u.length - 1) + '</span>' : ''); })() + '</td>'
                     + '<td><span class="tag is-info is-light">' + (c.auth_count || 0) + '</span></td>'
                     + '<td>'
                     + '<div class="buttons are-small">'

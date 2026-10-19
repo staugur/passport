@@ -371,7 +371,7 @@ passportd 本身可作为一个 OpenID Connect Provider（身份提供者），�
 2. 点击「创建客户端」按钮，填写表单：
 
    - **客户端名称**：用于识别的名称，如 ``我的 Web 应用``
-   - **重定向 URI**：OAuth 授权回调地址，如 ``https://myapp.example.com/oauth/callback``
+   - **重定向 URI**：OAuth 授权回调地址（最多 5 个，仅保留 ``scheme://域名或IP:端口/路径``，``?查询参数`` 与 ``#锚点`` 在入库与校验时自动去除），如 ``https://myapp.example.com/oauth/callback``
    - **授权范围**：默认 ``openid``，还需 ``profile`` 可获取用户昵称、头像等信息；
      应用被判定为内部应用（名称在 ``OIDC_INTERNAL_CLIENTS`` 中，或已被管理员在后台
      标记为内部应用）时会额外出现 ``role`` 选项，用于获取用户平台角色
@@ -385,7 +385,7 @@ passportd 本身可作为一个 OpenID Connect Provider（身份提供者），�
 
 .. tip::
 
-    开发环境可填写多个 redirect URI，生产环境务必仅添加受信任的地址。
+    可填写最多 5 个 redirect URI（如开发、测试、生产各一个），生产环境务必仅添加受信任的地址。
 
 OAuth 授权流程
 ^^^^^^^^^^^^^^
@@ -632,3 +632,43 @@ passportd 提供一套命令行管理工具，用于启动/停止服务、查看
 - 多个角色用空格分隔，如 ``passportd role set <uid> superadmin admin``
 - ``add`` 自动去重，``remove`` 仅移除已存在的角色
 - 每次角色变更都会写入审计日志
+
+插件开发与第三方登录扩展
+------------------------
+
+passportd 的第三方登录基于 **Flask-PluginKit** 实现，每种登录方式是一个独立插件（内置插件位于 ``passportd/modules/oauth2_<name>/``）。要新增一种第三方登录，只需新建一个插件模块，实现 OAuth2 授权登录蓝图，并声明必要的元数据即可，无需改动核心代码。
+
+插件元数据
+
+插件模块顶部需声明以下模块级变量，passportd 据此识别并在登录页「第三方登录」区域自动展示入口：
+
+- ``__oauth2_provider__ = True``：标记该插件为 OAuth2 登录提供商。**只有声明此变量为 ``True``，插件才会被加载到登录页**，否则会被忽略。
+- ``__oauth2_name__ = "Apple"``：登录按钮上显示的提供商名称（建议与品牌一致）。
+
+此外还需 Flask-PluginKit 要求的常规元数据 ``__version__``、``__description__``、``__author__``、``__license__``，以及 ``__state__``（``"enabled"`` / ``"disabled"``，可依据对应的客户端 ID/密钥是否配置来动态启用）。
+
+示例（节选自内置 Apple 登录插件 ``passportd/modules/oauth2_apple/__init__.py``）：
+
+.. code-block:: python
+
+    __oauth2_provider__ = True
+    __oauth2_name__ = "Apple"
+
+    __state__ = (
+        "enabled"
+        if config.get("APPLE_CLIENT_ID") and config.get("APPLE_CLIENT_SECRET")
+        else "disabled"
+    )
+
+    bp = Blueprint(__plugin_name__, __plugin_name__)
+
+    @bp.route("/login")
+    def login():
+        ...
+
+说明：
+
+- ``__plugin_name__`` 由 Flask-PluginKit 自动注入（等于插件目录名，如 ``oauth2_apple``），蓝图与路由据此命名即可。
+- 登录页会从已启用插件中筛选 ``__oauth2_provider__`` 为真的插件，读取 ``__oauth2_name__`` 作为名称，并按插件名映射图标/颜色（见 ``passportd/utils/web.py`` 的 ``_OAUTH2_PROVIDER_CONFIG``），**无需额外注册即可自动出现在登录页与「个人主页 → 绑定第三方登录」**。
+- 插件需暴露名为 ``login`` 的路由（如上），登录入口链接由 ``url_for("<plugin_name>.login")`` 生成。
+- 客户端 ID/密钥等凭据通过 ``passportd/basis/conf.py`` 中的对应配置项提供（如 Apple 对应 ``APPLE_CLIENT_ID`` / ``APPLE_CLIENT_SECRET``），并在 ``__state__`` 中据此判断是否启用。

@@ -15,13 +15,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from typing import Dict, List, Tuple, Union
+from typing import Dict, List, Tuple, Union, Optional
 
 from playhouse.shortcuts import model_to_dict
 from werkzeug.security import gen_salt
 
 from .model import OAuthClient, OAuthToken, OAuthAuthorization, User
-from ..basis.vars import COMMON_DICT_TYPE
+from ..basis.vars import COMMON_DICT_TYPE, MAX_REDIRECT_URIS
 from ..basis.errors import ParamError, DBError
 from ..basis.common import check_uid_rule
 from ..utils.common import (
@@ -30,6 +30,7 @@ from ..utils.common import (
     is_valid_http_url,
     is_valid_ipv4,
     logger,
+    parse_redirect_uris,
 )
 
 
@@ -52,20 +53,50 @@ def list_oauth_clients(uid: Union[None, str]) -> List[COMMON_DICT_TYPE]:
         obj = OAuthClient.select().where(OAuthClient.uid == uid)
     else:
         obj = OAuthClient.select()
-    return [model_to_dict(u) for u in obj]
+    clients = [model_to_dict(u) for u in obj]
+    for c in clients:
+        c["redirect_uris"] = _collect_redirect_uris(c)
+    return clients
+
+
+def _collect_redirect_uris(d: COMMON_DICT_TYPE) -> List[str]:
+    """从客户端字典（含 redirect_uri..redirect_uri5 字段）提取非空回调地址列表。
+
+    :param d: 客户端信息字典
+    :returns: 非空回调地址列表（按字段顺序排列）
+    """
+    uris: List[str] = []
+    for i in range(1, MAX_REDIRECT_URIS + 1):
+        key = "redirect_uri" if i == 1 else "redirect_uri{}".format(i)
+        val = d.get(key)
+        if val:
+            uris.append(val)
+    return uris
+
+
+def _spread_redirect_uris(uris: List[str]) -> Tuple[str, str, str, str, str]:
+    """将回调地址列表铺开为 5 个字段值（不足补空字符串）。
+
+    :param uris: 已规范化、去重的回调地址列表（长度 1~5）
+    :returns: 对应 5 个字段值的元组
+    """
+    padded = list(uris) + [""] * (MAX_REDIRECT_URIS - len(uris))
+    return padded[0], padded[1], padded[2], padded[3], padded[4]
 
 
 def get_oauth_client(client_id: str) -> Union[None, COMMON_DICT_TYPE]:
     """根据 client_id 获取应用信息。
 
     :param client_id: 客户端标识
-    :returns: 客户端信息字典，不存在返回 None
+    :returns: 客户端信息字典（含 ``redirect_uris`` 白名单列表），不存在返回 None
     """
     try:
         oc = OAuthClient.get(OAuthClient.client_id == client_id)
-        return model_to_dict(oc)
     except OAuthClient.DoesNotExist:
         return None
+    info = model_to_dict(oc)
+    info["redirect_uris"] = _collect_redirect_uris(info)
+    return info
 
 
 def is_internal_oauth_client(name: str) -> bool:
@@ -143,7 +174,7 @@ def get_oauth_token(access_token: str) -> Union[None, COMMON_DICT_TYPE]:
 def create_oauth_client(
     uid: str,
     name: str,
-    redirect_uri: str,
+    redirect_uris: List[str],
     *,
     scope: str = "openid",
     homepage: str = "",
@@ -156,7 +187,7 @@ def create_oauth_client(
 
     :param uid: 用户唯一标识符，长度为 22 个字符
     :param name: 客户端应用名称，需通过 ``appname_check`` 验证
-    :param redirect_uri: 有效的 HTTP URL，用于 OAuth 回调
+    :param redirect_uris: 回调地址列表（1~5 个，仅取 scheme://host[:port][/path]）
     :param scope: 授权范围，默认为 ``openid``
     :param homepage: 客户端应用的主页 URL，需为有效的 HTTP URL
     :param bio: 客户端应用的描述信息
@@ -164,21 +195,19 @@ def create_oauth_client(
     :raises ParamError: 参数验证失败或客户端名称已存在
     :raises DBError: 数据库操作失败
     """
-    if (
-        len(uid) == 22
-        and appname_check(name)
-        and is_valid_http_url(redirect_uri)
-        and "openid" in scope
-    ):
+    if len(uid) == 22 and appname_check(name) and "openid" in scope:
         pass
     else:
         raise ParamError("Invalid params")
+    # 解析并规范化回调地址列表（校验数量与格式，剥离查询参数与片段）
+    uris = parse_redirect_uris(redirect_uris)
     if homepage:
         if not is_valid_http_url(homepage):
             raise ParamError("Invalid homepage")
     ctime = now()
     if has_oauth_client(name):
         raise ParamError("The client name already exists")
+    r1, r2, r3, r4, r5 = _spread_redirect_uris(uris)
     try:
         client_id = gen_salt(24)
         client_secret = gen_salt(48)
@@ -189,7 +218,11 @@ def create_oauth_client(
             bio=bio,
             client_id=client_id,
             client_secret=client_secret,
-            redirect_uri=redirect_uri,
+            redirect_uri=r1,
+            redirect_uri2=r2,
+            redirect_uri3=r3,
+            redirect_uri4=r4,
+            redirect_uri5=r5,
             grant_type="authorization_code",
             response_type="code",
             scope=scope,
@@ -211,7 +244,7 @@ def update_oauth_client(
     name: str = "",
     bio: str = "",
     homepage: str = "",
-    redirect_uri: str = "",
+    redirect_uris: Optional[List[str]] = None,
     scope: str = "",
 ) -> COMMON_DICT_TYPE:
     """更新 OIDC 客户端应用信息。
@@ -248,10 +281,14 @@ def update_oauth_client(
         if not is_valid_http_url(homepage):
             raise ParamError("Invalid homepage")
         oc.homepage = homepage
-    if redirect_uri:
-        if not is_valid_http_url(redirect_uri):
-            raise ParamError("Invalid redirect_uri")
-        oc.redirect_uri = redirect_uri
+    if redirect_uris is not None:
+        uris = parse_redirect_uris(redirect_uris)
+        r1, r2, r3, r4, r5 = _spread_redirect_uris(uris)
+        oc.redirect_uri = r1
+        oc.redirect_uri2 = r2
+        oc.redirect_uri3 = r3
+        oc.redirect_uri4 = r4
+        oc.redirect_uri5 = r5
     if scope:
         if "openid" not in scope:
             raise ParamError("scope must contain openid")
@@ -262,7 +299,9 @@ def update_oauth_client(
     except Exception as e:
         raise DBError(e)
     else:
-        return model_to_dict(oc)
+        ret = model_to_dict(oc)
+        ret["redirect_uris"] = _collect_redirect_uris(ret)
+        return ret
 
 
 def delete_oauth_client(uid: str, client_id: str) -> bool:
@@ -491,6 +530,8 @@ def list_oauth_clients_page(
     per_page = max(1, min(per_page, 100))
     rows = query.order_by(OAuthClient.ctime.desc()).paginate(page, per_page)
     clients = [model_to_dict(c) for c in rows]
+    for c in clients:
+        c["redirect_uris"] = _collect_redirect_uris(c)
     uids = {c["uid"] for c in clients}
     owners: Dict[str, str] = {}
     if uids:

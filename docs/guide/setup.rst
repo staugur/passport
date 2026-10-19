@@ -102,6 +102,10 @@ passportd 使用 Flask 的配置体系，所有配置项定义在 :mod:`passport
      - str
      - ``""``
      - 站点全局背景图 URL，为空不启用背景图。用户登录后个人中心可设置自定义背景图（仅 http/https），渲染优先级：用户自定义 > ``SITE_BG_IMAGE``
+   * - ``SITE_CONTACT_MAIL``
+     - str
+     - ``""``
+     - 管理员联系邮箱，页脚展示「联系与反馈」链接（``mailto:``），为空则不显示。环境变量 ``PASSPORT_SITE_CONTACT_MAIL``
    * - ``METRICS_ENABLED``
      - bool
      - ``True``

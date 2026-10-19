@@ -89,6 +89,8 @@ class BaseConfig:
     SITE_PRIVACY: bool = False
     #: 全局页面背景图片 URL，为空则不启用背景图（背景自动浅化遮罩）
     SITE_BG_IMAGE: str = ""
+    #: 管理员联系邮箱，用于页脚「联系与反馈」按钮（mailto），为空则不显示
+    SITE_CONTACT_MAIL: str = ""
 
     # 上传
     #: 上传方式，支持 sapic、local，本地上传固定保存到 BASE_DIR/uploads
@@ -409,6 +411,7 @@ def _check_config_value(cfg):
         "SITE_FAVICON",
         "SITE_LOGO",
         "SITE_BG_IMAGE",
+        "SITE_CONTACT_MAIL",
         "HOST",
         "OIDC_INTERNAL_CLIENTS",
         "METRICS_TOKEN",
@@ -419,6 +422,15 @@ def _check_config_value(cfg):
 
     # 布尔类配置校验
     assert isinstance(cfg["SITE_PRIVACY"], bool), "SITE_PRIVACY must be a boolean"
+
+    # 管理员联系邮箱校验：设置了但格式非法则报错（避免 mailto 链接无效）
+    _contact_mail = (cfg.get("SITE_CONTACT_MAIL") or "").strip()
+    if _contact_mail:
+        from ..utils.common import email_check
+
+        assert email_check(_contact_mail), (
+            "SITE_CONTACT_MAIL must be a valid email address"
+        )
 
 
 config = FlaskConfig(APP_DIR)

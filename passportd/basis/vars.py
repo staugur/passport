@@ -85,6 +85,8 @@ OIDC_SUPPORTED_TOKEN_ENDPOINT_AUTH_METHODS: List[str] = [
 ]
 OIDC_SUPPORTED_SCOPES: List[str] = ["openid", "profile", "email", "role"]
 OIDC_RSA_KEY_SIZE: int = 4096
+#: OIDC 客户端回调地址最多允许数量
+MAX_REDIRECT_URIS: int = 5
 
 #: 用户登录状态索引字段
 USR_STATE_KEY: str = "sid"
