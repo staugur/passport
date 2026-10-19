@@ -35,7 +35,7 @@ passportd 使用 Flask 的配置体系，所有配置项定义在 :mod:`passport
    * - ``ENV``
      - str
      - ``development``
-     - 运行环境：``development`` / ``production``
+     - 运行环境： ``development`` / ``production``
    * - ``SECRET_KEY``
      - str
      - secret...
@@ -97,7 +97,7 @@ passportd 使用 Flask 的配置体系，所有配置项定义在 :mod:`passport
    * - ``SITE_PRIVACY``
      - bool
      - ``False``
-     - 是否启用隐私政策页面（``/privacy``），为 ``True`` 时页脚显示「隐私政策」链接。环境变量 ``PASSPORT_SITE_PRIVACY`` （布尔，取值 ``true``/``false``）
+     - 是否启用隐私政策页面（ ``/privacy``），为 ``True`` 时页脚显示「隐私政策」链接。环境变量 ``PASSPORT_SITE_PRIVACY`` （布尔，取值 ``true``/``false``）
    * - ``SITE_BG_IMAGE``
      - str
      - ``""``
@@ -105,7 +105,7 @@ passportd 使用 Flask 的配置体系，所有配置项定义在 :mod:`passport
    * - ``SITE_CONTACT_MAIL``
      - str
      - ``""``
-     - 管理员联系邮箱，页脚展示「联系与反馈」链接（``mailto:``），为空则不显示。环境变量 ``PASSPORT_SITE_CONTACT_MAIL``
+     - 管理员联系邮箱，页脚展示「联系与反馈」链接（ ``mailto:``），为空则不显示。环境变量 ``PASSPORT_SITE_CONTACT_MAIL``
    * - ``METRICS_ENABLED``
      - bool
      - ``True``
@@ -139,11 +139,11 @@ Grafana 可视化：项目提供完整监控面板 ``examples/grafana_dashboard.
 
 .. tip::
 
-   ``BASE_DIR`` 是数据管理的核心配置项。设置后，以下路径由 ``PinConfig`` 固定派生，**不可通过环境变量覆盖**：
+   ``BASE_DIR`` 是数据管理的核心配置项。设置后，以下路径由 ``PinConfig`` 固定派生， **不可通过环境变量覆盖**：
 
    - ``BASE_DIR/data`` — 数据目录（RSA 密钥、SQLite 数据库默认存放于此）
    - ``BASE_DIR/uploads`` — 本地上传目录
-   - ``BASE_DIR/logs`` — 日志文件目录（``LOG_FILE`` 设置后写入此目录）
+   - ``BASE_DIR/logs`` — 日志文件目录（ ``LOG_FILE`` 设置后写入此目录）
 
    ``DB_URI`` （SQLite 模式）中的 ``APP_DIR`` 也会自动替换为 ``BASE_DIR``。
 
@@ -201,7 +201,7 @@ OIDC 相关的以下值由 ``PinConfig`` 固定管理，不可通过配置或环
    * - ``UPLOAD_METHOD``
      - str
      - ``local``
-     - 上传方式：``local`` 本地存储 / ``sapic`` Sapic 图床
+     - 上传方式： ``local`` 本地存储 / ``sapic`` Sapic 图床
    * - ``SAPIC_APIURL``
      - str
      - ``https://sapicd.com``
@@ -278,7 +278,7 @@ Spug 推送助手提供官方验证码模板，无需自主创建。获取步骤
 3. 选择对应模板：
 
    - **短信验证码**：选择支持 ``${code}`` + ``${minute}`` 双参数的模板（另一个仅支持 ``${code}`` 单参数）。
-   - **邮件验证码**：选择中文版模板（英/中两版参数相同，均含 ``${code}``、``${scene}``、``${minute}``）。
+   - **邮件验证码**：选择中文版模板（英/中两版参数相同，均含 ``${code}``、 ``${scene}``、 ``${minute}``）。
 
 4. 复制模板编码（形如 ``Vf7Jp2sD9xL``），即为对应的 ``SPUG_MAIL_TEMPLATE_ID`` 或 ``SPUG_SMS_TEMPLATE_ID``。
 
@@ -312,7 +312,7 @@ Spug 推送助手提供官方验证码模板，无需自主创建。获取步骤
 极验行为验证配置
 ----------------
 
-passportd 接入极验行为验证（第三代，GeeTest v3），注册（用户名/邮箱/手机号注册）与密码登录提交前需完成行为验证，防止机器人批量注册与撞库攻击。服务端实现参照极验官方 Python Flask 示例（``GeeTeam/gt3-server-python-flask-bypass``）的 ``GeetestLib`` 协议：初始化走 ``register.php``，二次校验走 ``validate.php``；前端 SDK 使用官方新版 ``gt.js`` （支持 ``new_captcha`` 协议）。配置 ``GEETEST_CAPTCHA_ID`` 与 ``GEETEST_CAPTCHA_KEY`` 后自动启用。
+passportd 接入极验行为验证（第三代，GeeTest v3），注册（用户名/邮箱/手机号注册）与密码登录提交前需完成行为验证，防止机器人批量注册与撞库攻击。服务端实现参照极验官方 Python Flask 示例（ ``GeeTeam/gt3-server-python-flask-bypass``）的 ``GeetestLib`` 协议：初始化走 ``register.php``，二次校验走 ``validate.php``；前端 SDK 使用官方新版 ``gt.js`` （支持 ``new_captcha`` 协议）。配置 ``GEETEST_CAPTCHA_ID`` 与 ``GEETEST_CAPTCHA_KEY`` 后自动启用。
 
 .. list-table::
    :header-rows: 1
@@ -338,7 +338,7 @@ passportd 接入极验行为验证（第三代，GeeTest v3），注册（用户
 .. note::
 
    - 未配置极验（两者均为空）时，注册/登录页面自动隐藏验证组件，提交不校验。
-   - 服务端按官方文档（API1 / API2）暴露两个接口：``GET /api/geetest/register`` （验证初始化，返回 ``success``/``gt``/``challenge``/``new_captcha`` 四字段，前端 ``initGeetest`` 据此加载；``success=0`` 表示极验服务不可用，前端自动降级为离线验证模式（``offline``），后端对 ``validate = md5(challenge)`` 做本地校验放行）与 ``POST /api/geetest/validate`` （二次校验，接收 ``geetest_challenge``/``geetest_validate``/``geetest_seccode`` 三字段，响应 ``result`` 为 ``success``/``fail`` 并携带 ``version`` 字段）。
+   - 服务端按官方文档（API1 / API2）暴露两个接口： ``GET /api/geetest/register`` （验证初始化，返回 ``success``/``gt``/``challenge``/``new_captcha`` 四字段，前端 ``initGeetest`` 据此加载； ``success=0`` 表示极验服务不可用，前端自动降级为离线验证模式（ ``offline``），后端对 ``validate = md5(challenge)`` 做本地校验放行）与 ``POST /api/geetest/validate`` （二次校验，接收 ``geetest_challenge``/``geetest_validate``/``geetest_seccode`` 三字段，响应 ``result`` 为 ``success``/``fail`` 并携带 ``version`` 字段）。
    - 二次校验按官方协议：POST ``validate.php``，响应 ``seccode`` 非空且不等于 ``"false"`` 判为通过。
    - 前端 SDK 已本地化到 ``static/js/gt.js`` （官方新版，约 66KB），无需加载极验官方 CDN。
 
@@ -354,7 +354,7 @@ OAuth2 第三方登录配置
    * - ``PROXY`` (可选)
      - str
      - 全局 HTTP 代理地址，如 ``http://proxy:8080``。仅支持 HTTP 代理。
-       各模块专属代理（``GITHUB_CALLBACK_PROXY``、``GOOGLE_CALLBACK_PROXY``、
+       各模块专属代理（ ``GITHUB_CALLBACK_PROXY``、 ``GOOGLE_CALLBACK_PROXY``、
        ``TELEGRAM_API_PROXY``）为空时自动回退到此代理。
    * - ``GITHUB_CLIENT_ID``
      - str
@@ -432,7 +432,7 @@ OAuth2 第三方登录配置
 
 .. note::
 
-    Apple（``APPLE_*``）、微信（``WECHAT_*``）、小米（``XIAOMI_*``）三项接入方式 **尚未经过真实凭据实测**，
+    Apple（ ``APPLE_*``）、微信（ ``WECHAT_*``）、小米（ ``XIAOMI_*``）三项接入方式 **尚未经过真实凭据实测**，
     部署前请对照对应开放平台官方文档核对配置与回调流程。Telegram 接入使用官方 Login Widget，
     站点必须为 HTTPS，且需在 @BotFather 通过 ``/setdomain`` 配置允许回调的域名。
 
@@ -456,7 +456,7 @@ passportd 作为统一认证中心时，平台角色（小写 ``admin`` / ``supe
      - ``""``
      - 内部（自家）客户端 name 列表，英文逗号分隔（容忍逗号两侧空格）。
        列表内的应用在 ``role`` scope 时返回用户平台角色，第三方客户端一律不返回。
-       也可由管理员在后台「OIDC 应用」页面直接标记为内部应用（``is_internal``），
+       也可由管理员在后台「OIDC 应用」页面直接标记为内部应用（ ``is_internal``），
        两者等效，配置项可留空。环境变量示例
        ``PASSPORT_OIDC_INTERNAL_CLIENTS="my-app, your-app"``。
 
@@ -468,16 +468,16 @@ passportd 作为统一认证中心时，平台角色（小写 ``admin`` / ``supe
 
 .. note::
 
-   前端编辑 OIDC 客户端的表单中，``role`` 授权范围默认隐藏，仅当应用被判定为
+   前端编辑 OIDC 客户端的表单中， ``role`` 授权范围默认隐藏，仅当应用被判定为
    内部应用（名称在 ``OIDC_INTERNAL_CLIENTS`` 列表中，或已被管理员在后台标记为
    内部应用）时才出现「平台角色」选项，勾选后随授权范围一并保存，
    无需再手工改库或调 API。
 
 .. warning::
 
-   ``OIDC_INTERNAL_CLIENTS`` 只是**第二道**闸门。客户端注册的授权范围（scope）
+   ``OIDC_INTERNAL_CLIENTS`` 只是 **第二道**闸门。客户端注册的授权范围（scope）
    里也必须包含 ``role``，否则授权请求中的 ``role`` 会在与服务端登记的 scope
-   求交集时被**静默丢弃**（不返回错误），最终 ID Token 与 ``/oidc/userinfo``
+   求交集时被 **静默丢弃**（不返回错误），最终 ID Token 与 ``/oidc/userinfo``
    都不会返回平台角色，表现为「明明配了内部客户端却拿不到 role」。
    此外，修改 scope 后已签发的 token 不会自动升级，需重新走一次授权流程。
 
@@ -502,8 +502,8 @@ Passkey 基于 **WebAuthn** 标准，允许用户使用设备生物识别（指�
 
        示例：
 
-       - 开发环境：``localhost(默认)``
-       - 生产环境：``auth.example.com``
+       - 开发环境： ``localhost(默认)``
+       - 生产环境： ``auth.example.com``
 
        注意：RP ID 必须是浏览器地址栏中的注册域名（或子域名），
        **不支持 IP 地址**。
@@ -512,14 +512,14 @@ Passkey 基于 **WebAuthn** 标准，允许用户使用设备生物识别（指�
 
    Passkey 遵循 WebAuthn 规范，要求如下：
 
-   - **HTTPS**：生产环境必须使用 HTTPS（``localhost`` 例外）。
+   - **HTTPS**：生产环境必须使用 HTTPS（ ``localhost`` 例外）。
    - **RP ID 一致性**：前端注册/登录时浏览器提供的 ``rp.id`` 必须与
      ``PASSKEY_RP_ID`` 完全一致，否则验证会失败。
    - **RP Name**：固定为 ``passportd``，在浏览器密钥管理界面展示。
    - **Challenge 有效期**：每次注册/登录 generated challenge 缓存 300 秒，
      超时需要重新发起。
 
-   服务端未启用时（``PASSKEY_RP_ID`` 为空或无效），前端登录页和个人中心
+   服务端未启用时（ ``PASSKEY_RP_ID`` 为空或无效），前端登录页和个人中心
    的 Passkey 入口会自动隐藏。
 
 生产环境配置
@@ -545,7 +545,7 @@ Passkey 基于 **WebAuthn** 标准，允许用户使用设备生物识别（指�
    * - ``NO_DAEMON``
      - N/A
      - ``False``
-     - gunicorn 守护进程模式，默认后台运行（``False``），设置为 ``True`` 后前台运行
+     - gunicorn 守护进程模式，默认后台运行（ ``False``），设置为 ``True`` 后前台运行
 
 生产环境部署示例
 -----------------

@@ -18,7 +18,7 @@ passportd 支持通过 GitHub OAuth2 App 实现第三方登录，用户点击 Gi
 
    - **Application name**：自定义（如 ``My Passport``），会显示在 GitHub 授权页面
    - **Homepage URL**：passportd 服务地址（如 ``https://passport.example.com``）
-   - **Authorization callback URL**：``https://passport.example.com/oauth2/github/authorized``
+   - **Authorization callback URL**： ``https://passport.example.com/oauth2/github/authorized``
 
 3. 创建后记录 **Client ID**，并点击 **Generate a new client secret** 生成 **Client Secret**。
 
@@ -99,7 +99,7 @@ passportd 支持通过 Gitee 第三方应用实现登录，用户在登录页点
 
    - **应用名称**：自定义（如 ``My Passport``）
    - **应用主页**：passportd 服务地址（如 ``https://passport.example.com``）
-   - **应用回调地址**：``https://passport.example.com/oauth2/gitee/authorized``
+   - **应用回调地址**： ``https://passport.example.com/oauth2/gitee/authorized``
 
 3. 创建后 **无需审核**，立即获得 **Client ID** 和 **Client Secret**。
 
@@ -129,7 +129,7 @@ passportd 支持通过 QQ 互联（Connect）实现第三方登录。
    - **网站名称**：自定义（如 ``My Passport``）
    - **网站地址**：passportd 服务地址（如 ``https://passport.example.com``），需可正常访问
    - **网站简介**：应用用途说明
-   - **网站回调地址**：``https://passport.example.com/oauth2/qq/authorized``
+   - **网站回调地址**： ``https://passport.example.com/oauth2/qq/authorized``
 
 4. 提交审核，审核通过后获得 **App ID** 与 **App Key**。
 
@@ -163,7 +163,7 @@ passportd 支持通过微博开放平台实现第三方登录。
 
    - **应用名称**：自定义（如 ``My Passport``）
    - **应用简介**：应用用途说明
-   - **授权回调页**：``https://passport.example.com/oauth2/weibo/authorized``
+   - **授权回调页**： ``https://passport.example.com/oauth2/weibo/authorized``
 
 4. 提交审核，审核通过后获得 **App Key** 与 **App Secret**。
 
@@ -189,7 +189,7 @@ passportd 支持通过微信开放平台（Open Platform）网站应用的扫码
 
 .. warning::
 
-    该接入方式（``oauth2_wechat``） **尚未经过真实开放平台凭据实测**，
+    该接入方式（ ``oauth2_wechat``） **尚未经过真实开放平台凭据实测**，
     扫码 URL 拼接与用户信息解析等流程请以微信开放平台官方文档为准，如遇问题请反馈。
 
 创建微信开放平台网站应用
@@ -203,7 +203,7 @@ passportd 支持通过微信开放平台（Open Platform）网站应用的扫码
 
 .. note::
 
-    - 微信扫码登录（``snsapi_login``）需开放平台网站应用，公众号网页授权（``snsapi_userinfo``）不适用于扫码场景。
+    - 微信扫码登录（ ``snsapi_login``）需开放平台网站应用，公众号网页授权（ ``snsapi_userinfo``）不适用于扫码场景。
     - 同一微信用户如需在多个应用间统一身份，可在开放平台绑定 UnionID（用户信息将以 ``unionid`` 作为唯一标识）。
 
 .. warning::
@@ -238,7 +238,7 @@ passportd 支持通过 Sign in with Apple 实现第三方登录。
 
 .. note::
 
-    该接入方式（``oauth2_apple``） **尚未经过真实 Apple Developer 凭据实测**，
+    该接入方式（ ``oauth2_apple``） **尚未经过真实 Apple Developer 凭据实测**，
     client_secret 动态签发与 id_token 解析等流程请以 Apple 官方文档为准，如遇问题请反馈。
 
 .. note::
@@ -254,7 +254,7 @@ passportd 支持通过 Sign in with Apple 实现第三方登录。
 3. 在 Sign in with Apple 配置中填写：
 
    - **Domains**：passportd 服务域名（如 ``passport.example.com``）
-   - **Return URLs**：``https://passport.example.com/oauth2/apple/authorized``
+   - **Return URLs**： ``https://passport.example.com/oauth2/apple/authorized``
 
 4. 进入 **Keys** 页面创建 Sign in with Apple 密钥，选择上面注册的 Services ID，
    下载 ``.p8`` 私钥文件并记录 **Key ID**。
@@ -278,7 +278,7 @@ passportd 支持通过 Sign in with Apple 实现第三方登录。
     - 换 token 所需的 ``client_secret`` （ES256 JWT）由程序基于 Team ID、Key ID 与
       私钥动态生成，无需手工维护。
     - 昵称仅在用户首次授权并选择共享时返回（query 模式回传为空），邮箱默认使用
-      Apple 隐藏转发邮箱（``xxx@privaterelay.appleid.com``），用户可在 Apple 侧
+      Apple 隐藏转发邮箱（ ``xxx@privaterelay.appleid.com``），用户可在 Apple 侧
       选择共享真实邮箱；缺失的资料可在登录后于个人中心补充。
 
 配置 OAuth2 对接小米
@@ -288,7 +288,7 @@ passportd 支持通过小米开放平台 OAuth2 实现第三方登录。
 
 .. warning::
 
-    该接入方式（``oauth2_xiaomi``） **尚未经过真实开放平台凭据实测**，
+    该接入方式（ ``oauth2_xiaomi``） **尚未经过真实开放平台凭据实测**，
     授权码流程与用户信息解析等流程请以小米开放平台官方文档为准，如遇问题请反馈。
 
 .. note::
@@ -301,7 +301,7 @@ passportd 支持通过小米开放平台 OAuth2 实现第三方登录。
 
 1. 登录 `小米开放平台 <https://dev.mi.com/>`_，完成开发者注册与企业认证。
 2. 进入 **管理中心 → 创建应用**，选择 **网页应用**，填写应用名称与简介。
-3. 配置 **授权回调地址**：``https://passport.example.com/oauth2/xiaomi/authorized``
+3. 配置 **授权回调地址**： ``https://passport.example.com/oauth2/xiaomi/authorized``
 4. 获取 **App ID** 与 **App Secret**，并申请「获取用户资料」接口权限。
 
 启用小米登录
@@ -322,7 +322,7 @@ passportd 支持通过 Telegram 官方 **Login Widget** 实现第三方登录，
 
 .. note::
 
-    该接入方式（``oauth2_telegram``） **尚未经过真实 Bot 凭据实测**，
+    该接入方式（ ``oauth2_telegram``） **尚未经过真实 Bot 凭据实测**，
     签名校验与回执字段等流程请以 Telegram 官方文档为准，如遇问题请反馈。
 
 创建 Telegram Bot
@@ -352,10 +352,10 @@ passportd 支持通过 Telegram 官方 **Login Widget** 实现第三方登录，
     export PASSPORT_TELEGRAM_API_PROXY="http://127.0.0.1:7890"
     passportd restart
 
-也可只配置全局代理 ``PASSPORT_PROXY``，``TELEGRAM_API_PROXY`` 未配置时自动回退使用；
+也可只配置全局代理 ``PASSPORT_PROXY``， ``TELEGRAM_API_PROXY`` 未配置时自动回退使用；
 GitHub、Google 回调代理同理（各自专属代理为空时回退全局代理）。
 
-注意：登录授权过程本身由浏览器与 Telegram 交互，**服务端无需也不能通过该代理转发**，
+注意：登录授权过程本身由浏览器与 Telegram 交互， **服务端无需也不能通过该代理转发**，
 代理仅用于服务端调用 Bot API（如自动获取 Bot 用户名）。若浏览器也无法访问
 ``telegram.org`` 的 Login Widget 脚本，请使用可访问的 CDN 或网络环境。
 
@@ -371,7 +371,7 @@ passportd 本身可作为一个 OpenID Connect Provider（身份提供者），�
 2. 点击「创建客户端」按钮，填写表单：
 
    - **客户端名称**：用于识别的名称，如 ``我的 Web 应用``
-   - **重定向 URI**：OAuth 授权回调地址（最多 5 个，仅保留 ``scheme://域名或IP:端口/路径``，``?查询参数`` 与 ``#锚点`` 在入库与校验时自动去除），如 ``https://myapp.example.com/oauth/callback``
+   - **重定向 URI**：OAuth 授权回调地址（最多 5 个，仅保留 ``scheme://域名或IP:端口/路径``， ``?查询参数`` 与 ``#锚点`` 在入库与校验时自动去除），如 ``https://myapp.example.com/oauth/callback``
    - **授权范围**：默认 ``openid``，还需 ``profile`` 可获取用户昵称、头像等信息；
      应用被判定为内部应用（名称在 ``OIDC_INTERNAL_CLIENTS`` 中，或已被管理员在后台
      标记为内部应用）时会额外出现 ``role`` 选项，用于获取用户平台角色
@@ -434,16 +434,16 @@ OIDC 高级功能
 
 passportd 实现了 OpenID Connect 标准端点，可用于 OIDC Discovery：
 
-- **Discovery 端点**：``/.well-known/openid-configuration``
-- **JWKS 端点**\ （JWT 签名公钥）：``/oidc/jwks``
-- **UserInfo 端点**：``/oidc/userinfo``
+- **Discovery 端点**： ``/.well-known/openid-configuration``
+- **JWKS 端点**\ （JWT 签名公钥）： ``/oidc/jwks``
+- **UserInfo 端点**： ``/oidc/userinfo``
 
 在 OIDC Client 页面还可管理已创建的客户端（查看密钥、编辑信息、删除），以及查看已授权的应用列表。
 
 获取用户平台角色（role scope）
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-自有应用若需要通过 OIDC 判断用户是否为管理员，可申请 ``role`` scope。需要**同时**
+自有应用若需要通过 OIDC 判断用户是否为管理员，可申请 ``role`` scope。需要 **同时**
 满足以下两个条件，缺一不可：
 
 1. **客户端授权范围包含 role**：在 OIDC Client 页面编辑客户端时，勾选「平台角色」
@@ -452,7 +452,7 @@ passportd 实现了 OpenID Connect 标准端点，可用于 OIDC Discovery：
 
    - 应用名称已在配置 ``OIDC_INTERNAL_CLIENTS`` 中登记（英文逗号分隔，详见「配置」
      文档的 OIDC 内部客户端配置一节）；
-   - 应用已被管理员在后台「OIDC 应用」页面标记为**内部应用**。
+   - 应用已被管理员在后台「OIDC 应用」页面标记为 **内部应用**。
 
 之后引导用户在授权请求中携带 ``role`` scope：
 
@@ -474,7 +474,7 @@ passportd 实现了 OpenID Connect 标准端点，可用于 OIDC Discovery：
 .. warning::
 
    若客户端授权范围未包含 ``role``，授权请求中的 ``role`` 会在与服务端登记 scope
-   求交集时被**静默丢弃**（不返回错误），表现为「配了内部客户端却拿不到 role」。
+   求交集时被 **静默丢弃**（不返回错误），表现为「配了内部客户端却拿不到 role」。
    修改授权范围后需重新走一次授权流程，已签发的 token 不会自动获得该 scope。
 
 后台管理
@@ -489,8 +489,8 @@ passportd 实现了 OpenID Connect 标准端点，可用于 OIDC Discovery：
 在「后台管理 → 用户管理」页面可以：
 
 - 按 uid、昵称或账号搜索用户，列表展示昵称、头像、性别、地区与已绑定账号；
-- 设置用户的内置平台角色（``superadmin`` / ``admin`` / ``user``），
-  该用户已有的客户端角色（``ClientName:Role``）会自动保留；
+- 设置用户的内置平台角色（ ``superadmin`` / ``admin`` / ``user``），
+  该用户已有的客户端角色（ ``ClientName:Role``）会自动保留；
 - 启用或禁用账号（禁用后该用户无法登录）。
 
 为避免后台失去访问入口，系统禁止移除最后一个 ``superadmin``，也禁止管理员禁用自己。
@@ -499,7 +499,7 @@ OIDC 应用管理
 ^^^^^^^^^^^^^
 
 在「后台管理 → OIDC 应用」页面可以查看全部 OIDC 客户端（含所有者、授权范围），
-并将某个应用**标记为内部应用**或取消标记。标记为内部应用后，该应用即可在
+并将某个应用 **标记为内部应用**或取消标记。标记为内部应用后，该应用即可在
 OIDC Client 页面勾选 ``role`` scope 以获取用户平台角色，效果与配置项
 ``OIDC_INTERNAL_CLIENTS`` 一致。
 
@@ -597,7 +597,7 @@ passportd 提供一套命令行管理工具，用于启动/停止服务、查看
 创建超级管理员
 ^^^^^^^^^^^^^^^
 
-系统初始化时可通过 ``create-superadmin`` 命令创建第一个超级管理员（角色为 ``superadmin``），**仅支持 username 格式账号**，相当于注册一个用户名账号并赋予超级管理员角色：
+系统初始化时可通过 ``create-superadmin`` 命令创建第一个超级管理员（角色为 ``superadmin``）， **仅支持 username 格式账号**，相当于注册一个用户名账号并赋予超级管理员角色：
 
 .. code-block:: shell
 
@@ -619,7 +619,7 @@ passportd 提供一套命令行管理工具，用于启动/停止服务、查看
 角色管理
 ^^^^^^^^^
 
-通过 ``role`` 子命令组管理已有用户的角色。内置角色统一小写存储（``admin`` / ``superadmin`` / ``user``），客户端角色使用 ``ClientName:Role`` 格式（原样保留）。
+通过 ``role`` 子命令组管理已有用户的角色。内置角色统一小写存储（ ``admin`` / ``superadmin`` / ``user``），客户端角色使用 ``ClientName:Role`` 格式（原样保留）。
 
 .. code-block:: shell
 
@@ -630,7 +630,7 @@ passportd 提供一套命令行管理工具，用于启动/停止服务、查看
     passportd role remove <uid> admin    # 从用户移除 admin 角色
 
 - 多个角色用空格分隔，如 ``passportd role set <uid> superadmin admin``
-- ``add`` 自动去重，``remove`` 仅移除已存在的角色
+- ``add`` 自动去重， ``remove`` 仅移除已存在的角色
 - 每次角色变更都会写入审计日志
 
 插件开发与第三方登录扩展
@@ -642,10 +642,10 @@ passportd 的第三方登录基于 **Flask-PluginKit** 实现，每种登录方�
 
 插件模块顶部需声明以下模块级变量，passportd 据此识别并在登录页「第三方登录」区域自动展示入口：
 
-- ``__oauth2_provider__ = True``：标记该插件为 OAuth2 登录提供商。**只有声明此变量为 ``True``，插件才会被加载到登录页**，否则会被忽略。
+- ``__oauth2_provider__ = True``：标记该插件为 OAuth2 登录提供商。 **只有声明此变量为 ``True``，插件才会被加载到登录页**，否则会被忽略。
 - ``__oauth2_name__ = "Apple"``：登录按钮上显示的提供商名称（建议与品牌一致）。
 
-此外还需 Flask-PluginKit 要求的常规元数据 ``__version__``、``__description__``、``__author__``、``__license__``，以及 ``__state__``（``"enabled"`` / ``"disabled"``，可依据对应的客户端 ID/密钥是否配置来动态启用）。
+此外还需 Flask-PluginKit 要求的常规元数据 ``__version__``、 ``__description__``、 ``__author__``、 ``__license__``，以及 ``__state__``（ ``"enabled"`` / ``"disabled"``，可依据对应的客户端 ID/密钥是否配置来动态启用）。
 
 示例（节选自内置 Apple 登录插件 ``passportd/modules/oauth2_apple/__init__.py``）：
 
@@ -669,6 +669,6 @@ passportd 的第三方登录基于 **Flask-PluginKit** 实现，每种登录方�
 说明：
 
 - ``__plugin_name__`` 由 Flask-PluginKit 自动注入（等于插件目录名，如 ``oauth2_apple``），蓝图与路由据此命名即可。
-- 登录页会从已启用插件中筛选 ``__oauth2_provider__`` 为真的插件，读取 ``__oauth2_name__`` 作为名称，并按插件名映射图标/颜色（见 ``passportd/utils/web.py`` 的 ``_OAUTH2_PROVIDER_CONFIG``），**无需额外注册即可自动出现在登录页与「个人主页 → 绑定第三方登录」**。
+- 登录页会从已启用插件中筛选 ``__oauth2_provider__`` 为真的插件，读取 ``__oauth2_name__`` 作为名称，并按插件名映射图标/颜色（见 ``passportd/utils/web.py`` 的 ``_OAUTH2_PROVIDER_CONFIG``）， **无需额外注册即可自动出现在登录页与「个人主页 → 绑定第三方登录」**。
 - 插件需暴露名为 ``login`` 的路由（如上），登录入口链接由 ``url_for("<plugin_name>.login")`` 生成。
 - 客户端 ID/密钥等凭据通过 ``passportd/basis/conf.py`` 中的对应配置项提供（如 Apple 对应 ``APPLE_CLIENT_ID`` / ``APPLE_CLIENT_SECRET``），并在 ``__state__`` 中据此判断是否启用。

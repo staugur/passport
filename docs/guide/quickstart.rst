@@ -8,7 +8,7 @@
 前置条件
 --------
 
-- 确认 Redis 服务已启动：``redis-cli ping``
+- 确认 Redis 服务已启动： ``redis-cli ping``
 - Python 3.10+
 
 1. 初始化配置
