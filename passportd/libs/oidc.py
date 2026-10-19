@@ -177,6 +177,16 @@ class OIDCClient(ClientMixin, AuthorizationCodeMixin):
             return False
         return candidate in self.client_info.get("redirect_uris", [])
 
+    def get_default_redirect_uri(self) -> str:
+        """获取默认回调地址，供授权请求未携带 ``redirect_uri`` 时兜底。
+
+        authlib 在授权请求缺少 ``redirect_uri`` 时会调用本方法，默认值取
+        注册的第一列 ``redirect_uri``（注册时必填）。
+
+        :returns: 默认回调地址字符串，未注册时返回空字符串
+        """
+        return self.client_info.get("redirect_uri", "")
+
     def check_client_secret(self, client_secret) -> bool:
         """校验客户端密钥是否正确。
 
@@ -250,15 +260,15 @@ class OIDCAuthorizationCodeObject(AuthorizationCodeMixin):
         """
         return self.code_data["uid"]
 
-    def get_redirect_uri(self) -> str:
-        """获取默认（必填）回调地址。
+    def get_redirect_uri(self) -> str | None:
+        """获取授权请求中携带的回调地址。
 
-        第一列 ``redirect_uri`` 为注册时的默认回调地址（必填），当授权请求
-        未携带 ``redirect_uri`` 时作为兜底返回。
+        授权码绑定的是授权请求时的 ``redirect_uri``。若授权请求未携带，
+        返回 ``None``，此时换取令牌时不做该参数比对。
 
-        :returns: 默认回调地址字符串
+        :returns: 授权请求中的回调地址，未携带时返回 None
         """
-        return self.client_info.get("redirect_uri", "")
+        return self.code_data.get("redirect_uri") or None
 
     def get_scope(self) -> str:
         """获取授权的 scope 范围。
@@ -384,8 +394,9 @@ class OIDCAuthorizationCodeGrant(AuthorizationCodeGrant):
         data = dict(
             code=code,
             client_id=client.client_id,
-            redirect_uri=request.payload.redirect_uri,
-            scope=request.payload.scope,
+            # 授权请求未携带 redirect_uri 时存空串，换取令牌时不做比对
+            redirect_uri=request.payload.redirect_uri or "",
+            scope=request.payload.scope or "",
             uid=request.user,
             nonce=request.payload.data.get("nonce", ""),
             ctime=now(),
